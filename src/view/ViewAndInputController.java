@@ -21,6 +21,7 @@ import javax.swing.SwingUtilities;
 
 import app.InputReceiver;
 import data.FrameData;
+import data.BufferableData;
 import data.FrameBuffer;
 import data.World;
 
@@ -33,20 +34,19 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	private InputMap inputMap;
 	private ActionMap actionMap;
 
-	//private DataController dc;
-	InputReceiver inputReceiver;
+	private BufferableData frameBuffer;
+	private InputReceiver inputReceiver;
 	
 	
 	int stageX = Integer.MIN_VALUE, stageY = Integer.MIN_VALUE;
 	
-	public ViewAndInputController (World w) {
+	public ViewAndInputController (FrameBuffer frameBuffer) {
 		System.out.println("ViewAndDataController constr.");
-		//this.dc = dc;
+		this.frameBuffer = frameBuffer;
 //		this.stage = new Stage(w.getBlobs(), w.getListOfCollisionPoints(), w.getCharges(), w.getGround(),
 //				750);
 		int initialCameraPosition = 750;
-		int ground = w.getGround();
-		this.stage = new Stage(ground, initialCameraPosition);
+		this.stage = new Stage(initialCameraPosition);
 		initGraphics();
 		initInput();	
 	}
@@ -74,14 +74,13 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	public void setUserInputReceiver(InputReceiver uir) {
 		this.inputReceiver = uir;			
 	}
-	public void update (FrameData data) {
-		stage.setData(data);
+	
+	public void update() {
+		stage.setData(frameBuffer);
 		stage.repaint();
 	}
 	
-	
 	//INPUT
-	
 	//MouseListener:
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
@@ -301,7 +300,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 			//componentMoved is called multiple times with the same values of X and Y
 			//the below should filter out these repeated calls
 			if (newStageX == stageX && newStageY == stageY) {
-				//System.out.println("old and new stage deltas the same");
+				//System.out.println("old and new stage deltas are the same");
 				return;}
 			
 			//System.out.println("new stagex: " + (newStageX));
@@ -318,6 +317,12 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		public void componentShown(ComponentEvent e) {
 			// TODO Auto-generated method stub
 			System.out.println("JFrame componentShown");
+		}
+
+
+		public void setFrameBuffer(BufferableData frameBuffer) {
+			// TODO Auto-generated method stub
+			
 		}
 
 		//END OF INPUT	

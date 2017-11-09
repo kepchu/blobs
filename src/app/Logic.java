@@ -15,7 +15,7 @@ public class Logic implements Runnable {
 	private World dc;
 	private ViewAndInputController v;
 	private InputReceiver uir;
-	private FrameBuffer displayBuffer;
+	private FrameBuffer frameBuffer;
 	ScheduledExecutorService ses;
 	
 	private Object[] collisionsArray;
@@ -28,7 +28,8 @@ public class Logic implements Runnable {
 
 		this.dc = dc;
 		this.v = v;
-		displayBuffer = FrameBuffer.getInstance();
+		frameBuffer = FrameBuffer.getInstance();
+		v.setFrameBuffer(frameBuffer);
 		uir = new InputReceiver(dc, this);
 		v.setUserInputReceiver(uir);
 		
@@ -46,24 +47,24 @@ public class Logic implements Runnable {
 	// the main loop
 	@Override
 	public void run() {
+		
 		dc.update();
-
-		if (!displayBuffer.isUpdated()) {
-			System.out.println("main loop: Waiting with drawing for DisplayBuffer to be populeted");
+		
+		if (!frameBuffer.isUpdated()) {
+			System.out.println("main loop: Waiting for DisplayBuffer to be populeted to draw ");
+			dc.update();
 			return;
 		} else {
-			v.update(displayBuffer.getData());// TODO: switch to swing timer
-			synchronized (lock) {
-				dc.getListOfCollisionPoints().clear();
-			}
-
+			
+			v.update();// TODO: switch to swing timer
+			
 			// testing - find collisions:
 			((ColDetAllignBordersonAtoBvec) collisionsArray[currentColl])
 					.detectCollisions(new ArrayList<Collidable>(dc.getBlobs()));
-
 			// try { Thread.sleep(100); } catch (InterruptedException e)
 			// {e.printStackTrace(); }
 		}
+		
 	}
 
 	public void switchCollisonsDetect() {

@@ -2,13 +2,14 @@ package data;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//Purpose of this class: provide easy duplication/separation of data for asynchronous processing
 public class FrameData {
 	public List<Blob> blobs;
 	public List<ChargePoint> charges;
 	public List<Vec> collisions;
 	public double ground;
 	
+	//Deep copy during instantiation
 	public FrameData(List<Blob> blobs, List<ChargePoint> charges, List<Vec> collisions, double ground) {
 		super();
 		this.blobs = cloneBlobs(blobs);
@@ -17,6 +18,7 @@ public class FrameData {
 		this.ground = ground;
 	}
 	
+	//Cloning methods
 	private List<Blob> cloneBlobs(List<Blob> blobs) {
 		List<Blob> result = new ArrayList<Blob>(blobs.size());
 		for (Blob b : blobs) {
@@ -31,7 +33,6 @@ public class FrameData {
 		}
 		return result;
 	}
-	
 	private List<Vec> cloneCollisions(List<Vec> collisions) {
 		List<Vec> result = new ArrayList<Vec>(collisions.size());
 		for (Vec c : collisions) {
@@ -40,7 +41,7 @@ public class FrameData {
 		return result;
 	}
 	
-	
+	//getters
 	public List<Blob> getBlobs() {
 		return blobs;
 	}

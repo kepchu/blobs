@@ -2,6 +2,7 @@ package app;
 
 import java.awt.EventQueue;
 
+import data.FrameBuffer;
 import data.World;
 import view.ViewAndInputController;
 
@@ -26,12 +27,15 @@ public class Blobs0 {
 		System.out.println("App72 thread - " + Thread.currentThread().getName());
 		//MVC pattern variation
 		World dc = new World();
-		ViewAndInputController v = new ViewAndInputController(dc);
+		ViewAndInputController v = new ViewAndInputController(FrameBuffer.getInstance());
 		new Logic(dc, v);
 		
 	}
 	
 }
+
+//00: create square root alternative for VecMath and use it wherever possible &
+//	use provider - client pattern with notifyAll for display buffer and get rid of FramData Class
 
 //0: use scale/descale methods in Stage's all drawing methods, wrap around, zoom by ctrl + mouse wheel or +/-, 
 //	switchable gravity to centre of the window, make debris "rain-fireworks"

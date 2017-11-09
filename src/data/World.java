@@ -15,7 +15,7 @@ public class World {
 	static int spanY = maxY - minY;
 	//static public int stageDeltaX = 0, stageDeltaY = 0;
 	//static Vec gravity = new Vec(0.000001, 0.03);
-	static Vec gravity = new Vec(0.00000, 0.3);
+	static Vec gravity = new Vec(0.00000, 0.1);
 	static double gravityDelta = 1.02;
 	int groundLevel = maxY;	
 	double timeInterval = 1.0; //amount of "app world" time between updates
@@ -73,10 +73,12 @@ public class World {
 				}
 				b.update(timeInterval, drag, stageMovementDelta);
 			}
-			stageMovementDelta.setXY(0, 0);//unfinished smooth movement of camera
 			
 			// 2 - update display buffer
 			buffer.setData(new FrameData(blobs, charges, listOfCollisionPoints, groundLevel));
+			
+			stageMovementDelta.setXY(0, 0);//unfinished smooth movement of camera
+			listOfCollisionPoints.clear();
 		}
 
 	}

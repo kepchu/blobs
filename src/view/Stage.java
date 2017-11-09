@@ -13,8 +13,10 @@ import javax.swing.JPanel;
 import data.Blob;
 import data.ChargePoint;
 import data.FrameData;
+import data.BufferableData;
 import data.Vec;
 
+//TODO:/ISSUE: paint called by system before setData call - this produces NullPointer
 @SuppressWarnings("serial")
 public class Stage extends JPanel implements ComponentListener{
 
@@ -22,6 +24,7 @@ public class Stage extends JPanel implements ComponentListener{
 	private List <Vec> collisions;
 	private List<ChargePoint> charges;
 	private int ground;//actual ground level as received from Model
+	private BufferableData data;
 	private int panelHeight;
 	private int panelWidth;
 
@@ -33,9 +36,8 @@ public class Stage extends JPanel implements ComponentListener{
 	private double deltaZoom = 1.5;
 	private int deltaY = 100;
 	
-	public Stage(int ground, int initialCameraPosition) {
-		this.ground = ground;
-		currentElevation = ground + initialCameraPosition;
+	public Stage(int initialCameraPosition) {
+		currentElevation = initialCameraPosition;
 		//IMPORTANT: the below is crucial to get proper dimensions & ground level (in "componentResized").
 		//This functionality could be done by a simple getHeight() call from paint(Graphics g)
 		this.addComponentListener(this);		
@@ -57,6 +59,7 @@ public class Stage extends JPanel implements ComponentListener{
 	}
 	
 	// DRAWING ROUTINE
+	//ISSUE: paint called by system before setData call - this produces NullPointer
 	public void paint(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
@@ -66,10 +69,15 @@ public class Stage extends JPanel implements ComponentListener{
 		// calls to methods that draw specific elements
 		drawBackground(g2d);
 		drawRuler(g2d);
+		if (data == null) {
+			System.out.println("Stage.paint: FrameData == null. Returning.");
+			return;
+		}
 		drawBorders(g2d);
 		drawBlobs(g2d);
 		drawCharges(g2d);
 		drawCollisions(g2d);
+		data.updateData();
 	}
 
 	// methods used by the drawing routine in paint (Graphics g)
@@ -201,7 +209,8 @@ public class Stage extends JPanel implements ComponentListener{
 	}
 
 
-	public void setData(FrameData data) {
+	public void setData(BufferableData data) {
+		this.data = data;
 		this.blobs = data.getBlobs();
 		this.collisions = data.getCollisions();
 		this.charges = data.getCharges();
