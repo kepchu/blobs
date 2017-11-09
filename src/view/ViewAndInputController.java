@@ -20,8 +20,8 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import app.InputReceiver;
-import data.BufferData;
-import data.DisplayBuffer;
+import data.FrameData;
+import data.FrameBuffer;
 import data.World;
 
 //switch to MouseInputAdapter?
@@ -74,7 +74,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	public void setUserInputReceiver(InputReceiver uir) {
 		this.inputReceiver = uir;			
 	}
-	public void update (BufferData data) {
+	public void update (FrameData data) {
 		stage.setData(data);
 		stage.repaint();
 	}

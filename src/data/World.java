@@ -26,11 +26,11 @@ public class World {
 	private List <Vec> listOfCollisionPoints;
 	static Vec stageMovementDelta;
 	
-	DisplayBuffer buffer;
+	FrameBuffer buffer;
 	
 	public World (int noOfBlobs) {
 		
-		buffer = DisplayBuffer.getInstance();
+		buffer = FrameBuffer.getInstance();
 		
 		blobs = new ArrayList<Blob> (noOfBlobs);
 		charges = new ArrayList<ChargePoint>();
@@ -76,7 +76,7 @@ public class World {
 			stageMovementDelta.setXY(0, 0);//unfinished smooth movement of camera
 			
 			// 2 - update display buffer
-			buffer.setData(new BufferData(blobs, charges, listOfCollisionPoints, groundLevel));
+			buffer.setData(new FrameData(blobs, charges, listOfCollisionPoints, groundLevel));
 		}
 
 	}

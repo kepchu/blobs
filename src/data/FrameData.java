@@ -3,13 +3,13 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BufferData {
+public class FrameData {
 	public List<Blob> blobs;
 	public List<ChargePoint> charges;
 	public List<Vec> collisions;
 	public double ground;
 	
-	public BufferData(List<Blob> blobs, List<ChargePoint> charges, List<Vec> collisions, double ground) {
+	public FrameData(List<Blob> blobs, List<ChargePoint> charges, List<Vec> collisions, double ground) {
 		super();
 		this.blobs = new ArrayList<Blob> (blobs);
 		this.charges = new ArrayList<ChargePoint>(charges);

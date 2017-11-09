@@ -15,8 +15,8 @@ import data.Blob;
 import data.Vec;
 import data.World;
 import data.ChargePoint;
-import data.DisplayBuffer;
-import data.BufferData;
+import data.FrameBuffer;
+import data.FrameData;
 
 @SuppressWarnings("serial")
 public class Stage extends JPanel implements ComponentListener{
@@ -204,7 +204,7 @@ public class Stage extends JPanel implements ComponentListener{
 	}
 
 
-	public void setData(BufferData data) {
+	public void setData(FrameData data) {
 		this.blobs = data.getBlobs();
 		this.collisions = data.getCollisions();
 		this.charges = data.getCharges();

@@ -2,26 +2,26 @@ package data;
 
 import java.util.List;
 
-public class DisplayBuffer {
+public class FrameBuffer {
 	
 	private boolean displayed = true;	
-	private BufferData data;
+	private FrameData data;
 	
 	//this is a singleton
-	private final static DisplayBuffer displayBuffer = new DisplayBuffer();
-	private DisplayBuffer() {}
-	public static DisplayBuffer getInstance() {
+	private final static FrameBuffer displayBuffer = new FrameBuffer();
+	private FrameBuffer() {}
+	public static FrameBuffer getInstance() {
 		System.out.println("DisplayBuffer getInstance()");
 		return displayBuffer;
 	}
 	
-	synchronized public void setData(BufferData data) {
+	synchronized public void setData(FrameData data) {
 		//System.out.println("DisplayBuffer setData()");
 		displayed = false;
 		this.data = data;
 	}
 	
-	synchronized public BufferData getData() {
+	synchronized public FrameData getData() {
 		//System.out.println("DisplayBuffer getData()");
 		displayed = true;	
 		return data;

@@ -5,8 +5,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import data.BufferData;
-import data.DisplayBuffer;
+import data.FrameData;
+import data.FrameBuffer;
 import data.World;
 import view.ViewAndInputController;
 
@@ -15,7 +15,7 @@ public class Logic implements Runnable {
 	private World dc;
 	private ViewAndInputController v;
 	private InputReceiver uir;
-	private DisplayBuffer displayBuffer;
+	private FrameBuffer displayBuffer;
 	ScheduledExecutorService ses;
 	
 	private Object[] collisionsArray;
@@ -28,7 +28,7 @@ public class Logic implements Runnable {
 
 		this.dc = dc;
 		this.v = v;
-		displayBuffer = DisplayBuffer.getInstance();
+		displayBuffer = FrameBuffer.getInstance();
 		uir = new InputReceiver(dc, this);
 		v.setUserInputReceiver(uir);
 		
