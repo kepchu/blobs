@@ -5,18 +5,18 @@ import app.Collidable;
 public class Blob implements Collidable {
 	private static int staticID;
 	private final int ID;
-	private Vec velocity;
 	private Vec position;
 	private Vec previousPosition;
-	private double maxVelocity;
+	private Vec velocity;
 	private double energy;
-	private Colour colour;
 	private double radius = 0;// a value separate from energy for flexibility
 	private double previousRadius = 0;
 	private double mass = 1;// for the future
+	private Colour colour;
 	private BlobState state;
 
 	// Settings:
+	private double maxVelocity = 40;
 	private double maxInflationSpeed = 5.0;
 	private double newbornInflationSpeed;// = 15.0;
 	private int startingRadius = 1;
@@ -25,20 +25,35 @@ public class Blob implements Collidable {
 	//things adjusted on per-frame basis by timeInterval received in update() call:
 	//velocity -> position, inflationSpeed & newbornInflationSpeed
 
+	//cloning constructor
+	public Blob(Blob b) {
+		ID = b.ID;
+		this.position = new Vec(b.position);
+		this.previousPosition = new Vec(b.previousPosition);
+		this.velocity = b.velocity;
+		this.energy = b.energy;
+		this.radius =b.radius;
+		this.previousRadius= b.previousRadius;
+		this.mass = b.mass;
+		this.colour = new Colour(b.getColour());
+		this.state = b.state;	
+		
+		this.newbornInflationSpeed = b.newbornInflationSpeed;
+	}
+	
 	public Blob(Vec position, Vec velocity, int energy) {
 		staticID++;
 		ID = staticID;
-		// random part
 		this.position = position;
 		this.previousPosition = new Vec (position);
+		this.velocity = velocity;
 		this.energy = energy;
 		this.colour = new Colour();
-		// standard set-up
+		// settings
 		setRadius(startingRadius);
-		newbornInflationSpeed = Math.max(energy / 12, 15);
-		this.velocity = velocity;
-		this.maxVelocity = 30;
+		
 		this.state = BlobState.NEWBORN_PRE_APEX;
+		newbornInflationSpeed = Math.max(energy / 10, 15);
 	}
 	public Blob (Vec position, int energy) {
 		this(position, new Vec(0, 0), energy);

@@ -18,7 +18,16 @@ public class Colour {
 		setColor (new Color(rndInt(0, 256),rndInt(0, 256),rndInt(0, 256), rndInt(100, 256)));
 	}
 	
-	
+	//cloning constructor
+	public Colour (Colour c) {
+		this.c = new Color(c.c.getRed(), c.c.getGreen(), c.c.getBlue(),c.c.getAlpha());
+		this.cat = c.cat;
+		this.r = c.r;
+		this.g = c.g;
+		this.b = c.b;
+		this.a = c.a;
+	}
+
 	private int rndInt(int min, int max) {
 		int range = max - min;
 		return (int) (Math.random() * range) + min;

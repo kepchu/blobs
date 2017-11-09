@@ -6,17 +6,14 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
 
 import data.Blob;
-import data.Vec;
-import data.World;
 import data.ChargePoint;
-import data.FrameBuffer;
 import data.FrameData;
+import data.Vec;
 
 @SuppressWarnings("serial")
 public class Stage extends JPanel implements ComponentListener{

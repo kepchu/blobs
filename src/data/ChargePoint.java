@@ -11,10 +11,18 @@ public class ChargePoint {
 	private double power;
 	private ChargeType chargeType;
 	
-	public ChargePoint(Vec position, double power, ChargeType charge) {
+	//cloning constructor
+	
+	public ChargePoint(ChargePoint c) {
+		this.position = c.position;
+		this.power = c.power;
+		this.chargeType = c.chargeType;
+	}
+	public ChargePoint(Vec position, double power, ChargeType chargeType) {
+		super();
 		this.position = position;
 		this.power = power;
-		this.chargeType = charge;
+		this.chargeType = chargeType;
 	}
 	public ChargePoint(Vec position, double power) {
 		this(position, power, ChargeType.R);
@@ -22,7 +30,6 @@ public class ChargePoint {
 	public ChargePoint(Vec position) {
 		this(position, 1.0, ChargeType.R);
 	}
-	
 	
 	public void setChargeType (ChargeType type) {
 		this.chargeType = type;

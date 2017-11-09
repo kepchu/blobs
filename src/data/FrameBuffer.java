@@ -1,7 +1,5 @@
 package data;
 
-import java.util.List;
-
 public class FrameBuffer {
 	
 	private boolean displayed = true;	
