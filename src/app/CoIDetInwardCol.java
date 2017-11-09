@@ -90,7 +90,7 @@ public class CoIDetInwardCol extends ColDetAllignBordersonAtoBvec {
 	}
 	
 	//This the only method I didn't create
-	public Vec prodCollPoint(Collidable subject, Collidable object) {
+	private Vec prodCollPoint(Collidable subject, Collidable object) {
 		double x = (subject.getPosition().getX() * object.getRadius() +
 				object.getPosition().getX() * subject.getRadius())
 				/ (subject.getRadius() + object.getRadius());

@@ -16,6 +16,8 @@ public interface Collidable {
 
 	Vec getPreviousPosition();
 
-	
-
+	public enum ColliderType {
+		//standard = impenetrable; debris = outbound colliders allowed to intersect; decoration - no collisions
+		STANDARD, DEBRIS, DECORATION
+	}
 }

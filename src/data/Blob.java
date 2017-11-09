@@ -107,13 +107,11 @@ public class Blob implements Collidable {
 	}
 
 	// METHODS:
-	private void updateNEWBORN(double timeInterval) {
-		
+	private void updateNEWBORN(double timeInterval) {	
 		//settings
 		int inflationApex = (int) (getEnergy() * 1.2);//amount of "overblowing" during initial growth
-		double shrinkingSpeedModifier = 2.5;//speed of shrinking to proper size after initial "overblow"
-		
-		
+		double shrinkingSpeedModifier = 2.5;//speed of shrinking back to proper size after initial "overblow"
+				
 		//update radius
 		if (state == BlobState.NEWBORN_PRE_APEX) {
 			radius += (newbornInflationSpeed * timeInterval);
@@ -132,8 +130,7 @@ public class Blob implements Collidable {
 	}
 
 	private void updateOUT(double timeIntrval) {
-		// update radius
-		
+		// update radius	
 		if (Math.abs(radius - energy) > maxInflationSpeed) {
 			if (energy > radius) {
 				radius += Math.min(maxInflationSpeed * timeIntrval, maxInflationSpeed);
@@ -143,27 +140,15 @@ public class Blob implements Collidable {
 		} else {
 			radius = energy;
 		}
-		
-		/*if ((radius - energy) > inflationSpeed) {
-			radius -= inflationSpeed * timeIntrval;
-		} else if ((radius - energy) < (inflationSpeed * -1)) {
-			radius += inflationSpeed * timeIntrval;
-		} else {
-			radius = energy;
-		}*/
 	}
 
 	// LIFECYCLE END
 
-	// TODO: regulate things from the enum according to state change? - a FSM
+	// TODO: regulate things from the enum according to state change? - separate FSM
 	public enum BlobState {
 		IN, OUT, NEWBORN_PRE_APEX, NEWBORN_POST_APEX, PLAYER_CONTROLLED;
 	}
 
-	public enum BlobType {
-		ALIVE, DEBRIS
-	}
-	
 	
 	// Getters & setters:
 	public Vec getVelocity() {
@@ -240,6 +225,7 @@ public class Blob implements Collidable {
 	}
 	
 	public String toString() {
-		return "Blob # " + ID + ", y: " + (int)getY() + ", x: " + (int)getX() + ", energy: " + energy + ", Y + radius = " + (getY() + radius);
+		return "Blob # " + ID + ", y: " + (int)getY() + ", x: " + (int)getX() +
+				", energy: " + energy + ", Y + radius = " + (getY() + radius);
 	}
 }

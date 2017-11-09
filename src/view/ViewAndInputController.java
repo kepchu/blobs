@@ -40,7 +40,8 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	public ViewAndInputController (DataController dc) {
 		System.out.println("ViewAndDataController constr.");
 		//this.dc = dc;
-		this.stage = new Stage(dc.getBlobs(), dc.getListOfCollisionPoints(), dc.getCharges(), dc.getGround());
+		this.stage = new Stage(dc.getBlobs(), dc.getListOfCollisionPoints(), dc.getCharges(), dc.getGround(),
+				750);
 		
 		initGraphics();
 		initInput();	

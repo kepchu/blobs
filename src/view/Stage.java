@@ -20,48 +20,56 @@ public class Stage extends JPanel implements ComponentListener{
 	private List<Blob> blobs;
 	private List <Vec> listOfCollisionPoints;
 	private List<ChargePoint> charges;
-	int ground;//actual ground level as received from Model
-	private int windowHeight;
-	private int windowWidth;
+	private int ground;//actual ground level as received from Model
+	private int panelHeight;
+	private int panelWidth;
 
-	private int focusPointX;
-	private double scale = 1;
+	private int panelCentreX;
+	private int panelCentreY;
+	private double scale = 1;// "scale" is a zoom factor
 	private int currentElevation = 0;//ground level used for drawing, adjusted when scrolling the scene
 
-	double deltaZoom = 1.02;
-	int deltaY = 100;
+	private double deltaZoom = 1.02;
+	private int deltaY = 100;
 
-	public Stage(List<Blob> blobs, List <Vec> listOfCollisionPoints, List<ChargePoint> charges, int ground) {
+	public Stage(List<Blob> blobs, List <Vec> listOfCollisionPoints, List<ChargePoint> charges, int ground,
+			int initialElevation) {
 		this.blobs = blobs;
 		this.listOfCollisionPoints = listOfCollisionPoints;
 		this.charges = charges;
 		this.ground = ground;
-		
-		//ATTENTION: this is crucial to get proper ground level.
+		currentElevation = ground + initialElevation;
+		//IMPORTANT: the below is crucial to get proper dimensions & ground level (in "componentResized").
 		//This functionality could be done by a simple getHeight() call from paint(Graphics g)
-		this.addComponentListener(this);
-		
+		this.addComponentListener(this);		
 	}
 
 	
-	
-	
+	//SCALING METHODS - adjust for scale & camera's position
+	public double descaleX(int x) {
+		return (x + (panelCentreX*(scale - 1)))/scale;
+	}
+	public double descaleY(int y) {
+		return (y - currentElevation) / scale;
+	}
+	private int scaleX(double x) {
+		return (int)(x * scale - (panelCentreX * (scale -1)));
+	}
+	private int scaleY(double y) {
+		return (int)(y * scale + currentElevation);
+	}
 	
 	// DRAWING ROUTINE
 	public void paint(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
-		// System.out.println("getWidth(): " + getWidth() + " getHeight(): " +
-		// getHeight());
-		// ground = getHeight() - groundLevel;
-		
-
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
 
 		// calls to methods that draw specific elements
 		drawBackground(g2d);
 		drawRuler(g2d);
+		drawBorders(g2d);
 		drawBlobs(g2d);
 		drawCharges(g2d);
 		drawCollisions(g2d);
@@ -69,56 +77,45 @@ public class Stage extends JPanel implements ComponentListener{
 
 	// methods used by the drawing routine in paint (Graphics g)
 	private void drawBackground(Graphics2D g) {
-		// draw ellipse in rectangle
 		g.setColor(new Color(227, 227, 226, 255));
-		g.fillRect(0, 0, getWidth(), getHeight());
+		g.fillRect(0, 0, panelWidth, panelHeight);
 		g.setColor(new Color(243, 243, 243, 255));
-		g.fillOval(20, 20, getWidth() - 40, getHeight() - 40);
-
+		g.fillOval(20, 20, panelWidth - 40, panelHeight - 40);
 	}
 
 	private void drawRuler(Graphics2D g) {
-		// System.out.println("ground: " + ground);
+
 		int spacing = 200;
-
-		g.setColor(Color.BLACK);
-		g.drawLine(0, ground - currentElevation, windowWidth, ground - currentElevation);
-
-		g.setColor(Color.RED);
-		g.drawLine(0, currentElevation, windowWidth, currentElevation);
 		
 		spacing = (int)(spacing * scale);
 		
 		for (int i = 0; i < currentElevation; i = i + spacing) {
 			g.setColor(Color.BLACK);
-			g.drawLine(windowWidth / 4, currentElevation - i
-					, (windowWidth / 4) * 3, currentElevation - i);
-			g.drawString(i + " pix", windowWidth / 4, currentElevation - i - 4);
-
+			g.drawLine(panelWidth / 4, currentElevation - i,
+						(panelWidth / 4) * 3, currentElevation - i);
+			g.drawString(i + " pix", panelWidth / 4, currentElevation - i - 4);
 			g.setColor(Color.GRAY);
-			g.drawLine(windowWidth / 3, currentElevation - i - spacing / 2, (windowWidth / 3) * 2, currentElevation - i - spacing / 2);
-		}
-		
+			g.drawLine(panelWidth / 3, currentElevation - i - spacing / 2, (panelWidth / 3) * 2, currentElevation - i - spacing / 2);
+		}	
 	}
 
-	synchronized private void drawBlobs(Graphics2D g2d) {
-		
-		//this the horizontal centre of zooming
-		int focusPointX = windowWidth / 2;
+	private void drawBorders(Graphics2D g) {
+		g.setColor(Color.RED);
+		//draw ground level
+		g.drawLine(0, currentElevation, panelWidth, currentElevation);
+		//TODO: draw "word dimensions" - minX, maxY, etc. from DataController
+	}
+	
+	private void drawBlobs(Graphics2D g2d) {
 		
 		for (Blob b : blobs) {
-			//System.out.println("Position: " + b.getPosition());
-			// "scale" is a zoom factor
-			double radius = b.getRadius() * scale;
+			double radius = b.getRadius();// * scale;
 			
-			double x = b.getPosition().getX() * scale - (focusPointX * (scale -1));
-			double y = b.getPosition().getY() * scale;
+			//using radius to move "handle" to top left corner
+			int offsetX = scaleX(b.getPosition().getX() - radius);
+			int offsetY = scaleY(b.getPosition().getY() - radius);
 
-			int circumference = (int) (radius * 2);
-			int offsetX = (int) (x - radius);// move handle to blob's centre
-			int offsetY = (int) (y - radius);
-			// adjust for the "camera's" position
-			offsetY += currentElevation;
+			int circumference = (int) (radius * 2 * scale);
 
 			g2d.setColor(b.getColour().getColor());
 			g2d.fillOval(offsetX, offsetY, circumference, circumference);
@@ -133,30 +130,26 @@ public class Stage extends JPanel implements ComponentListener{
 		int width = 10, height = 10;
 		int x,y;
 		for (ChargePoint c : charges) {
-			x = scaleX(c.getPosition().getX()) - width/2;
-			y = scaleY(c.getPosition().getY()) - height/2;
-			g.fillRect(x, y, width, height);
+			x = scaleX(c.getPosition().getX() - width/2); 
+			y = scaleY(c.getPosition().getY() - height/2);
+			g.fillRect(x, y, (int)(width * scale),(int)(height * scale));
 		}
 	}
 	
 	private void drawCollisions(Graphics2D g2d) {
-		//System.out.println("Stage: listOfCollisionPoints.size(): " + listOfCollisionPoints.size());
 		g2d.setColor(new Color(0,255,255,100));
 		int circumference = 6;
 		int maxNumberOfDrawnCollisions = 300;
 		//this the horizontal centre of zooming
-		focusPointX = windowWidth / 2;
+		panelCentreX = panelWidth / 2;
 		
 		//draw last maxNumberOfDrawnCollisions from listOfCollisionPoints
 		for (int i = listOfCollisionPoints.size() - 1;
 				i >= Math.max(
 						0, listOfCollisionPoints.size() - maxNumberOfDrawnCollisions); i-- ) {
-			
-			int offsetX = (int)(listOfCollisionPoints.get(i).getX() * scale - (focusPointX * (scale -1))) - circumference/2;
-			int offsetY = (int)(listOfCollisionPoints.get(i).getY()* scale) - circumference/2;
-			// adjust for the "camera's" position
-			offsetY += currentElevation;
-			
+	
+			int offsetX = scaleX(listOfCollisionPoints.get(i).getX()) - circumference/2;
+			int offsetY = scaleY(listOfCollisionPoints.get(i).getY()) - circumference/2;			
 			g2d.fillOval(offsetX, offsetY, circumference, circumference);
 		}
 	}
@@ -181,24 +174,6 @@ public class Stage extends JPanel implements ComponentListener{
 		currentElevation += deltaY;
 	}
 
-	public double descaleX(int x) {
-		return (x + (focusPointX*(scale - 1)))/scale;
-		//return x / scale + (focusPointX / (scale - 1));
-		//return x / (scale + ((windowWidth / 2) * (scale - 1)));
-		//return x;
-	}
-
-	public double descaleY(int y) {
-		return (y - currentElevation) / scale;
-		//return y;
-	}
-
-	private int scaleX(double x) {
-		return (int)(x * scale - (focusPointX * (scale -1)));
-	}
-	private int scaleY(double y) {
-		return (int)(y * scale + currentElevation);
-	}
 	
 	//ComponentListener methods
 	@Override
@@ -214,9 +189,12 @@ public class Stage extends JPanel implements ComponentListener{
 	@Override
 	public void componentResized(ComponentEvent e) {
 		System.out.println("componentResized");
-		windowHeight = getHeight();
-		windowWidth = getWidth();
-		currentElevation = ground + windowHeight;
+		panelHeight = getHeight();
+		panelWidth = getWidth();
+		
+		panelCentreX = panelWidth / 2;
+		panelCentreY = panelHeight / 2;
+		//currentElevation = ground + panelHeight;
 	}
 	@Override
 	public void componentShown(ComponentEvent e) {

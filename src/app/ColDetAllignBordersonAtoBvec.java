@@ -7,6 +7,7 @@ import data.Vec;
 public class ColDetAllignBordersonAtoBvec {
 	
 	private List<Vec> listOfCollisionPoints;
+	@SuppressWarnings("unused")
 	private double timeInterval;
 	
 	public ColDetAllignBordersonAtoBvec (List <Vec> listOfCollisionPoints, double timeInterval) {

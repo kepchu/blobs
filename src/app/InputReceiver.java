@@ -1,6 +1,5 @@
 package app;
 
-import data.Blob;
 import data.DataController;
 
 public class InputReceiver {

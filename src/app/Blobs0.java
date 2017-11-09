@@ -5,13 +5,13 @@ import java.awt.EventQueue;
 import data.DataController;
 import view.ViewAndInputController;
 
-public class AppDemkoI736PDe {
+public class Blobs0 {
 
 	public static void main (String[] args) {	
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					new AppDemkoI736PDe();
+					new Blobs0();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -21,7 +21,7 @@ public class AppDemkoI736PDe {
 	
 	
 	
-	public AppDemkoI736PDe () {
+	public Blobs0 () {
 		
 		System.out.println("App72 thread - " + Thread.currentThread().getName());
 		//MVC pattern variation
@@ -33,8 +33,11 @@ public class AppDemkoI736PDe {
 	
 }
 
-//0: wrap around, zoom by ctrl + mouse wheel or +/-, switchable gravity to centre of the window,
-// make debris "rain-fireworks"
+//0: use scale/descale methods in Stage's all drawing methods, wrap around, zoom by ctrl + mouse wheel or +/-, 
+//	switchable gravity to centre of the window, make debris "rain-fireworks"
+
+//01: a cloud-swirl object: new ColDet that would disregard all collisions between blobs building a cloud
+//		until a blob overlaps with only one other blob - then it would have to "hold on" to it to keep cloud's integrity
 
 //A - draw line (mouseDragged) and change it into blobs (every nth pixel in an array...)
 //B - make "gravity point" or explosion( "repulsion point") with mouseClick
@@ -56,7 +59,7 @@ public class AppDemkoI736PDe {
  * 
  * 2. slow-motion big guys move uniformly from right creating
  * 	a terrain. you can only jump up. try to "climb up" the
- * terrain==don't get pushed by it back
+ * terrain==don't get pushed back by it 
  * 
  * 3. original
  * 
