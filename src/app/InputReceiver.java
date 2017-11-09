@@ -1,13 +1,13 @@
 package app;
 
-import data.DataController;
+import data.World;
 
 public class InputReceiver {
 	
-	DataController dc;
+	World dc;
 	Logic l;
 	
-	public InputReceiver(DataController dc, Logic l) {
+	public InputReceiver(World dc, Logic l) {
 		this.dc = dc;
 		this.l = l;
 	}
@@ -38,7 +38,7 @@ public class InputReceiver {
 	
 	public void stageMoved (int deltaX, int deltaY) {
 		//System.out.println("UserInput.stageMoved deltaX: " + deltaX + ", y: " + deltaY);
-		DataController.getStageMovementDelta().setXY(deltaX, deltaY);
+		World.getStageMovementDelta().setXY(deltaX, deltaY);
 	}
 
 	//add blob

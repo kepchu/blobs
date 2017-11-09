@@ -2,11 +2,10 @@ package data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import app.VecMath;
 import utils.U;
 
-public class DataController {
+public class World {
 	//SETTINGS
 	static int maxX = 2000;
 	static int maxY = 0;
@@ -22,12 +21,17 @@ public class DataController {
 	double timeInterval = 1.0; //amount of "app world" time between updates
 	double timeIntervalStep = 1.3;
 	
-	List <Blob> blobs;
-	List<ChargePoint> charges;
+	private List <Blob> blobs;
+	private List<ChargePoint> charges;
 	private List <Vec> listOfCollisionPoints;
 	static Vec stageMovementDelta;
 	
-	public DataController (int noOfBlobs) {
+	DisplayBuffer buffer;
+	
+	public World (int noOfBlobs) {
+		
+		buffer = DisplayBuffer.getInstance();
+		
 		blobs = new ArrayList<Blob> (noOfBlobs);
 		charges = new ArrayList<ChargePoint>();
 		
@@ -35,7 +39,7 @@ public class DataController {
 		listOfCollisionPoints = new ArrayList<Vec>();
 		//initData(noOfBlobs);
 	}
-	public DataController() {
+	public World() {
 		this(8);
 	}
 	
@@ -51,21 +55,30 @@ public class DataController {
 	
 	public void update() {
 		
-		for (Blob b : blobs) {
-			
-			//account for gravity
-			Vec drag = new Vec(gravity);
-			//account for charges
-			for (ChargePoint c : charges ) {
-				Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.getPosition());
-				chargeInfluence.setMagnitude(c.getPower());
-				
-				drag.addAndSet(chargeInfluence);
+		//TODO: after testing move this check below update of the world
+		if (!buffer.isDisplayed()) {
+			System.out.println("World.update(): Waiting for buffer content to be displayed");
+			return;
+		} else {
+			// 1 - update world
+			for (Blob b : blobs) {
+				// account for gravity
+				Vec drag = new Vec(gravity);
+				// account for charges
+				for (ChargePoint c : charges) {
+					Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.getPosition());
+					chargeInfluence.setMagnitude(c.getPower());
+
+					drag.addAndSet(chargeInfluence);
+				}
+				b.update(timeInterval, drag, stageMovementDelta);
 			}
-			b.update(timeInterval, drag, stageMovementDelta);
+			stageMovementDelta.setXY(0, 0);//unfinished smooth movement of camera
+			
+			// 2 - update display buffer
+			buffer.setData(new BufferData(blobs, charges, listOfCollisionPoints, groundLevel));
 		}
-		
-		stageMovementDelta.setXY(0,0);
+
 	}
 	
 	//Control interface
@@ -123,37 +136,37 @@ public class DataController {
 	}
 
 	public static synchronized void setMaxX(int maxX) {
-		DataController.maxX = maxX;
+		World.maxX = maxX;
 	}
 
 	public static synchronized int getMaxY() {
-		return DataController.maxY;
+		return World.maxY;
 	}
 
 	public static synchronized void setMaxY(int maxY) {
-		DataController.maxY = maxY;
+		World.maxY = maxY;
 	}
 
 	public static synchronized int getMinX() {
-		return DataController.minX;
+		return World.minX;
 	}
 
 	public static synchronized void setMinX(int minX) {
-		DataController.minX = minX;
+		World.minX = minX;
 	}
 
 	public static synchronized int getMinY() {
-		return DataController.minY;
+		return World.minY;
 	}
 
 	public static synchronized void setMinY(int minY) {
-		DataController.minY = minY;
+		World.minY = minY;
 	}
 	public static Vec getStageMovementDelta() {
 		return stageMovementDelta;
 	}
 	public static void setStageMovementDelta(Vec stageMovementDelta) {
-		DataController.stageMovementDelta = stageMovementDelta;
+		World.stageMovementDelta = stageMovementDelta;
 	}
 	public double getTimeInterval() {
 		return timeInterval;

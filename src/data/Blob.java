@@ -14,7 +14,7 @@ public class Blob implements Collidable {
 	private double radius = 0;// a value separate from energy for flexibility
 	private double previousRadius = 0;
 	private double mass = 1;// for the future
-	BlobState state;
+	private BlobState state;
 
 	// Settings:
 	private double maxInflationSpeed = 5.0;
@@ -88,25 +88,24 @@ public class Blob implements Collidable {
 		
 		//bounce off of stage edges:
 		//bottom
-		if (getY() + radius >= DataController.maxY) {//below bottom edge
-			setY(DataController.maxY - radius);	//align with bottom edge
+		if (getY() + radius >= World.maxY) {//below bottom edge
+			setY(World.maxY - radius);	//align with bottom edge
 			velocity.multiplyAndSet(1, -bounceDampeningFactor);//reverse vertical velocity
 			velocity.addAndSet(stageDelta.getX()*stageFriction, stageDelta.getY());
 		}
 		//left
-		if (getX() - radius < DataController.minX) {
-			setX(DataController.minX + radius);
+		if (getX() - radius < World.minX) {
+			setX(World.minX + radius);
 			velocity.multiplyAndSet(-bounceDampeningFactor, 1);
 		}
 		//right
-		if (getX() + radius > DataController.maxX) {
-			setX(DataController.maxX - radius);
+		if (getX() + radius > World.maxX) {
+			setX(World.maxX - radius);
 			velocity.multiplyAndSet(-bounceDampeningFactor, 1);
 		}
 		
 	}
 
-	// METHODS:
 	private void updateNEWBORN(double timeInterval) {	
 		//settings
 		int inflationApex = (int) (getEnergy() * 1.2);//amount of "overblowing" during initial growth
@@ -144,12 +143,17 @@ public class Blob implements Collidable {
 
 	// LIFECYCLE END
 
-	// TODO: regulate things from the enum according to state change? - separate FSM
+	// TODO: regulate things from the enum according to state change? - separate FSM?
 	public enum BlobState {
 		IN, OUT, NEWBORN_PRE_APEX, NEWBORN_POST_APEX, PLAYER_CONTROLLED;
 	}
 
-	
+	public int getID() {
+		return ID;
+	}
+	public double getMass() {
+		return energy;
+	}
 	// Getters & setters:
 	public Vec getVelocity() {
 		return velocity;

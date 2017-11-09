@@ -6,19 +6,23 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
 
 import data.Blob;
 import data.Vec;
+import data.World;
 import data.ChargePoint;
+import data.DisplayBuffer;
+import data.BufferData;
 
 @SuppressWarnings("serial")
 public class Stage extends JPanel implements ComponentListener{
 
 	private List<Blob> blobs;
-	private List <Vec> listOfCollisionPoints;
+	private List <Vec> collisions;
 	private List<ChargePoint> charges;
 	private int ground;//actual ground level as received from Model
 	private int panelHeight;
@@ -29,16 +33,12 @@ public class Stage extends JPanel implements ComponentListener{
 	private double scale = 1;// "scale" is a zoom factor
 	private int currentElevation = 0;//ground level used for drawing, adjusted when scrolling the scene
 
-	private double deltaZoom = 1.02;
+	private double deltaZoom = 1.5;
 	private int deltaY = 100;
-
-	public Stage(List<Blob> blobs, List <Vec> listOfCollisionPoints, List<ChargePoint> charges, int ground,
-			int initialElevation) {
-		this.blobs = blobs;
-		this.listOfCollisionPoints = listOfCollisionPoints;
-		this.charges = charges;
+	
+	public Stage(int ground, int initialCameraPosition) {
 		this.ground = ground;
-		currentElevation = ground + initialElevation;
+		currentElevation = ground + initialCameraPosition;
 		//IMPORTANT: the below is crucial to get proper dimensions & ground level (in "componentResized").
 		//This functionality could be done by a simple getHeight() call from paint(Graphics g)
 		this.addComponentListener(this);		
@@ -109,9 +109,10 @@ public class Stage extends JPanel implements ComponentListener{
 	private void drawBlobs(Graphics2D g2d) {
 		
 		for (Blob b : blobs) {
-			double radius = b.getRadius();// * scale;
+			double radius = b.getRadius();
 			
-			//using radius to move "handle" to top left corner
+			//Subtracting radius to accommodate to drawOval method
+			//(where position denotes top left corner rather than centre)
 			int offsetX = scaleX(b.getPosition().getX() - radius);
 			int offsetY = scaleY(b.getPosition().getY() - radius);
 
@@ -144,12 +145,12 @@ public class Stage extends JPanel implements ComponentListener{
 		panelCentreX = panelWidth / 2;
 		
 		//draw last maxNumberOfDrawnCollisions from listOfCollisionPoints
-		for (int i = listOfCollisionPoints.size() - 1;
+		for (int i = collisions.size() - 1;
 				i >= Math.max(
-						0, listOfCollisionPoints.size() - maxNumberOfDrawnCollisions); i-- ) {
+						0, collisions.size() - maxNumberOfDrawnCollisions); i-- ) {
 	
-			int offsetX = scaleX(listOfCollisionPoints.get(i).getX()) - circumference/2;
-			int offsetY = scaleY(listOfCollisionPoints.get(i).getY()) - circumference/2;			
+			int offsetX = scaleX(collisions.get(i).getX()) - circumference/2;
+			int offsetY = scaleY(collisions.get(i).getY()) - circumference/2;			
 			g2d.fillOval(offsetX, offsetY, circumference, circumference);
 		}
 	}
@@ -200,6 +201,14 @@ public class Stage extends JPanel implements ComponentListener{
 	public void componentShown(ComponentEvent e) {
 		// TODO Auto-generated method stub
 		System.out.println("componentShown");
+	}
+
+
+	public void setData(BufferData data) {
+		this.blobs = data.getBlobs();
+		this.collisions = data.getCollisions();
+		this.charges = data.getCharges();
+		this.ground = (int) data.getGround();	
 	}
 
 }

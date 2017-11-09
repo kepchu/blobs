@@ -5,14 +5,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import data.DataController;
+import data.BufferData;
+import data.DisplayBuffer;
+import data.World;
 import view.ViewAndInputController;
 
 public class Logic implements Runnable {
 
-	private DataController dc;
+	private World dc;
 	private ViewAndInputController v;
 	private InputReceiver uir;
+	private DisplayBuffer displayBuffer;
 	ScheduledExecutorService ses;
 	
 	private Object[] collisionsArray;
@@ -21,10 +24,11 @@ public class Logic implements Runnable {
 	Object lock = new Object();
 	
 	
-	public Logic(DataController dc, ViewAndInputController v) {
+	public Logic(World dc, ViewAndInputController v) {
 
 		this.dc = dc;
 		this.v = v;
+		displayBuffer = DisplayBuffer.getInstance();
 		uir = new InputReceiver(dc, this);
 		v.setUserInputReceiver(uir);
 		
@@ -42,17 +46,24 @@ public class Logic implements Runnable {
 	// the main loop
 	@Override
 	public void run() {
-		v.update();//TODO: switch to swing timer
 		dc.update();
-		
-		synchronized (lock) {
-			dc.getListOfCollisionPoints().clear();
+
+		if (!displayBuffer.isUpdated()) {
+			System.out.println("main loop: Waiting with drawing for DisplayBuffer to be populeted");
+			return;
+		} else {
+			v.update(displayBuffer.getData());// TODO: switch to swing timer
+			synchronized (lock) {
+				dc.getListOfCollisionPoints().clear();
+			}
+
+			// testing - find collisions:
+			((ColDetAllignBordersonAtoBvec) collisionsArray[currentColl])
+					.detectCollisions(new ArrayList<Collidable>(dc.getBlobs()));
+
+			// try { Thread.sleep(100); } catch (InterruptedException e)
+			// {e.printStackTrace(); }
 		}
-		
-		//testing - find collisions:
-		((ColDetAllignBordersonAtoBvec)collisionsArray[currentColl]).detectCollisions(new ArrayList<Collidable>(dc.getBlobs()));
-		
-		//try { Thread.sleep(100); } catch (InterruptedException e) {e.printStackTrace(); }
 	}
 
 	public void switchCollisonsDetect() {

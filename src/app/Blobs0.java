@@ -2,7 +2,7 @@ package app;
 
 import java.awt.EventQueue;
 
-import data.DataController;
+import data.World;
 import view.ViewAndInputController;
 
 public class Blobs0 {
@@ -25,7 +25,7 @@ public class Blobs0 {
 		
 		System.out.println("App72 thread - " + Thread.currentThread().getName());
 		//MVC pattern variation
-		DataController dc = new DataController();
+		World dc = new World();
 		ViewAndInputController v = new ViewAndInputController(dc);
 		new Logic(dc, v);
 		

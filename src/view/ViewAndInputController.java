@@ -20,7 +20,9 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import app.InputReceiver;
-import data.DataController;
+import data.BufferData;
+import data.DisplayBuffer;
+import data.World;
 
 //switch to MouseInputAdapter?
 public class ViewAndInputController implements MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener {
@@ -37,12 +39,14 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	
 	int stageX = Integer.MIN_VALUE, stageY = Integer.MIN_VALUE;
 	
-	public ViewAndInputController (DataController dc) {
+	public ViewAndInputController (World w) {
 		System.out.println("ViewAndDataController constr.");
 		//this.dc = dc;
-		this.stage = new Stage(dc.getBlobs(), dc.getListOfCollisionPoints(), dc.getCharges(), dc.getGround(),
-				750);
-		
+//		this.stage = new Stage(w.getBlobs(), w.getListOfCollisionPoints(), w.getCharges(), w.getGround(),
+//				750);
+		int initialCameraPosition = 750;
+		int ground = w.getGround();
+		this.stage = new Stage(ground, initialCameraPosition);
 		initGraphics();
 		initInput();	
 	}
@@ -70,7 +74,8 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	public void setUserInputReceiver(InputReceiver uir) {
 		this.inputReceiver = uir;			
 	}
-	public void update () {
+	public void update (BufferData data) {
+		stage.setData(data);
 		stage.repaint();
 	}
 	
@@ -132,37 +137,31 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		// System.out.println("mouseMoved X: " + arg0.getX() + ", Y: " + arg0.getY());
 	}
 	
-	//MouseWheelListener
+	// MouseWheelListener
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		// bitwise operator & != logic operator &&
-		
-				//if wheel rotated forward
-				if (e.getWheelRotation() < 0) {
-					// if right mouse button is down ->
-					if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
-						//System.out.println("mouseWhellMoved forward && button2 down");				
-						stage.zoomIn();
-					} else {stage.scrollDown();
-					}
-				}
-				
-				//wheel rotated back
-				if (e.getWheelRotation() > 0) {
-					//right mouse button pressed
-					if((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
-						stage.zoomOut();
-					} else {//right MB up						
-						stage.scrollUp();
-					}
-				}
-				
-				/*System.out.println( e.BUTTON3_DOWN_MASK + " " + e.getModifiersEx()
-						+ " " + (e.getModifiersEx() & e.BUTTON3_DOWN_MASK)
-						);
-				
-				System.out.println("Wheel moved, no cond. "// scale: " + d.scale + ", wheel: "
-						+ e.getWheelRotation());*/	
+
+		// if wheel rotated forward
+		if (e.getWheelRotation() < 0) {
+			// if right mouse button is down ->
+			if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
+				// System.out.println("mouseWhellMoved forward && button2 down");
+				stage.zoomIn();
+			} else {
+				stage.scrollDown();
+			}
+		}
+
+		// wheel rotated back
+		if (e.getWheelRotation() > 0) {
+			// right mouse button pressed
+			if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
+				stage.zoomOut();
+			} else {// right MB up
+				stage.scrollUp();
+			}
+		}
 	}
 	
 	private void keyBinds() {
@@ -175,9 +174,9 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		inputMap.put(KeyStroke.getKeyStroke("PAGE_DOWN"), "pageDownAction");
 		inputMap.put(KeyStroke.getKeyStroke("HOME"), "homeAction");
 		inputMap.put(KeyStroke.getKeyStroke("END"), "endAction");
-		inputMap.put(KeyStroke.getKeyStroke("ESCAPE"), "escAction");
 		inputMap.put(KeyStroke.getKeyStroke("INSERT"), "insertAction");
 		inputMap.put(KeyStroke.getKeyStroke("DELETE"), "deleteAction");
+		inputMap.put(KeyStroke.getKeyStroke("ESCAPE"), "escAction");
 		inputMap.put(KeyStroke.getKeyStroke("P"), "pAction");
 
 		actionMap.put("rAction", rAction);
@@ -189,9 +188,9 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		actionMap.put("pageDownAction", pageDownAction);
 		actionMap.put("homeAction", homeAction);
 		actionMap.put("endAction", endAction);
-		actionMap.put("escAction", escAction);
 		actionMap.put("insertAction", insertAction);
 		actionMap.put("deleteAction", deleteAction);
+		actionMap.put("escAction", escAction);
 		actionMap.put("pAction", pAction);
 	}
 	

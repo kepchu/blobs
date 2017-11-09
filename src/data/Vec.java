@@ -23,19 +23,19 @@ public class Vec {
 	// both "WRAP" METHODS below wrap x and y around the world
 	// (== connect the opposite edges of the stage)
 	private void wrapX() {
-		if (x < DataController.minX) {
-			x = DataController.maxX - ((DataController.minX - x) % DataController.spanX);
+		if (x < World.minX) {
+			x = World.maxX - ((World.minX - x) % World.spanX);
 		}
-		if (x > DataController.maxX) {
-			x = DataController.minX + ((x - DataController.maxX) % DataController.spanX);
+		if (x > World.maxX) {
+			x = World.minX + ((x - World.maxX) % World.spanX);
 		}
 	}
 
 	private void wrapY() {
-		if (y < DataController.minY)
-			y = DataController.maxY - ((DataController.minY - y) % DataController.spanY);
-		if (y > DataController.maxY)
-			y = DataController.minY + ((y - DataController.maxY) % DataController.spanY);
+		if (y < World.minY)
+			y = World.maxY - ((World.minY - y) % World.spanY);
+		if (y > World.maxY)
+			y = World.minY + ((y - World.maxY) % World.spanY);
 	}
 
 	// WRAPPING THE STAGE STUFF - END
