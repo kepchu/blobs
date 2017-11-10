@@ -35,9 +35,9 @@ public class Blobs0 {
 }
 
 //00: create square root alternative for VecMath and use it wherever possible &
-//	use provider - client pattern with notifyAll for display buffer and get rid of FramData Class
+//	use provider - client pattern with notifyAll for display buffer
 
-//0: use scale/descale methods in Stage's all drawing methods, wrap around, zoom by ctrl + mouse wheel or +/-, 
+//0: wrap around, zoom by ctrl + mouse wheel or +/-, 
 //	switchable gravity to centre of the window, make debris "rain-fireworks"
 
 //01: a cloud-swirl object: new ColDet that would disregard all collisions between blobs building a cloud
