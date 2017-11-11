@@ -1,50 +1,58 @@
-package app;
+package ColDet;
+
+import static utils.VecMath.*;
 
 import java.util.List;
-import static app.VecMath.*;
+
 import data.Vec;
 
-public class ColDetDebris extends ColDetAllignBordersonAtoBvec {
+public class ColDetAllignBordersonAtoBvec {
 	
 	private List<Vec> listOfCollisionPoints;
-
-	public ColDetDebris (List <Vec> listOfCollisionPoints) {
-		super(listOfCollisionPoints, 1.0);
+	@SuppressWarnings("unused")
+	private double timeInterval;
+	
+	public ColDetAllignBordersonAtoBvec (List <Vec> listOfCollisionPoints, double timeInterval) {
 		this.listOfCollisionPoints = listOfCollisionPoints;
+		this.timeInterval = timeInterval;
 	}
 	
 	
 	public void detectCollisions (List<Collidable> blobs) {
 		//listOfCollisionPoints.clear();
-		for (int i = 0; i < blobs.size(); i++ ) {
-			detectCollisions(blobs.get(i), blobs, 0);
+		for (int i = blobs.size()-1; i > 0; i--) {
+		//for (int i = 0; i < blobs.size(); i++ ) {
+			detectCollisions(blobs.get(i), blobs, 1);
 		}	
 	}
 	
 	//detection of collisions
 	private void detectCollisions (Collidable subject, List<Collidable> objects, double radius) {
 			
+		double actualDistance;
+		double previousDistance;
+		
 		Collidable object;
 		for (int i = 0; i < objects.size(); i++) {
-			
-			double actualDistance;
-			double futureDistance;
-			
+					
+			//filter out the collidable we are testing against
 			object = objects.get(i);			
-			if (object == subject) {continue;}//filter out the blob we are testing against
+			if (object == subject) {continue;}
 	
 			
 			actualDistance = distanceBetween(
 					subject.getPosition(),
 					object.getPosition());
-			if (actualDistance <
-					subject.getRadius() + object.getRadius()) {
-
-				futureDistance = distanceBetween(
-						add(subject.getPosition(), subject.getVelocity()),
-						add(object.getPosition(), object.getVelocity()));
+			previousDistance = distanceBetween(
+					subject.getPreviousPosition(), 
+					object.getPreviousPosition());
+			
+			if (actualDistance < subject.getRadius() + object.getRadius()) {
+				placeOverlappingCollideesNextToEachOther (subject, object);
+				//TODO: align borders!!!
+				
 				//do not process collision if blobs already move in the right direction
-				if (actualDistance > futureDistance) {
+				if (actualDistance <= previousDistance) {
 					doCollision(subject, object);
 				}
 			}
@@ -52,17 +60,30 @@ public class ColDetDebris extends ColDetAllignBordersonAtoBvec {
 	}
 	
 	
-	//Execution of collisions - this will modify data
+	//Execution of collisions - any data modification only via this method
 	private void doCollision (Collidable subject, Collidable object) {
-		//System.out.println(subject + " collided with " + object);
-		listOfCollisionPoints.add(prodCollPoint(subject, object));
+		//newest collisions first to simplify display code	
+		listOfCollisionPoints.add(0, prodCollPoint(subject, object));
 		//listOfCollisionPoints.add(new Vec(subject.getPosition()));
+		
 		bounceOff(subject, object);
 			
 	}
 	
+	private void placeOverlappingCollideesNextToEachOther (Collidable subject, Collidable object) {
+		//this method moves subject away from object in the direction of fromObjToSub
+		//for the length that make both collidees touch at the time the collision was detected (just now)
+		//(so pretty bad)
+		Vec fromObjToSub = vecFromAtoB(
+				object.getPosition(),
+				subject.getPosition());
+		
+		double overlap = (subject.getRadius() + object.getRadius()) - fromObjToSub.getMagnitude();
+		Vec displacement = fromObjToSub.setMagnitude(overlap);
+		subject.setPosition(subject.getPosition().add(displacement));		
+	}
 	
-	private void bounceOff (Collidable subject, Collidable object) {
+	private Vec bounceOff (Collidable subject, Collidable object) {
 		
 		//TODO: velocity will be changed to force (speed * mass)
 		Vec subVel = subject.getVelocity();
@@ -79,7 +100,7 @@ public class ColDetDebris extends ColDetAllignBordersonAtoBvec {
 		
 		//Object's side:
 		//reverse the vector pointing from subject to object:
-		Vec fromObjToSub = fromSubToObj.multiplyAndSet(-1);
+		Vec fromObjToSub = fromSubToObj.multiplyAndSet(-1);//!fromSubToObj refers the same vec!
 		Vec kineticInvolvementOfObject = projectAonB(objVel, fromObjToSub);
 		
 		//TODO:? It's a pity that only subject is updated because all the info for updating object
@@ -87,6 +108,7 @@ public class ColDetDebris extends ColDetAllignBordersonAtoBvec {
 		//of already calculated bounces would allow for update of both parties and 
 		subVel.addAndSet(kineticInvolvementOfSubject.multiplyAndSet(-1)
 				.addAndSet(kineticInvolvementOfObject));
+		return fromObjToSub;
 	}
 	
 	//This the only method I didn't create

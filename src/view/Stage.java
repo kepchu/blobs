@@ -11,20 +11,15 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import data.Blob;
+import data.BufferedFrames;
 import data.ChargePoint;
-import data.FrameData;
-import data.BufferableData;
 import data.Vec;
 
 //TODO:/ISSUE: paint called by system before setData call - this produces NullPointer
 @SuppressWarnings("serial")
 public class Stage extends JPanel implements ComponentListener{
-
-	private List<Blob> blobs;
-	private List <Vec> collisions;
-	private List<ChargePoint> charges;
-	private int ground;//actual ground level as received from Model
-	private BufferableData data;
+	
+	private BufferedFrames data;
 	private int panelHeight;
 	private int panelWidth;
 
@@ -36,7 +31,9 @@ public class Stage extends JPanel implements ComponentListener{
 	private double deltaZoom = 1.5;
 	private int deltaY = 100;
 	
-	public Stage(int initialCameraPosition) {
+	public Stage(int initialCameraPosition, BufferedFrames frameData) {
+		System.out.println("Stage constr. thread - " + Thread.currentThread().getName());
+		data = frameData;
 		currentElevation = initialCameraPosition;
 		//IMPORTANT: the below is crucial to get proper dimensions & ground level (in "componentResized").
 		//This functionality could be done by a simple getHeight() call from paint(Graphics g)
@@ -61,23 +58,37 @@ public class Stage extends JPanel implements ComponentListener{
 	// DRAWING ROUTINE
 	//ISSUE: paint called by system before setData call - this produces NullPointer
 	public void paint(Graphics g) {
+		
+		if (data == null || data.isEmpty()) {
+			System.out.println("Stage.paint: no frame data to draw. Returning.");
+			return;
+		}
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
+		
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-
+		g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		
+		/*//TODO: proper enum enumerating drawing complexity with appropriate drawing methods
+		if(data.currentSize() < 11) {
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		}
+		else {
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+			g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+		}*/
+		
 		// calls to methods that draw specific elements
 		drawBackground(g2d);
 		drawRuler(g2d);
-		if (data == null) {
-			System.out.println("Stage.paint: FrameData == null. Returning.");
-			return;
-		}
+		//the below methods use data object
 		drawBorders(g2d);
 		drawBlobs(g2d);
 		drawCharges(g2d);
 		drawCollisions(g2d);
-		data.updateData();
+		drawInfo(g2d);
+		data.advanceFrame();
 	}
 
 	// methods used by the drawing routine in paint (Graphics g)
@@ -111,23 +122,50 @@ public class Stage extends JPanel implements ComponentListener{
 		//TODO: draw "word dimensions" - minX, maxY, etc. from DataController
 	}
 	
-	private void drawBlobs(Graphics2D g2d) {
+	private void drawBlobs(Graphics2D g) {
 		
-		for (Blob b : blobs) {
-			double radius = b.getRadius();
+		int medDrawingSize = 1;
+		int fullDrawingSize = 5;
+		int minTaggingSize = 10;
+		
+		
+		for (Blob b : data.getBlobs()) {//bailout 
+			int radius = (int)(b.getRadius() * scale);
 			
 			//Subtracting radius to accommodate to drawOval method
 			//(where position denotes top left corner rather than centre)
-			int offsetX = scaleX(b.getPosition().getX() - radius);
-			int offsetY = scaleY(b.getPosition().getY() - radius);
+			g.setColor(b.getColour().getColor());
+			
+			int offsetX = scaleX(b.getPosition().getX());
+			int offsetY = scaleY(b.getPosition().getY());
+			
+			
+			if(radius <= medDrawingSize) {
+				
+				g.drawLine(offsetX, offsetY, offsetX, offsetY);
+				continue;
+			}
+			//Subtracting radius to accommodate to drawOval method
+			//(where position denotes top left corner rather than centre)
+			offsetX -= radius;
+			offsetY -= radius;
+			int circumference = radius + radius;
+			
+			
+			g.fillOval(offsetX, offsetY, circumference, circumference);
+			
+			if(radius < fullDrawingSize) {//bailout
+				continue;
+			}	
 
-			int circumference = (int) (radius * 2 * scale);
-
-			g2d.setColor(b.getColour().getColor());
-			g2d.fillOval(offsetX, offsetY, circumference, circumference);
-
-			g2d.setColor(Color.BLACK);
-			g2d.drawOval(offsetX, offsetY, circumference, circumference);	
+			g.setColor(Color.BLACK);
+			g.drawOval(offsetX, offsetY, circumference, circumference);
+			
+			//TODO:
+			if (radius > minTaggingSize) {
+				g.drawString(b.getID() + ", " + b.getColour().getCategory(), offsetX + radius,
+						offsetY + radius);
+			}
 		}
 	}
 	
@@ -135,31 +173,43 @@ public class Stage extends JPanel implements ComponentListener{
 		g.setColor(Color.BLACK);
 		int width = 10, height = 10;
 		int x,y;
-		for (ChargePoint c : charges) {
+		for (ChargePoint c : data.getCharges()) {
 			x = scaleX(c.getPosition().getX() - width/2); 
 			y = scaleY(c.getPosition().getY() - height/2);
 			g.fillRect(x, y, (int)(width * scale),(int)(height * scale));
 		}
 	}
 	
-	private void drawCollisions(Graphics2D g2d) {
-		g2d.setColor(new Color(0,255,255,100));
+	private void drawCollisions(Graphics2D g) {
+		g.setColor(new Color(0,255,255,100));
 		int circumference = 6;
 		int maxNumberOfDrawnCollisions = 300;
 		//this the horizontal centre of zooming
 		panelCentreX = panelWidth / 2;
 		
 		//draw last maxNumberOfDrawnCollisions from listOfCollisionPoints
-		for (int i = collisions.size() - 1;
-				i >= Math.max(
-						0, collisions.size() - maxNumberOfDrawnCollisions); i-- ) {
-	
-			int offsetX = scaleX(collisions.get(i).getX()) - circumference/2;
-			int offsetY = scaleY(collisions.get(i).getY()) - circumference/2;			
-			g2d.fillOval(offsetX, offsetY, circumference, circumference);
+		int i = 0;
+		for (Vec c: data.getCollisions()) {
+			int offsetX = scaleX(c.getX()) - circumference/2;
+			int offsetY = scaleY(c.getY()) - circumference/2;			
+			g.fillOval(offsetX, offsetY, circumference, circumference);
+			
+			if(++i > maxNumberOfDrawnCollisions) {break;}
 		}
 	}
 
+	private void drawInfo(Graphics2D g) {
+		int x = 20, y = 20;
+		g.setColor(Color.BLACK);
+		g.drawString("Blobs [left-click] or [Insert]: " + data.getBlobs().size(), x, y);
+		g.drawString("Charges: [right-click]: " + data.getCharges().size(), x, y+12);
+		g.drawString("Collision points: " + data.getCollisions().size(), x, y+24);
+		g.drawString("Buffered frames: " + data.currentSize(), x, y+36);
+		g.drawString("Speed [PgUp] / [PgDown]:" + data.getSpeed(), x, y+48);
+		g.drawString("Gravity [Home] / [End]:" + data.getGravity(), x, y+60);
+		g.drawString("\nScale (R.Click + m. wheel): " + scale, x, y+72);
+	}
+	
 	public void zoomOut() {
 		//System.out.println("zoomOut");
 		scale /= deltaZoom;
@@ -209,12 +259,12 @@ public class Stage extends JPanel implements ComponentListener{
 	}
 
 
-	public void setData(BufferableData data) {
-		this.data = data;
-		this.blobs = data.getBlobs();
-		this.collisions = data.getCollisions();
-		this.charges = data.getCharges();
-		this.ground = (int) data.getGround();	
-	}
+//	public void setData(BufferableData data) {
+//		this.data = data;
+//		this.blobs = data.getBlobs();
+//		this.collisions = data.getCollisions();
+//		this.charges = data.getCharges();
+//		this.ground = (int) data.getGround();	
+//	}
 
 }

@@ -4,36 +4,36 @@ import data.World;
 
 public class InputReceiver {
 	
-	World dc;
+	World w;
 	Logic l;
 	
 	public InputReceiver(World dc, Logic l) {
-		this.dc = dc;
+		this.w = dc;
 		this.l = l;
 	}
 	
 	
 	//speed
 	public void pageUpAction() {
-		dc.speedUp();
+		w.speedUp();
 	}
 	
 	public void pageDownAction() {
-		dc.speedDown();		
+		w.speedDown();		
 	}
 	
 	//increase gravity
 	public void homeAction() {
-		dc.gravityUp();		
+		w.gravityUp();		
 	}
 	
 	//reduce gravity
 	public void endAction() {
-		dc.gravityDown();
+		w.gravityDown();
 	}
 	
 	public void  sBarAction() {
-		l.switchCollisonsDetect();
+		w.switchCollisonsDetect();
 	}
 	
 	public void stageMoved (int deltaX, int deltaY) {
@@ -44,17 +44,17 @@ public class InputReceiver {
 	//add blob
 	public void leftClickAt(double x, double y) {
 		System.out.println("leftClickAt " + x + ", " + y + ". Adding a blob.");
-		dc.addBlobAt(x, y);
+		w.addBlobAt(x, y);
 	}
 
 	//add blob at random position
 	public void insertAction() {
-		dc.addBlob();		
+		w.addBlob();		
 	}
 
 	//add charge point
 	public void rightClickAt(double x, double y) {
 		System.out.println("rightClickAt " + x + ", " + y + ". Adding a charge.");
-		dc.addCharge(x,y);	
+		w.addCharge(x,y);	
 	}
 }

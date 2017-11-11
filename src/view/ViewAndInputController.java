@@ -21,7 +21,7 @@ import javax.swing.SwingUtilities;
 
 import app.InputReceiver;
 import data.FrameData;
-import data.BufferableData;
+import data.BufferedFrames;
 import data.FrameBuffer;
 import data.World;
 
@@ -34,7 +34,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	private InputMap inputMap;
 	private ActionMap actionMap;
 
-	private BufferableData frameBuffer;
+	private BufferedFrames frameBuffer;
 	private InputReceiver inputReceiver;
 	
 	
@@ -46,7 +46,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 //		this.stage = new Stage(w.getBlobs(), w.getListOfCollisionPoints(), w.getCharges(), w.getGround(),
 //				750);
 		int initialCameraPosition = 750;
-		this.stage = new Stage(initialCameraPosition);
+		this.stage = new Stage(initialCameraPosition, frameBuffer);
 		initGraphics();
 		initInput();	
 	}
@@ -76,7 +76,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	}
 	
 	public void update() {
-		stage.setData(frameBuffer);
+		//stage.setData();
 		stage.repaint();
 	}
 	
@@ -320,7 +320,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		}
 
 
-		public void setFrameBuffer(BufferableData frameBuffer) {
+		public void setFrameBuffer(BufferedFrames frameBuffer) {
 			// TODO Auto-generated method stub
 			
 		}

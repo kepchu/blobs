@@ -145,7 +145,7 @@ public class Vec {
 	// GETTERS/SETTERS - END
 	@Override
 	public String toString() {
-		return super.toString() + " x:" + x + ", y:" + y;
+		return "x:" + x + ", y:" + y;
 	}
 	
 }

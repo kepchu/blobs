@@ -5,6 +5,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import ColDet.CoIDetInwardCol;
+import ColDet.ColDetAllignBordersonAtoBvec;
+import ColDet.ColDetDebris;
+import ColDet.ColDetDisabled;
+import ColDet.Collidable;
 import data.FrameData;
 import data.FrameBuffer;
 import data.World;
@@ -18,8 +23,7 @@ public class Logic implements Runnable {
 	private FrameBuffer frameBuffer;
 	ScheduledExecutorService ses;
 	
-	private Object[] collisionsArray;
-	private int currentColl;
+	
 	
 	Object lock = new Object();
 	
@@ -33,46 +37,31 @@ public class Logic implements Runnable {
 		uir = new InputReceiver(dc, this);
 		v.setUserInputReceiver(uir);
 		
+		//TODO: switch to swing timer
 		ses = Executors.newSingleThreadScheduledExecutor();
-		ses.scheduleAtFixedRate(this, 16666, 16666, TimeUnit.MICROSECONDS);
+		ses.scheduleAtFixedRate(this, 16666, 8333, TimeUnit.MICROSECONDS);
 		
-		currentColl = 0;
-		collisionsArray = new Object[4];
-		collisionsArray[0] = new ColDetAllignBordersonAtoBvec(dc.getListOfCollisionPoints(), dc.getTimeInterval());
-		collisionsArray[1] = new ColDetDisabled(dc.getListOfCollisionPoints());
-		collisionsArray[2] = new CoIDetInwardCol(dc.getListOfCollisionPoints());
-		collisionsArray[3] = new ColDetDebris(dc.getListOfCollisionPoints());
+		new Thread(dc).start();
 	}
 
-	// the main loop
+	// the gfx loop
 	@Override
 	public void run() {
 		
-		dc.update();
+		//dc.update();
 		
-		if (!frameBuffer.isUpdated()) {
-			System.out.println("main loop: Waiting for DisplayBuffer to be populeted to draw ");
-			dc.update();
+		if (frameBuffer.isEmpty()) {
+			System.out.println("main loop: DisplayBuffer empty - postponing drawing");
+			//dc.update();
 			return;
 		} else {
 			
 			v.update();// TODO: switch to swing timer
 			
-			// testing - find collisions:
-			((ColDetAllignBordersonAtoBvec) collisionsArray[currentColl])
-					.detectCollisions(new ArrayList<Collidable>(dc.getBlobs()));
-			// try { Thread.sleep(100); } catch (InterruptedException e)
-			// {e.printStackTrace(); }
+			
 		}
 		
 	}
 
-	public void switchCollisonsDetect() {
-		if (currentColl < collisionsArray.length - 1) {
-			currentColl++;
-		} else {
-			currentColl = 0;
-		}
-		System.out.println("Col. det. set to " + collisionsArray[currentColl].getClass().getSimpleName());
-	}
+	
 }

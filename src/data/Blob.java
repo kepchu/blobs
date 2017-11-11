@@ -1,6 +1,6 @@
 package data;
 
-import app.Collidable;
+import ColDet.Collidable;
 
 public class Blob implements Collidable {
 	private static int staticID;

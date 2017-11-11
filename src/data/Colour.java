@@ -58,4 +58,8 @@ public class Colour {
 	public Color getColor() {
 		return c;
 	}
+	
+	public ColourCategory getCategory() {
+		return cat;
+	}
 }

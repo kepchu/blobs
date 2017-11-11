@@ -1,101 +1,102 @@
 package data;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
-public class FrameBuffer implements BufferableData {
+public class FrameBuffer implements BufferedFrames {
 	
-	private boolean consumed = true;	
-	private FrameData data;
+	private Queue <FrameData> frameQ;//TODO
 	
+	//settings
+	private int maxBufferSize = 3;
+	private int minBufferSize = 1;
 	//this is a singleton
 	private final static FrameBuffer displayBuffer = new FrameBuffer();
-	private FrameBuffer() {}
+	private FrameBuffer() {
+		System.out.println("FrameBuffer() constr. thread: " + Thread.currentThread().getName());
+		frameQ = new LinkedList<FrameData>();
+	}
 	public static FrameBuffer getInstance() {
-		System.out.println("DisplayBuffer getInstance()");
+		System.out.println("FrameBuffer getInstance()");
 		return displayBuffer;
 	}
 	
-	synchronized public void setData(FrameData data) {
-		//System.out.println("DisplayBuffer setData()");
-		consumed = false;
-		this.data = data;
+	
+	synchronized public void addFrame(FrameData data) {
+			while (frameQ.size() >= maxBufferSize) {
+				//System.out.println("addFrame: no free space");
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			frameQ.add(data);		
 	}
 	
-	synchronized public FrameData getData() {
-		//System.out.println("DisplayBuffer getData()");
-		//consumed = true;
-		return data;
+	public FrameData getFrame() {
+		//System.out.println("DisplayBuffer.getData - " + Thread.currentThread().getName());
+		return frameQ.peek();
+	}
+	// - DATA MODYFICATION
+	synchronized public void advanceFrame() {
+			//System.out.println("DisplayBuffer.advanceFrame - " + Thread.currentThread().getName());
+			frameQ.poll();
+			if (frameQ.size() <= minBufferSize) {
+				notifyAll();
+			}
+		
 	}
 	
-	public void updateData() {
-		consumed = true;
-	}
-	
-	public boolean isDisplayed() {
-		return consumed;
-	}
-
-	public boolean isUpdated() {
-		if (data != null && !consumed) {return true;}
+	public boolean isEmpty() {
+		if(frameQ.size() < minBufferSize)
+			{return true;}
 		return false;
 	}
 
-	
-	
-	class Data {
-		public List<Blob> blobs;
-		public List<ChargePoint> charges;
-		public List<Vec> collisions;
-		public double ground;
-		
-		//Deep copy during instantiation
-		public Data(List<Blob> blobs, List<ChargePoint> charges, List<Vec> collisions, double ground) {
-			super();
-			this.blobs = cloneBlobs(blobs);
-			this.charges = cloneCharges(charges);
-			this.collisions = cloneCollisions(collisions);
-			this.ground = ground;
-		}
-		
-		//Cloning methods
-		private List<Blob> cloneBlobs(List<Blob> blobs) {
-			List<Blob> result = new ArrayList<Blob>(blobs.size());
-			for (Blob b : blobs) {
-				result.add(new Blob(b));
-			}
-			return result;
-		}
-		private List<ChargePoint> cloneCharges(List<ChargePoint> charges) {
-			List<ChargePoint> result = new ArrayList<ChargePoint>(charges.size());
-			for (ChargePoint c : charges) {
-				result.add(new ChargePoint(c));
-			}
-			return result;
-		}
-		private List<Vec> cloneCollisions(List<Vec> collisions) {
-			List<Vec> result = new ArrayList<Vec>(collisions.size());
-			for (Vec c : collisions) {
-				result.add(new Vec(c));
-			}
-			return result;
-		}
-				
+	public boolean isFull() {
+		if (frameQ.size() >= maxBufferSize) {return true;}
+		return false;
+	}
+
+	public int maxSize() {
+		return maxBufferSize;
 	}
 	
+	public int currentSize() {
+		return frameQ.size();
+	}
 	
-	//getters
+		
+	
+	//frame data getters
 		public List<Blob> getBlobs() {
-			return data.blobs;
+			if(frameQ.isEmpty()) {return null;}		
+			return frameQ.peek().blobs;
 		}
 		public List<ChargePoint> getCharges() {
-			return data.charges;
+			if(frameQ.isEmpty()) {return null;}
+			return frameQ.peek().charges;
 		}
 		public List<Vec> getCollisions() {
-			return data.collisions;
+			if(frameQ.isEmpty()) {return null;}
+			return frameQ.peek().collisions;
+		}
+		public Vec getGravity() {
+			if(frameQ.isEmpty()) {return null;}
+			return frameQ.peek().gravity;
 		}
 		public double getGround() {
-			return data.ground;
+			if(frameQ.isEmpty()) {return -1;}
+			return frameQ.peek().ground;
+		}
+		public double getSpeed() {
+			return frameQ.peek().speed;
 		}
 	
+		
+		
+		
 }

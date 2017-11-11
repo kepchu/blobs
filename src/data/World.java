@@ -2,10 +2,16 @@ package data;
 
 import java.util.ArrayList;
 import java.util.List;
-import app.VecMath;
-import utils.U;
 
-public class World {
+import ColDet.CoIDetInwardCol;
+import ColDet.ColDetAllignBordersonAtoBvec;
+import ColDet.ColDetDebris;
+import ColDet.ColDetDisabled;
+import ColDet.Collidable;
+import utils.U;
+import utils.VecMath;
+
+public class World implements Runnable{
 	//SETTINGS
 	static int maxX = 2000;
 	static int maxY = 0;
@@ -28,8 +34,12 @@ public class World {
 	
 	FrameBuffer buffer;
 	
+	private Object[] collisionsArray;
+	private int currentColl;
+	
+	
 	public World (int noOfBlobs) {
-		
+		System.out.println("World constr. thread - " + Thread.currentThread().getName());
 		buffer = FrameBuffer.getInstance();
 		
 		blobs = new ArrayList<Blob> (noOfBlobs);
@@ -37,6 +47,13 @@ public class World {
 		
 		stageMovementDelta = new Vec(0,0);
 		listOfCollisionPoints = new ArrayList<Vec>();
+		
+		currentColl = 0;
+		collisionsArray = new Object[4];
+		collisionsArray[0] = new ColDetAllignBordersonAtoBvec(getListOfCollisionPoints(), getTimeInterval());
+		collisionsArray[1] = new ColDetDisabled(getListOfCollisionPoints());
+		collisionsArray[2] = new CoIDetInwardCol(getListOfCollisionPoints());
+		collisionsArray[3] = new ColDetDebris(getListOfCollisionPoints());
 		//initData(noOfBlobs);
 	}
 	public World() {
@@ -53,14 +70,21 @@ public class World {
 		}
 	}
 	
+	public void run() {
+		System.out.println("World.run() thread - " + Thread.currentThread().getName());
+		while (true) {
+			update();
+		}
+	}
+	
 	public void update() {
 		
-		//TODO: after testing move this check below update of the world
-		if (!buffer.isDisplayed()) {
-			System.out.println("World.update(): Waiting for buffer content to be displayed");
-			return;
-		} else {
-			// 1 - update world
+//		//TODO: after testing move this check below update of the world
+//		if (buffer.isFull()) {
+//			System.out.println("World.update(): Display buffer full. Waiting.");
+//			return;
+//		} else {
+			// 1 a - update world
 			for (Blob b : blobs) {
 				// account for gravity
 				Vec drag = new Vec(gravity);
@@ -73,15 +97,35 @@ public class World {
 				}
 				b.update(timeInterval, drag, stageMovementDelta);
 			}
+			//1b - update world - collisions
+			colDet();
 			
 			// 2 - update display buffer
-			buffer.setData(new FrameData(blobs, charges, listOfCollisionPoints, groundLevel));
+			buffer.addFrame(new FrameData(blobs, charges, listOfCollisionPoints, gravity,
+					groundLevel, timeInterval));
 			
 			stageMovementDelta.setXY(0, 0);//unfinished smooth movement of camera
 			listOfCollisionPoints.clear();
-		}
+		
 
 	}
+	private void colDet() {
+		// testing - find collisions:
+					((ColDetAllignBordersonAtoBvec) collisionsArray[currentColl])
+							.detectCollisions(new ArrayList<Collidable>(getBlobs()));
+//					 try { Thread.sleep(100); } catch (InterruptedException e)
+//					 {e.printStackTrace(); }
+	}
+	
+	public void switchCollisonsDetect() {
+		if (currentColl < collisionsArray.length - 1) {
+			currentColl++;
+		} else {
+			currentColl = 0;
+		}
+		System.out.println("Col. det. set to " + collisionsArray[currentColl].getClass().getSimpleName());
+	}
+	
 	
 	//Control interface
 		public void speedUp() {
@@ -105,7 +149,7 @@ public class World {
 	public void addBlobAt(double x, double y) {
 		blobs.add(new Blob (new Vec(x,y), U.rndInt(5, 200)));
 	}
-	public void addBlob() {
+	public synchronized void addBlob() {
 		blobs.add(new Blob(
 				new Vec(U.rndInt(100, 700), U.rndInt(10, -1000)),
 				U.rndInt(5, 200)));

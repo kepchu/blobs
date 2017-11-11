@@ -1,7 +1,9 @@
-package app;
+package ColDet;
+
+import static utils.VecMath.*;
 
 import java.util.List;
-import static app.VecMath.*;
+
 import data.Vec;
 
 public class ColDetDisabled extends ColDetAllignBordersonAtoBvec {

@@ -1,14 +1,16 @@
-package app;
+package ColDet;
+
+import static utils.VecMath.*;
 
 import java.util.List;
-import static app.VecMath.*;
+
 import data.Vec;
 
-public class CoIDetInwardCol extends ColDetAllignBordersonAtoBvec {
+public class ColDetDebris extends ColDetAllignBordersonAtoBvec {
 	
 	private List<Vec> listOfCollisionPoints;
 
-	public CoIDetInwardCol (List <Vec> listOfCollisionPoints) {
+	public ColDetDebris (List <Vec> listOfCollisionPoints) {
 		super(listOfCollisionPoints, 1.0);
 		this.listOfCollisionPoints = listOfCollisionPoints;
 	}
@@ -44,7 +46,7 @@ public class CoIDetInwardCol extends ColDetAllignBordersonAtoBvec {
 						add(subject.getPosition(), subject.getVelocity()),
 						add(object.getPosition(), object.getVelocity()));
 				//do not process collision if blobs already move in the right direction
-				if (actualDistance < futureDistance) {
+				if (actualDistance > futureDistance) {
 					doCollision(subject, object);
 				}
 			}
