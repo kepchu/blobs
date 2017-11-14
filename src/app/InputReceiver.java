@@ -5,9 +5,9 @@ import data.World;
 public class InputReceiver {
 	
 	World w;
-	Logic l;
+	Loop l;
 	
-	public InputReceiver(World dc, Logic l) {
+	public InputReceiver(World dc, Loop l) {
 		this.w = dc;
 		this.l = l;
 	}

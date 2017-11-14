@@ -7,15 +7,14 @@ import java.util.List;
 import data.Blob;
 import data.Vec;
 
-public class ColDetAllignBordersonAtoBvec {
+public class ColDetAllignBordersonAtoBvecFuture extends ColDetAllignBordersonAtoBvec {
 	
 	private List<Vec> listOfCollisionPoints;
 	@SuppressWarnings("unused")
 	private double timeInterval;
-	private double dampeningFactor = 1.0;
 	
-	
-	public ColDetAllignBordersonAtoBvec (List <Vec> listOfCollisionPoints, double timeInterval) {
+	public ColDetAllignBordersonAtoBvecFuture (List <Vec> listOfCollisionPoints, double timeInterval) {
+		super(listOfCollisionPoints, timeInterval);
 		this.listOfCollisionPoints = listOfCollisionPoints;
 		this.timeInterval = timeInterval;
 	}
@@ -59,17 +58,12 @@ public class ColDetAllignBordersonAtoBvec {
 			futureDistance = distanceBetween(
 					subject.getPosition().add(subject.getVelocity()),
 					object.getPosition().add(object.getVelocity()));
-			if (actualDistance < subject.getRadius() + object.getRadius()) {
+			if (futureDistance < subject.getRadius() + object.getRadius()) {
 				//placeOverlappingCollideesNextToEachOther (subject, object);
 				
-				//TODO add test for (and deal with) growing blobs here because:
-				// 1. inflating/growing blob has to affect POSITION and not just velocity of its neighbours
-				// 2. distance test below excludes many valid cases
-				// 3. shrinking should be taken care of in "bounceOff"
-				
 				//do not process collision if blobs already move in the right direction
-				if (actualDistance < previousDistance) {
-				//if (futureDistance < actualDistance) {
+				//if (actualDistance < previousDistance) {
+				if (futureDistance < actualDistance) {
 					doCollision(subject, object);
 				}
 			}
@@ -79,12 +73,12 @@ public class ColDetAllignBordersonAtoBvec {
 	
 	//Execution of collisions - any data modification only via this method
 	private void doCollision (Collidable subject, Collidable object) {
-		//newest collisions first for simple display code	
+		//newest collisions first to simplify display code	
 		listOfCollisionPoints.add(0, prodCollPoint(subject, object));
 		//listOfCollisionPoints.add(new Vec(subject.getPosition()));
 		
 		bounceOff(subject, object);
-		//placeOverlappingCollideesNextToEachOther(subject, object);
+			
 	}
 	
 	private void placeOverlappingCollideesNextToEachOther (Collidable subject, Collidable object) {
@@ -101,12 +95,7 @@ public class ColDetAllignBordersonAtoBvec {
 	}
 	
 	private void bounceOff (Collidable subj, Collidable obj) {
-		//TODO: tagging instead of simple removal from input list (can be used for visual cues and logic)
-		//Will switch later from boolean tags to location of collision.
-		subj.setColDetDone(true);
-		//obj.setColDetDone(true);
-		
-		//1. Transfer of kinetic energy
+		//System.out.println("Coll. of: " + ((Blob)subj).ID + " and " + ((Blob) obj).ID);
 		//TODO: velocity will be changed to force (generally speed * mass but maybe some per/colour variations of "mass")
 		Vec subVel = subj.getVelocity();
 		Vec objVel = obj.getVelocity();
@@ -114,8 +103,8 @@ public class ColDetAllignBordersonAtoBvec {
 		//Subject's side:
 		//get direction to hitting blob = angle of collision
 		Vec fromSubToObj = vecFromAtoB(
-				subj.getPosition(),
-				obj.getPosition());
+				subj.getPosition().add(subj.getVelocity()),
+				obj.getPosition().add(obj.getVelocity()));
 		//get amount of subject's kinetic energy transferred at the angle of collision
 		Vec kineticInvolvementOfSubject = projectAonB(subVel, fromSubToObj);
 		
@@ -124,26 +113,41 @@ public class ColDetAllignBordersonAtoBvec {
 		Vec fromObjToSub = fromSubToObj.multiply(-1);
 		
 		Vec kineticInvolvementOfObject = projectAonB(objVel, fromObjToSub);
-		
-		//TODO: inflating blobs to be dealt with in calling method - only shrinking blobs here
-		//2. Account for inflation:
-		if (subj.inflationDelta() != 0)
-			kineticInvolvementOfSubject.setMagnitude(kineticInvolvementOfSubject.getMagnitude() + subj.inflationDelta());
-		if (obj.inflationDelta() != 0)
-			kineticInvolvementOfObject.setMagnitude(kineticInvolvementOfObject.getMagnitude() + obj.inflationDelta());
-		
-		
-		//apply reflection forces
+			
 		subVel.addAndSet(kineticInvolvementOfSubject.multiply(-1)
 				.add(kineticInvolvementOfObject));
 		
 		objVel.addAndSet(kineticInvolvementOfObject.multiply(-1)
-				.add(kineticInvolvementOfSubject));	
+				.add(kineticInvolvementOfSubject));
+		
+		subj.setColDetDone(true);
+		obj.setColDetDone(true);
+		
+//		System.out.println("Pre-coll. speeds: " + subVel + " and " + objVel);
+//		System.out.println("K. inv. of sub. " + ((Blob)subject).ID + ": " + kineticInvolvementOfSubject +
+//				". K. inv. of obj. " + ((Blob) object).ID + ": " + kineticInvolvementOfObject);
 		
 		
 		
 		
+		//TODO:? It's a pity that only subject is updated because all the info for updating object
+		//has been computed. Some kind of efficient caching system to store list of
+		//of already calculated bounces would allow for update of both parties and 
+//		Vec tempSubVel = subVel.add(kineticInvolvementOfSubject.multiplyAndSet(-1)
+//				.addAndSet(kineticInvolvementOfObject));
+			
+//		objVel.addAndSet(kineticInvolvementOfObject.multiplyAndSet(-1)
+//				.addAndSet(kineticInvolvementOfSubject));
 		
+//		subVel = tempSubVel;
+		
+//		Vec tempSubVel = subVel.add(kineticInvolvementOfSubject.multiplyAndSet(-1));
+//		objVel.addAndSet(kineticInvolvementOfObject.multiplyAndSet(-1));
+//		subVel = tempSubVel;
+		//subject.setColDetDone(true);
+//		object.setColDetDone(true);
+		
+		//System.out.println("Post coll. speeds: " + subVel + " and " + objVel + "\n");
 	}
 	
 	//This the only method I didn't create

@@ -8,16 +8,19 @@ public interface Collidable {
 	void setPosition(Vec v);
 	double getRadius();
 
+	double inflationDelta();
 	Vec getVelocity();
 	
 	double getEnergy();
-	
-	double inflationDelta();
 
 	Vec getPreviousPosition();
-
+	
+	boolean isColDetDone();
+	void setColDetDone(boolean b);
+	
 	enum ColliderType {
-		//standard = impenetrable; debris = outbound colliders allowed to intersect; decoration - no collisions
+		//standard = impenetrable;  decoration - no collisions;
+		//debris = overlapping blobs that move away from each other are allowed to intersect without colliding 
 		STANDARD, DEBRIS, DECORATION
 	}
 }

@@ -4,7 +4,7 @@ import ColDet.Collidable;
 
 public class Blob implements Collidable {
 	private static int staticID;
-	private final int ID;
+	public final int ID;
 	private Vec position;
 	private Vec previousPosition;
 	private Vec velocity;
@@ -14,7 +14,7 @@ public class Blob implements Collidable {
 	private double mass = 1;// for the future
 	private Colour colour;
 	private BlobState state;
-
+	private boolean colDetDone;
 	// Settings:
 	private double maxVelocity = 40;
 	private double maxInflationSpeed = 5.0;
@@ -37,6 +37,7 @@ public class Blob implements Collidable {
 		this.mass = b.mass;
 		this.colour = new Colour(b.getColour());
 		this.state = b.state;	
+		this.colDetDone = b.colDetDone;
 		
 		this.newbornInflationSpeed = b.newbornInflationSpeed;
 	}
@@ -60,7 +61,21 @@ public class Blob implements Collidable {
 	}
 	
 	
+	public boolean isColDetDone() {
+		return colDetDone;
+	}
+	
+	public void setColDetDone(boolean b) {
+		colDetDone = b;
+	}
+	
+	
 	// LIFECYCLE START
+	// TODO: regulate things from the enum according to state change? - separate FSM?
+		public enum BlobState {
+			IN, OUT, NEWBORN_PRE_APEX, NEWBORN_POST_APEX, PLAYER_CONTROLLED;
+		}
+	
 	public void update(double timeInterval, Vec drag, Vec stageDelta) {
 
 		velocity.addAndSet(drag.multiply(timeInterval));
@@ -81,7 +96,7 @@ public class Blob implements Collidable {
 	@SuppressWarnings("unused")
 	private void updateAllStates(double timeInterval, Vec stageDelta) {
 		
-		
+		setColDetDone(false);
 		//account for window movement
 		//TIME INTERVAL not applied as real window movement should be matched
 		if (false) {// (stageDelta.getMagnitude() > 0) {
@@ -128,7 +143,7 @@ public class Blob implements Collidable {
 				
 		//update radius
 		if (state == BlobState.NEWBORN_PRE_APEX) {
-			radius += (newbornInflationSpeed * timeInterval);
+			setRadius(radius + (newbornInflationSpeed * timeInterval));
 			if (radius > inflationApex) {
 				state = BlobState.NEWBORN_POST_APEX;
 			}	
@@ -136,7 +151,7 @@ public class Blob implements Collidable {
 		// if inflationApex has been reached, deflate until below nominal size and then
 		// change state to OUT
 		if (state == BlobState.NEWBORN_POST_APEX) {
-			radius -= (newbornInflationSpeed * timeInterval)/shrinkingSpeedModifier;
+			setRadius(radius - (newbornInflationSpeed * timeInterval)/shrinkingSpeedModifier);
 			if (radius < energy) {
 				state = BlobState.OUT;
 			}
@@ -147,21 +162,16 @@ public class Blob implements Collidable {
 		// update radius	
 		if (Math.abs(radius - energy) > maxInflationSpeed) {
 			if (energy > radius) {
-				radius += Math.min(maxInflationSpeed * timeIntrval, maxInflationSpeed);
+				setRadius (radius + Math.min(maxInflationSpeed * timeIntrval, maxInflationSpeed));
 			} else if (energy < radius){
-				radius -= Math.min(maxInflationSpeed * timeIntrval, maxInflationSpeed);
+				setRadius (radius - Math.min(maxInflationSpeed * timeIntrval, maxInflationSpeed));
 			}
 		} else {
-			radius = energy;
+			setRadius(energy);
 		}
 	}
 
 	// LIFECYCLE END
-
-	// TODO: regulate things from the enum according to state change? - separate FSM?
-	public enum BlobState {
-		IN, OUT, NEWBORN_PRE_APEX, NEWBORN_POST_APEX, PLAYER_CONTROLLED;
-	}
 
 	public int getID() {
 		return ID;
@@ -244,7 +254,8 @@ public class Blob implements Collidable {
 	}
 	
 	public String toString() {
-		return "Blob # " + ID + ", y: " + (int)getY() + ", x: " + (int)getX() +
-				", energy: " + energy + ", Y + radius = " + (getY() + radius);
+//		return "Blob # " + ID + ", y: " + (int)getY() + ", x: " + (int)getX() +
+//				", energy: " + energy + ", Y + radius = " + (getY() + radius);
+		return ID + ", " + colour.getCategory() + " inf: " + inflationDelta();
 	}
 }

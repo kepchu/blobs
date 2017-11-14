@@ -5,12 +5,15 @@ import java.util.List;
 
 import ColDet.CoIDetInwardCol;
 import ColDet.ColDetAllignBordersonAtoBvec;
+import ColDet.ColDetAllignBordersonAtoBvecFuture;
 import ColDet.ColDetDebris;
 import ColDet.ColDetDisabled;
 import ColDet.Collidable;
 import utils.U;
 import utils.VecMath;
 
+
+//TODO: make sure all mutations of core data happen only in "update" loop via buffering Lists to avoid concurrent access
 public class World implements Runnable{
 	//SETTINGS
 	static int maxX = 2000;
@@ -21,19 +24,25 @@ public class World implements Runnable{
 	static int spanY = maxY - minY;
 	//static public int stageDeltaX = 0, stageDeltaY = 0;
 	//static Vec gravity = new Vec(0.000001, 0.03);
-	static Vec gravity = new Vec(0.00000, 0.1);
-	static double gravityDelta = 1.02;
-	int groundLevel = maxY;	
-	double timeInterval = 1.0; //amount of "app world" time between updates
-	double timeIntervalStep = 1.3;
+	private static Vec gravity = new Vec(0.00000, 0.3);
+	private static double gravityDelta = 1.02;
+	private int groundLevel = maxY;	
+	private double timeInterval = 1.0; //amount of "app world" time between updates
+	private double timeIntervalStep = 1.3;
 	
+	private List<Blob> newBlobs;//accessed from concurrent thread to avoid ConcurrentModificationE...
 	private List <Blob> blobs;
+	private List<ChargePoint> newCharges;
 	private List<ChargePoint> charges;
 	private List <Vec> listOfCollisionPoints;
-	static Vec stageMovementDelta;
+	private static Vec stageMovementDelta;
 	
-	FrameBuffer buffer;
+	private FrameBuffer buffer;
 	
+	private Object lock1 = new Object();
+	
+	
+	//TODO
 	private Object[] collisionsArray;
 	private int currentColl;
 	
@@ -42,18 +51,21 @@ public class World implements Runnable{
 		System.out.println("World constr. thread - " + Thread.currentThread().getName());
 		buffer = FrameBuffer.getInstance();
 		
+		newBlobs = new ArrayList<Blob>();
 		blobs = new ArrayList<Blob> (noOfBlobs);
+		newCharges = new ArrayList<ChargePoint>();
 		charges = new ArrayList<ChargePoint>();
 		
 		stageMovementDelta = new Vec(0,0);
 		listOfCollisionPoints = new ArrayList<Vec>();
 		
 		currentColl = 0;
-		collisionsArray = new Object[4];
+		collisionsArray = new Object[5];
 		collisionsArray[0] = new ColDetAllignBordersonAtoBvec(getListOfCollisionPoints(), getTimeInterval());
-		collisionsArray[1] = new ColDetDisabled(getListOfCollisionPoints());
-		collisionsArray[2] = new CoIDetInwardCol(getListOfCollisionPoints());
-		collisionsArray[3] = new ColDetDebris(getListOfCollisionPoints());
+		collisionsArray[1] = new ColDetAllignBordersonAtoBvecFuture(getListOfCollisionPoints(), getTimeInterval());
+		collisionsArray[2] = new ColDetDisabled(getListOfCollisionPoints());
+		collisionsArray[3] = new CoIDetInwardCol(getListOfCollisionPoints());
+		collisionsArray[4] = new ColDetDebris(getListOfCollisionPoints());
 		//initData(noOfBlobs);
 	}
 	public World() {
@@ -77,37 +89,38 @@ public class World implements Runnable{
 		}
 	}
 	
-	public void update() {
-		
-//		//TODO: after testing move this check below update of the world
-//		if (buffer.isFull()) {
-//			System.out.println("World.update(): Display buffer full. Waiting.");
-//			return;
-//		} else {
-			// 1 a - update world
-			for (Blob b : blobs) {
-				// account for gravity
-				Vec drag = new Vec(gravity);
-				// account for charges
-				for (ChargePoint c : charges) {
-					Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.getPosition());
-					chargeInfluence.setMagnitude(c.getPower());
+	private void update() {
 
-					drag.addAndSet(chargeInfluence);
-				}
-				b.update(timeInterval, drag, stageMovementDelta);
+		//0 - update data structures
+		blobs.addAll(newBlobs);		
+		newBlobs.clear();
+		
+		charges.addAll(newCharges);
+		newCharges.clear();
+		
+		// 1 a - update data in data structures
+		for (Blob b : blobs) {
+			// account for gravity
+			Vec drag = new Vec(gravity);
+			// account for charges. TODO: delegate effects of charges to charges themselves (to facilitate for different types of charges)
+			for (ChargePoint c : charges) {
+				Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.getPosition());
+				chargeInfluence.setMagnitude(c.getPower());
+
+				drag.addAndSet(chargeInfluence);
 			}
-			//1b - update world - collisions
-			colDet();
-			
-			// 2 - update display buffer
-			buffer.addFrame(new FrameData(blobs, charges, listOfCollisionPoints, gravity,
-					groundLevel, timeInterval));
-			
-			stageMovementDelta.setXY(0, 0);//unfinished smooth movement of camera
-			listOfCollisionPoints.clear();
+			b.update(timeInterval, drag, stageMovementDelta);
+		}
 		
+		// 1b - update world - collisions
+		colDet();
 
+		// 2 - update display buffer (this thread is put to sleep when buffer is full)
+		buffer.addFrame(new FrameData(blobs, charges, listOfCollisionPoints, gravity, groundLevel, timeInterval));
+
+		// 3 - clean-up
+		stageMovementDelta.setXY(0, 0);// unfinished smooth movement of camera
+		listOfCollisionPoints.clear();
 	}
 	private void colDet() {
 		// testing - find collisions:
@@ -147,13 +160,12 @@ public class World implements Runnable{
 		}
 	
 	public void addBlobAt(double x, double y) {
-		blobs.add(new Blob (new Vec(x,y), U.rndInt(5, 200)));
+			newBlobs.add(new Blob (new Vec(x,y), U.rndInt(5, 200)));
 	}
-	public synchronized void addBlob() {
-		blobs.add(new Blob(
-				new Vec(U.rndInt(100, 700), U.rndInt(10, -1000)),
-				U.rndInt(5, 200)));
+	public void addBlob() {
+		addBlobAt((U.rndInt(0, 800)), U.rndInt(10, -1000));
 	}
+	
 	
 	public void addCharge(double x, double y) {
 		charges.add(new ChargePoint(new Vec(x,y)));

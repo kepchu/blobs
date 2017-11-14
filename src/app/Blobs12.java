@@ -6,13 +6,13 @@ import data.FrameBuffer;
 import data.World;
 import view.ViewAndInputController;
 
-public class Blobs011 {
+public class Blobs12 {
 
 	public static void main (String[] args) {	
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					new Blobs011();
+					new Blobs12();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -22,13 +22,13 @@ public class Blobs011 {
 	
 	
 	
-	public Blobs011 () {
+	public Blobs12 () {
 		
 		System.out.println("Blobs01 thread - " + Thread.currentThread().getName());
 		//MVC pattern variation
 		World dc = new World();
 		ViewAndInputController v = new ViewAndInputController(FrameBuffer.getInstance());
-		new Logic(dc, v);
+		new Loop(dc, v);
 		
 	}
 	

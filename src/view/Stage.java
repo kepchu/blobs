@@ -11,15 +11,17 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import data.Blob;
-import data.BufferedFrames;
+import data.BufferableFrames;
 import data.ChargePoint;
+import data.FrameData;
 import data.Vec;
 
 //TODO:/ISSUE: paint called by system before setData call - this produces NullPointer
 @SuppressWarnings("serial")
 public class Stage extends JPanel implements ComponentListener{
 	
-	private BufferedFrames data;
+	private FrameData frame;
+	private BufferableFrames displayBuffer;
 	private int panelHeight;
 	private int panelWidth;
 
@@ -31,9 +33,10 @@ public class Stage extends JPanel implements ComponentListener{
 	private double deltaZoom = 1.5;
 	private int deltaY = 100;
 	
-	public Stage(int initialCameraPosition, BufferedFrames frameData) {
+	public Stage(int initialCameraPosition, BufferableFrames displayBuffer) {
 		System.out.println("Stage constr. thread - " + Thread.currentThread().getName());
-		data = frameData;
+		this.displayBuffer = displayBuffer;
+		frame = displayBuffer.getFrame();
 		currentElevation = initialCameraPosition;
 		//IMPORTANT: the below is crucial to get proper dimensions & ground level (in "componentResized").
 		//This functionality could be done by a simple getHeight() call from paint(Graphics g)
@@ -58,29 +61,23 @@ public class Stage extends JPanel implements ComponentListener{
 	// DRAWING ROUTINE
 	//ISSUE: paint called by system before setData call - this produces NullPointer
 	public void paint(Graphics g) {
-		
-		if (data == null || data.isEmpty()) {
+		//super.paintComponent(g);
+		frame = displayBuffer.getFrame();
+		if (frame  == null) {
 			System.out.println("Stage.paint: no frame data to draw. Returning.");
 			return;
 		}
-		super.paintComponent(g);
+		
 		Graphics2D g2d = (Graphics2D) g;
 		
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		
-		/*//TODO: proper enum enumerating drawing complexity with appropriate drawing methods
-		if(data.currentSize() < 11) {
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		}
-		else {
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-			g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-		}*/
+		//TODO: proper enum enumerating drawing complexity with appropriate drawing methods
+		
 		
 		// calls to methods that draw specific elements
-		drawBackground(g2d);
+		drawBackground(g2d);//TODO: generate some background to be scrolled when window is moved
 		drawRuler(g2d);
 		//the below methods use data object
 		drawBorders(g2d);
@@ -88,7 +85,7 @@ public class Stage extends JPanel implements ComponentListener{
 		drawCharges(g2d);
 		drawCollisions(g2d);
 		drawInfo(g2d);
-		data.advanceFrame();
+		displayBuffer.advanceFrame();
 	}
 
 	// methods used by the drawing routine in paint (Graphics g)
@@ -119,7 +116,7 @@ public class Stage extends JPanel implements ComponentListener{
 		g.setColor(Color.RED);
 		//draw ground level
 		g.drawLine(0, currentElevation, panelWidth, currentElevation);
-		//TODO: draw "word dimensions" - minX, maxY, etc. from DataController
+		//TODO: draw "word dimensions" - minX, maxY, etc. (stored in "World")
 	}
 	
 	private void drawBlobs(Graphics2D g) {
@@ -129,7 +126,7 @@ public class Stage extends JPanel implements ComponentListener{
 		int minTaggingSize = 10;
 		
 		
-		for (Blob b : data.getBlobs()) {//bailout 
+		for (Blob b : frame.getBlobs()) {//bailout 
 			int radius = (int)(b.getRadius() * scale);
 			
 			//Subtracting radius to accommodate to drawOval method
@@ -163,8 +160,8 @@ public class Stage extends JPanel implements ComponentListener{
 			
 			//TODO:
 			if (radius > minTaggingSize) {
-				g.drawString(b.getID() + ", " + b.getColour().getCategory(), offsetX + radius,
-						offsetY + radius);
+				//g.drawString(b.getID() + ", " + b.getColour().getCategory(), offsetX + radius, (int)(offsetY + radius * 1.5));
+				g.drawString(b.toString(),offsetX + radius, (int)(offsetY + radius * 1.5));
 			}
 		}
 	}
@@ -173,7 +170,7 @@ public class Stage extends JPanel implements ComponentListener{
 		g.setColor(Color.BLACK);
 		int width = 10, height = 10;
 		int x,y;
-		for (ChargePoint c : data.getCharges()) {
+		for (ChargePoint c : frame.getCharges()) {
 			x = scaleX(c.getPosition().getX() - width/2); 
 			y = scaleY(c.getPosition().getY() - height/2);
 			g.fillRect(x, y, (int)(width * scale),(int)(height * scale));
@@ -189,7 +186,7 @@ public class Stage extends JPanel implements ComponentListener{
 		
 		//draw last maxNumberOfDrawnCollisions from listOfCollisionPoints
 		int i = 0;
-		for (Vec c: data.getCollisions()) {
+		for (Vec c: frame.getCollisions()) {
 			int offsetX = scaleX(c.getX()) - circumference/2;
 			int offsetY = scaleY(c.getY()) - circumference/2;			
 			g.fillOval(offsetX, offsetY, circumference, circumference);
@@ -201,12 +198,12 @@ public class Stage extends JPanel implements ComponentListener{
 	private void drawInfo(Graphics2D g) {
 		int x = 20, y = 20;
 		g.setColor(Color.BLACK);
-		g.drawString("Blobs [left-click] or [Insert]: " + data.getBlobs().size(), x, y);
-		g.drawString("Charges: [right-click]: " + data.getCharges().size(), x, y+12);
-		g.drawString("Collision points: " + data.getCollisions().size(), x, y+24);
-		g.drawString("Buffered frames: " + data.currentSize(), x, y+36);
-		g.drawString("Speed [PgUp] / [PgDown]:" + data.getSpeed(), x, y+48);
-		g.drawString("Gravity [Home] / [End]:" + data.getGravity(), x, y+60);
+		g.drawString("Blobs [left-click] or [Insert]: " + frame.getBlobs().size(), x, y);
+		g.drawString("Charges: [right-click]: " + frame.getCharges().size(), x, y+12);
+		g.drawString("Collision points: " + frame.getCollisions().size(), x, y+24);
+		g.drawString("Buffered frames: " + displayBuffer.currentSize(), x, y+36);
+		g.drawString("Speed [PgUp] / [PgDown]:" + frame.getSpeed(), x, y+48);
+		g.drawString("Gravity [Home] / [End]:" + frame.getGravity(), x, y+60);
 		g.drawString("\nScale (R.Click + m. wheel): " + scale, x, y+72);
 	}
 	

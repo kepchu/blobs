@@ -15,7 +15,7 @@ import data.FrameBuffer;
 import data.World;
 import view.ViewAndInputController;
 
-public class Logic implements Runnable {
+public class Loop implements Runnable {
 
 	private World dc;
 	private ViewAndInputController v;
@@ -28,7 +28,7 @@ public class Logic implements Runnable {
 	Object lock = new Object();
 	
 	
-	public Logic(World dc, ViewAndInputController v) {
+	public Loop(World dc, ViewAndInputController v) {
 
 		this.dc = dc;
 		this.v = v;
@@ -50,18 +50,10 @@ public class Logic implements Runnable {
 		
 		//dc.update();
 		
-		if (frameBuffer.isEmpty()) {
-			System.out.println("main loop: DisplayBuffer empty - postponing drawing");
-			//dc.update();
-			return;
-		} else {
-			
-			v.update();// TODO: switch to swing timer
-			
-			
-		}
+		if (frameBuffer.isEmpty()) 
+			System.out.println("main loop: DisplayBuffer empty");
 		
+		v.update();// TODO: switch to swing timer
+					
 	}
-
-	
 }

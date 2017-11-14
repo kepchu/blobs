@@ -45,18 +45,30 @@ public class FrameData {
 		}
 		return result;
 	}
-	
-	//getters
+
 	public List<Blob> getBlobs() {
 		return blobs;
 	}
+
 	public List<ChargePoint> getCharges() {
 		return charges;
 	}
+
 	public List<Vec> getCollisions() {
 		return collisions;
 	}
+
+	public Vec getGravity() {
+		return gravity;
+	}
+
 	public double getGround() {
 		return ground;
 	}
+
+	public double getSpeed() {
+		return speed;
+	}
+	
+	
 }

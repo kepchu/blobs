@@ -21,7 +21,7 @@ import javax.swing.SwingUtilities;
 
 import app.InputReceiver;
 import data.FrameData;
-import data.BufferedFrames;
+import data.BufferableFrames;
 import data.FrameBuffer;
 import data.World;
 
@@ -34,7 +34,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	private InputMap inputMap;
 	private ActionMap actionMap;
 
-	private BufferedFrames frameBuffer;
+	private BufferableFrames frameBuffer;
 	private InputReceiver inputReceiver;
 	
 	
@@ -320,7 +320,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		}
 
 
-		public void setFrameBuffer(BufferedFrames frameBuffer) {
+		public void setFrameBuffer(BufferableFrames frameBuffer) {
 			// TODO Auto-generated method stub
 			
 		}

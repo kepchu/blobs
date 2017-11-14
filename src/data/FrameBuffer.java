@@ -4,13 +4,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public class FrameBuffer implements BufferedFrames {
+public class FrameBuffer implements BufferableFrames {
 	
 	private Queue <FrameData> frameQ;//TODO
 	
 	//settings
 	private int maxBufferSize = 3;
-	private int minBufferSize = 1;
+	private int minBufferSize = 2;
+	
 	//this is a singleton
 	private final static FrameBuffer displayBuffer = new FrameBuffer();
 	private FrameBuffer() {
@@ -33,31 +34,29 @@ public class FrameBuffer implements BufferedFrames {
 					e.printStackTrace();
 				}
 			}
-			frameQ.add(data);		
+			
+			frameQ.add(data);
 	}
 	
 	public FrameData getFrame() {
+		
 		//System.out.println("DisplayBuffer.getData - " + Thread.currentThread().getName());
 		return frameQ.peek();
 	}
 	// - DATA MODYFICATION
 	synchronized public void advanceFrame() {
-			//System.out.println("DisplayBuffer.advanceFrame - " + Thread.currentThread().getName());
-			frameQ.poll();
-			if (frameQ.size() <= minBufferSize) {
-				notifyAll();
-			}
-		
+		//System.out.println("DisplayBuffer.advanceFrame - " + Thread.currentThread().getName());
+		if (!isFull()) notifyAll();
+		if (!isEmpty()) frameQ.poll();	
 	}
 	
 	public boolean isEmpty() {
-		if(frameQ.size() < minBufferSize)
-			{return true;}
+		if(frameQ.size() < minBufferSize) return true;
 		return false;
 	}
 
 	public boolean isFull() {
-		if (frameQ.size() >= maxBufferSize) {return true;}
+		if (frameQ.size() >= maxBufferSize) return true;
 		return false;
 	}
 
@@ -68,35 +67,5 @@ public class FrameBuffer implements BufferedFrames {
 	public int currentSize() {
 		return frameQ.size();
 	}
-	
-		
-	
-	//frame data getters
-		public List<Blob> getBlobs() {
-			if(frameQ.isEmpty()) {return null;}		
-			return frameQ.peek().blobs;
-		}
-		public List<ChargePoint> getCharges() {
-			if(frameQ.isEmpty()) {return null;}
-			return frameQ.peek().charges;
-		}
-		public List<Vec> getCollisions() {
-			if(frameQ.isEmpty()) {return null;}
-			return frameQ.peek().collisions;
-		}
-		public Vec getGravity() {
-			if(frameQ.isEmpty()) {return null;}
-			return frameQ.peek().gravity;
-		}
-		public double getGround() {
-			if(frameQ.isEmpty()) {return -1;}
-			return frameQ.peek().ground;
-		}
-		public double getSpeed() {
-			return frameQ.peek().speed;
-		}
-	
-		
-		
 		
 }
