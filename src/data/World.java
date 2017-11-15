@@ -9,6 +9,7 @@ import ColDet.ColDetAllignBordersonAtoBvecFuture;
 import ColDet.ColDetDebris;
 import ColDet.ColDetDisabled;
 import ColDet.Collidable;
+import data.Colour.ColourCategory;
 import utils.U;
 import utils.VecMath;
 
@@ -16,9 +17,9 @@ import utils.VecMath;
 //TODO: make sure all mutations of core data happen only in "update" loop via buffering Lists to avoid concurrent access
 public class World implements Runnable{
 	//SETTINGS
-	static int maxX = 2000;
+	static int maxX = 4000;
 	static int maxY = 0;
-	static int minX = 0;
+	static int minX = -2000;
 	static int minY = -800;
 	static int spanX = maxX - minX;
 	static int spanY = maxY - minY;
@@ -85,11 +86,11 @@ public class World implements Runnable{
 	public void run() {
 		System.out.println("World.run() thread - " + Thread.currentThread().getName());
 		while (true) {
-			update();
+			updateLoop();
 		}
 	}
 	
-	private void update() {
+	private void updateLoop() {
 
 		//0 - update data structures
 		blobs.addAll(newBlobs);		
@@ -102,12 +103,12 @@ public class World implements Runnable{
 		for (Blob b : blobs) {
 			// account for gravity
 			Vec drag = new Vec(gravity);
+			
 			// account for charges. TODO: delegate effects of charges to charges themselves (to facilitate for different types of charges)
 			for (ChargePoint c : charges) {
-				Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.getPosition());
-				chargeInfluence.setMagnitude(c.getPower());
-
-				drag.addAndSet(chargeInfluence);
+				
+				c.charge(b, timeInterval);
+				
 			}
 			b.update(timeInterval, drag, stageMovementDelta);
 		}
@@ -115,6 +116,7 @@ public class World implements Runnable{
 		// 1b - update world - collisions
 		colDet();
 
+		
 		// 2 - update display buffer (this thread is put to sleep when buffer is full)
 		buffer.addFrame(new FrameData(blobs, charges, listOfCollisionPoints, gravity, groundLevel, timeInterval));
 
@@ -122,6 +124,7 @@ public class World implements Runnable{
 		stageMovementDelta.setXY(0, 0);// unfinished smooth movement of camera
 		listOfCollisionPoints.clear();
 	}
+	
 	private void colDet() {
 		// testing - find collisions:
 					((ColDetAllignBordersonAtoBvec) collisionsArray[currentColl])
@@ -159,16 +162,21 @@ public class World implements Runnable{
 			System.out.println("gravity: " + gravity);
 		}
 	
+		
 	public void addBlobAt(double x, double y) {
 			newBlobs.add(new Blob (new Vec(x,y), U.rndInt(5, 200)));
 	}
-	public void addBlob() {
-		addBlobAt((U.rndInt(0, 800)), U.rndInt(10, -1000));
+	
+	public void addBlob(int i) {
+		int c = 0;
+		while (c++ < i) {
+			addBlobAt((U.rndInt(minX, maxX)), U.rndInt(minY, maxY));
+		}
 	}
 	
 	
-	public void addCharge(double x, double y) {
-		charges.add(new ChargePoint(new Vec(x,y)));
+	public void addCharge(double x, double y, double power, ColourCategory cc) {
+		charges.add(new ChargePoint(new Vec(x,y), power, cc));
 		System.out.println("length of charges: " + charges.size());
 	}
 	

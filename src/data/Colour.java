@@ -4,7 +4,7 @@ import java.awt.Color;
 
 public class Colour {
 	
-	private enum ColourCategory {
+	public enum ColourCategory {
 		R,G,B, NEUTRAL
 	}
 	

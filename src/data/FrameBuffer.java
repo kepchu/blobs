@@ -25,8 +25,8 @@ public class FrameBuffer implements BufferableFrames {
 	
 	
 	synchronized public void addFrame(FrameData data) {
-			while (frameQ.size() >= maxBufferSize) {
-				//System.out.println("addFrame: no free space");
+			while (isFull()) {
+				//System.out.print(".");
 				try {
 					wait();
 				} catch (InterruptedException e) {
@@ -36,12 +36,14 @@ public class FrameBuffer implements BufferableFrames {
 			}
 			
 			frameQ.add(data);
+			notifyAll();
 	}
 	
-	public FrameData getFrame() {
-		
+	synchronized public FrameData getFrame() {	
 		//System.out.println("DisplayBuffer.getData - " + Thread.currentThread().getName());
+		if (frameQ.isEmpty()) return null;
 		return frameQ.peek();
+		
 	}
 	// - DATA MODYFICATION
 	synchronized public void advanceFrame() {

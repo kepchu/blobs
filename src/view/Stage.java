@@ -123,7 +123,7 @@ public class Stage extends JPanel implements ComponentListener{
 		
 		int medDrawingSize = 1;
 		int fullDrawingSize = 5;
-		int minTaggingSize = 10;
+		int minTaggingSize = 25;
 		
 		
 		for (Blob b : frame.getBlobs()) {//bailout 

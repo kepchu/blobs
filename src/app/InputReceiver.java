@@ -1,5 +1,7 @@
 package app;
 
+import data.Colour;
+import data.Colour.ColourCategory;
 import data.World;
 
 public class InputReceiver {
@@ -49,12 +51,18 @@ public class InputReceiver {
 
 	//add blob at random position
 	public void insertAction() {
-		w.addBlob();		
+		w.addBlob(5);		
 	}
 
 	//add charge point
 	public void rightClickAt(double x, double y) {
 		System.out.println("rightClickAt " + x + ", " + y + ". Adding a charge.");
-		w.addCharge(x,y);	
+		w.addCharge(x,y, 1, ColourCategory.NEUTRAL);	
+	}
+
+
+	public void rLeftClick(double x, double y) {
+		w.addCharge(x, y, 1.0, ColourCategory.R);
+		
 	}
 }

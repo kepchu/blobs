@@ -1,9 +1,12 @@
 package view;
 
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -36,6 +39,9 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 
 	private BufferableFrames frameBuffer;
 	private InputReceiver inputReceiver;
+
+	boolean r,g,b;
+	
 	
 	
 	int stageX = Integer.MIN_VALUE, stageY = Integer.MIN_VALUE;
@@ -69,7 +75,39 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		stage.addMouseListener(this);
 		inputMap = stage.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 		actionMap = stage.getActionMap();
-		keyBinds();	
+		keyBinds();
+		
+		 KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(
+				 new KeyEventDispatcher() {
+					
+					@Override
+					public boolean dispatchKeyEvent(KeyEvent e) {
+
+						switch (e.getID()) {
+						case KeyEvent.KEY_PRESSED:
+							switch(e.getKeyCode()) {
+							case KeyEvent.VK_R:
+								r = true;
+								break;
+							
+							}
+						
+							break;
+						case (KeyEvent.KEY_RELEASED):
+							switch(e.getKeyCode()) {
+							case KeyEvent.VK_R:
+								r = false;
+								break;
+							
+							}
+						
+						}
+						
+						return false;
+					}
+				});
+		
+		
 	}
 	public void setUserInputReceiver(InputReceiver uir) {
 		this.inputReceiver = uir;			
@@ -85,8 +123,19 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		
+		
+		
 		if (SwingUtilities.isLeftMouseButton(arg0)) {
 			//System.out.println("mouseClicked, leftClick X: " + arg0.getX() + ", Y: " + arg0.getY());
+			
+			if (r) {
+				System.out.println("click while r pressed");
+				inputReceiver.rLeftClick(
+						stage.descaleX(arg0.getX()),
+						stage.descaleY(arg0.getY()));
+				return;
+			}		
+			
 			inputReceiver.leftClickAt(
 					stage.descaleX(arg0.getX()),
 					stage.descaleY(arg0.getY()));
@@ -176,12 +225,16 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		inputMap.put(KeyStroke.getKeyStroke("INSERT"), "insertAction");
 		inputMap.put(KeyStroke.getKeyStroke("DELETE"), "deleteAction");
 		inputMap.put(KeyStroke.getKeyStroke("ESCAPE"), "escAction");
+		//inputMap.put(KeyStroke.getKeyStroke("VK_CONTROL"), "ctrlAction");
 		inputMap.put(KeyStroke.getKeyStroke("P"), "pAction");
-
-		actionMap.put("rAction", rAction);
-		actionMap.put("lAction", lAction);
-		actionMap.put("uAction", uAction);
-		actionMap.put("dAction", dAction);
+		inputMap.put(KeyStroke.getKeyStroke("R"), "rAction");
+		inputMap.put(KeyStroke.getKeyStroke("G"), "gAction");
+		inputMap.put(KeyStroke.getKeyStroke("B"), "bAction");
+		
+		actionMap.put("rAction", rArrowAction);
+		actionMap.put("lAction", lArrowAction);
+		actionMap.put("uAction", uArrowAction);
+		actionMap.put("dAction", dArrowAction);
 		actionMap.put("sBarAction", sBarAction);
 		actionMap.put("pageUpAction", pageUpAction);
 		actionMap.put("pageDownAction", pageDownAction);
@@ -190,30 +243,34 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		actionMap.put("insertAction", insertAction);
 		actionMap.put("deleteAction", deleteAction);
 		actionMap.put("escAction", escAction);
+		//actionMap.put("ctrlAction", ctrlAction);
 		actionMap.put("pAction", pAction);
+		actionMap.put("rAction", rAction);
+		actionMap.put("gAction", gAction);
+		actionMap.put("bAction", bAction);
 	}
 	
 	
 	@SuppressWarnings("serial")
-	Action rAction = new AbstractAction() {
+	Action rArrowAction = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("rAction");
 		}
 	};
 	@SuppressWarnings("serial")
-	Action lAction = new AbstractAction() {
+	Action lArrowAction = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("lAction");
 		}
 	};
 	@SuppressWarnings("serial")
-	Action uAction = new AbstractAction() {
+	Action uArrowAction = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("uAction");
 		}
 	};
 	@SuppressWarnings("serial")
-	Action dAction = new AbstractAction() {
+	Action dArrowAction = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("dAction");
 		}
@@ -254,6 +311,12 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 			System.out.println("escAction");
 		}
 	};
+	/*@SuppressWarnings("serial")
+	Action ctrlAction = new AbstractAction() {
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("ctrlAction");
+		}
+	};*/
 	@SuppressWarnings("serial")
 	Action insertAction = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
@@ -267,11 +330,28 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 			System.out.println("deleteAction");
 		}
 	};
-
 	@SuppressWarnings("serial")
 	Action pAction = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("pAction");
+		}
+	};
+	@SuppressWarnings("serial")
+	Action rAction = new AbstractAction() {
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("r");
+		}
+	};
+	@SuppressWarnings("serial")
+	Action gAction = new AbstractAction() {
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("g");
+		}
+	};
+	@SuppressWarnings("serial")
+	Action bAction = new AbstractAction() {
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("b");
 		}
 	};
 	

@@ -1,6 +1,7 @@
 package data;
 
 import ColDet.Collidable;
+import data.Colour.ColourCategory;
 
 public class Blob implements Collidable {
 	private static int staticID;
@@ -208,6 +209,10 @@ public class Blob implements Collidable {
 		this.energy = energy;
 	}
 
+	public ColourCategory getColourCategory() {
+		return getColour().getCategory();
+	}
+	
 	public Colour getColour() {
 		return colour;
 	}
