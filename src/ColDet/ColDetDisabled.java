@@ -6,7 +6,7 @@ import java.util.List;
 
 import data.Vec;
 
-public class ColDetDisabled extends ColDetAllignBordersonAtoBvec {
+public class ColDetDisabled extends ColDetect {
 
 	public ColDetDisabled (List <Vec> listOfCollisionPoints) {
 		super(listOfCollisionPoints, 1.0);

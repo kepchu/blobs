@@ -6,7 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import ColDet.CoIDetInwardCol;
-import ColDet.ColDetAllignBordersonAtoBvec;
+import ColDet.ColDetect;
 import ColDet.ColDetDebris;
 import ColDet.ColDetDisabled;
 import ColDet.Collidable;

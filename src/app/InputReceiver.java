@@ -62,7 +62,12 @@ public class InputReceiver {
 
 
 	public void rLeftClick(double x, double y) {
-		w.addCharge(x, y, 1.0, ColourCategory.R);
-		
+		w.addCharge(x, y, 1.0, ColourCategory.R);	
+	}
+	public void gLeftClick(double x, double y) {
+		w.addCharge(x, y, 1.0, ColourCategory.G);	
+	}
+	public void bLeftClick(double x, double y) {
+		w.addCharge(x, y, 1.0, ColourCategory.B);	
 	}
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 import data.Vec;
 
-public class ColDetDebris extends ColDetAllignBordersonAtoBvec {
+public class ColDetDebris extends ColDetect {
 	
 	private List<Vec> listOfCollisionPoints;
 

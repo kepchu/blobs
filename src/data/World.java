@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ColDet.CoIDetInwardCol;
-import ColDet.ColDetAllignBordersonAtoBvec;
-import ColDet.ColDetAllignBordersonAtoBvecFuture;
+import ColDet.ColDetect;
+import ColDet.CollDetectAllign;
 import ColDet.ColDetDebris;
 import ColDet.ColDetDisabled;
 import ColDet.Collidable;
@@ -25,10 +25,10 @@ public class World implements Runnable{
 	static int spanY = maxY - minY;
 	//static public int stageDeltaX = 0, stageDeltaY = 0;
 	//static Vec gravity = new Vec(0.000001, 0.03);
-	private static Vec gravity = new Vec(0.00000, 0.3);
+	private static Vec gravity = new Vec(0.00000, 0.03);
 	private static double gravityDelta = 1.02;
 	private int groundLevel = maxY;	
-	private double timeInterval = 1.0; //amount of "app world" time between updates
+	private static double timeInterval = 1.0; //amount of "app world" time between updates
 	private double timeIntervalStep = 1.3;
 	
 	private List<Blob> newBlobs;//accessed from concurrent thread to avoid ConcurrentModificationE...
@@ -62,8 +62,8 @@ public class World implements Runnable{
 		
 		currentColl = 0;
 		collisionsArray = new Object[5];
-		collisionsArray[0] = new ColDetAllignBordersonAtoBvec(getListOfCollisionPoints(), getTimeInterval());
-		collisionsArray[1] = new ColDetAllignBordersonAtoBvecFuture(getListOfCollisionPoints(), getTimeInterval());
+		collisionsArray[0] = new ColDetect(getListOfCollisionPoints(), getTimeInterval());
+		collisionsArray[1] = new CollDetectAllign(getListOfCollisionPoints(), getTimeInterval());
 		collisionsArray[2] = new ColDetDisabled(getListOfCollisionPoints());
 		collisionsArray[3] = new CoIDetInwardCol(getListOfCollisionPoints());
 		collisionsArray[4] = new ColDetDebris(getListOfCollisionPoints());
@@ -107,7 +107,7 @@ public class World implements Runnable{
 			// account for charges. TODO: delegate effects of charges to charges themselves (to facilitate for different types of charges)
 			for (ChargePoint c : charges) {
 				
-				c.charge(b, timeInterval);
+				c.charge(b);
 				
 			}
 			b.update(timeInterval, drag, stageMovementDelta);
@@ -127,11 +127,14 @@ public class World implements Runnable{
 	
 	private void colDet() {
 		// testing - find collisions:
-					((ColDetAllignBordersonAtoBvec) collisionsArray[currentColl])
+					((ColDetect) collisionsArray[currentColl])
 							.detectCollisions(new ArrayList<Collidable>(getBlobs()));
 //					 try { Thread.sleep(100); } catch (InterruptedException e)
 //					 {e.printStackTrace(); }
 	}
+	
+	
+	//Control interface
 	
 	public void switchCollisonsDetect() {
 		if (currentColl < collisionsArray.length - 1) {
@@ -143,7 +146,6 @@ public class World implements Runnable{
 	}
 	
 	
-	//Control interface
 		public void speedUp() {
 			timeInterval *= timeIntervalStep;
 			System.out.println("timeInterval: " + timeInterval);
@@ -234,7 +236,7 @@ public class World implements Runnable{
 	public static void setStageMovementDelta(Vec stageMovementDelta) {
 		World.stageMovementDelta = stageMovementDelta;
 	}
-	public double getTimeInterval() {
+	public static double getTimeInterval() {
 		return timeInterval;
 	}
 	public void setTimeInterval(double timeInterval) {

@@ -6,7 +6,7 @@ import java.util.List;
 
 import data.Vec;
 
-public class CoIDetInwardCol extends ColDetAllignBordersonAtoBvec {
+public class CoIDetInwardCol extends ColDetect {
 	
 	private List<Vec> listOfCollisionPoints;
 

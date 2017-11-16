@@ -62,4 +62,15 @@ public class Colour {
 	public ColourCategory getCategory() {
 		return cat;
 	}
+
+	public double getComponent(ColourCategory component) {
+		switch(component) {
+		case R:	return r;
+		case G: return g;
+		case B: return b;
+		case NEUTRAL: return a;
+		default:
+			throw new IllegalArgumentException("Unknown colour category: " + component);
+		}
+	}
 }

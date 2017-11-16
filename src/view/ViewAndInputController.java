@@ -40,7 +40,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	private BufferableFrames frameBuffer;
 	private InputReceiver inputReceiver;
 
-	boolean r,g,b;
+	boolean r,g,b,ctrl;
 	
 	
 	
@@ -89,8 +89,17 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 							case KeyEvent.VK_R:
 								r = true;
 								break;
-							
+							case KeyEvent.VK_G:
+								g = true;
+								break;
+							case KeyEvent.VK_B:
+								b = true;
+								break;
+								
+							case KeyEvent.VK_CONTROL:
+								ctrl = true;
 							}
+							
 						
 							break;
 						case (KeyEvent.KEY_RELEASED):
@@ -98,9 +107,16 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 							case KeyEvent.VK_R:
 								r = false;
 								break;
-							
-							}
-						
+							case KeyEvent.VK_G:
+								g = false;
+								break;
+							case KeyEvent.VK_B:
+								b = false;
+								break;
+								
+							case KeyEvent.VK_CONTROL:
+								ctrl = false;
+							}				
 						}
 						
 						return false;
@@ -134,7 +150,22 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 						stage.descaleX(arg0.getX()),
 						stage.descaleY(arg0.getY()));
 				return;
-			}		
+			}
+			
+			if (g) {
+				System.out.println("click while g pressed");
+				inputReceiver.gLeftClick(
+						stage.descaleX(arg0.getX()),
+						stage.descaleY(arg0.getY()));
+				return;
+			}
+			if (b) {
+				System.out.println("click while b pressed");
+				inputReceiver.bLeftClick(
+						stage.descaleX(arg0.getX()),
+						stage.descaleY(arg0.getY()));
+				return;
+			}
 			
 			inputReceiver.leftClickAt(
 					stage.descaleX(arg0.getX()),
@@ -147,7 +178,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 					stage.descaleY(arg0.getY()));
 			
 		} else if (SwingUtilities.isMiddleMouseButton(arg0)){
-			//System.out.println("mouseClicked, middleClick X: " + arg0.getX() + ", Y: " + arg0.getY());
+			System.out.println("mouseClicked, middleClick X: " + arg0.getX() + ", Y: " + arg0.getY());
 		} else {
 			System.out.println("mouseClicked, unknown mouse button - X: " + arg0.getX() + ", Y: " + arg0.getY());
 		}
@@ -188,27 +219,17 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	// MouseWheelListener
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		// bitwise operator & != logic operator &&
 
 		// if wheel rotated forward
-		if (e.getWheelRotation() < 0) {
-			// if right mouse button is down ->
-			if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
-				// System.out.println("mouseWhellMoved forward && button2 down");
-				stage.zoomIn();
-			} else {
-				stage.scrollDown();
-			}
+		if (e.getWheelRotation() < 0) {		
+			if (ctrl) stage.zoomIn();
+			else stage.scrollDown();
 		}
-
+			
 		// wheel rotated back
-		if (e.getWheelRotation() > 0) {
-			// right mouse button pressed
-			if ((e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) == InputEvent.BUTTON3_DOWN_MASK) {
-				stage.zoomOut();
-			} else {// right MB up
-				stage.scrollUp();
-			}
+		if (e.getWheelRotation() > 0) {		
+			if (ctrl) stage.zoomOut();
+			else stage.scrollUp();
 		}
 	}
 	

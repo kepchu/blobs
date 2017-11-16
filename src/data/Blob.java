@@ -217,6 +217,10 @@ public class Blob implements Collidable {
 		return colour;
 	}
 
+	public double getColourComponent(ColourCategory component) {
+		return this.colour.getComponent(component);
+	}
+	
 	public void setColour(Colour colour) {
 		this.colour = colour;
 	}
@@ -263,4 +267,5 @@ public class Blob implements Collidable {
 //				", energy: " + energy + ", Y + radius = " + (getY() + radius);
 		return ID + ", " + colour.getCategory() + " inf: " + inflationDelta();
 	}
+
 }

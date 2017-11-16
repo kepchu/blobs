@@ -35,8 +35,8 @@ public class Blobs12 {
 }
 
 //00: create square root alternative for VecMath and use it wherever possible &
-//	use provider - client pattern with notifyAll for display buffer
-
+//	switchable gfx: draw blobs as same size "flies" - this should look like  
+//  charges could regulate/scale pulling force based on actual rgb values.
 //0: wrap around, zoom by ctrl + mouse wheel or +/-, 
 //	switchable gravity to centre of the window, make debris "rain-fireworks"
 
