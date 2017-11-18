@@ -204,7 +204,9 @@ public class Stage extends JPanel implements ComponentListener{
 		g.drawString("Buffered frames: " + displayBuffer.currentSize(), x, y+36);
 		g.drawString("Speed [PgUp] / [PgDown]:" + frame.getSpeed(), x, y+48);
 		g.drawString("Gravity [Home] / [End]:" + frame.getGravity(), x, y+60);
-		g.drawString("\nScale (R.Click + m. wheel): " + scale, x, y+72);
+		g.drawString("Scale [CTRL] + m. wheel): " + scale, x, y+72);
+		g.drawString("Scroll: mouse wheel", x, y+84);
+		g.drawString("Modify Charges: [C] / [SHIFT] + [C]", x, y+96);
 	}
 	
 	public void zoomOut() {

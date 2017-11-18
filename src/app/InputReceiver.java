@@ -70,4 +70,14 @@ public class InputReceiver {
 	public void bLeftClick(double x, double y) {
 		w.addCharge(x, y, 1.0, ColourCategory.B);	
 	}
+
+
+	public void cAction() {
+		System.out.println("cShiftAction()");
+		w.switchChargeColourCategories();
+	}
+	public void cShiftAction() {
+		System.out.println("cShiftAction()");
+		w.switchChargeTypes();
+	}
 }

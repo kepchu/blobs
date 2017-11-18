@@ -4,7 +4,7 @@ import data.Colour.ColourCategory;
 import utils.VecMath;
 //attraction/repulsion point
 public class ChargePoint {
-	private enum Charger {
+	enum Charger {
 		COLOUR_CATEGORY {
 			public void charge(Blob b, ChargePoint c) {
 				if (c.colourCategory == ColourCategory.NEUTRAL) {
@@ -78,7 +78,7 @@ public class ChargePoint {
 		this.position = position;
 		this.power = power;
 		this.colourCategory = colourCategory;
-		this.charger = Charger.COLOUR_COMPONENT;
+		this.charger = Charger.COLOUR_CATEGORY;
 	}
 	public ChargePoint(Vec position, double power) {
 		this(position, power, ColourCategory.R);
@@ -87,12 +87,20 @@ public class ChargePoint {
 		this(position, 1.0, ColourCategory.R);
 	}
 	
-	public void setChargeType (ColourCategory colourCategory) {
+	public void setColourCategory (ColourCategory colourCategory) {
 		this.colourCategory = colourCategory;
 	}
 	
-	public ColourCategory getChargeType () {
+	public ColourCategory getColourCategory () {
 		return this.colourCategory;
+	}
+	
+	public void setType (Charger charger) {
+		this.charger = charger;
+	}
+	
+	public Charger getType () {
+		return this.charger;
 	}
 	
 	public Vec getPosition() {

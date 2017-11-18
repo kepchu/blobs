@@ -40,7 +40,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	private BufferableFrames frameBuffer;
 	private InputReceiver inputReceiver;
 
-	boolean r,g,b,ctrl;
+	boolean r,g,b,ctrl, shift;
 	
 	
 	
@@ -98,10 +98,14 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 								
 							case KeyEvent.VK_CONTROL:
 								ctrl = true;
-							}
+								break;
+							case KeyEvent.VK_SHIFT:
+								shift = true;
+								System.out.print(".");
+								break;
+							}										
+						break;
 							
-						
-							break;
 						case (KeyEvent.KEY_RELEASED):
 							switch(e.getKeyCode()) {
 							case KeyEvent.VK_R:
@@ -116,7 +120,24 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 								
 							case KeyEvent.VK_CONTROL:
 								ctrl = false;
-							}				
+								break;
+							case KeyEvent.VK_SHIFT:
+								shift = false;
+								System.out.print("#");
+								break;
+							}
+						case (KeyEvent.KEY_TYPED):
+							switch (e.getKeyCode()) {
+							case KeyEvent.VK_C:
+								if (e.isShiftDown()) {
+									System.out.println("c+shift");
+									inputReceiver.cShiftAction();
+								} else {
+									System.out.println("c");
+									inputReceiver.cAction();
+								}
+								break;
+							}
 						}
 						
 						return false;
@@ -130,7 +151,6 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	}
 	
 	public void update() {
-		//stage.setData();
 		stage.repaint();
 	}
 	
@@ -219,7 +239,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	// MouseWheelListener
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-
+		//TODO: smooth scrolling & zooming
 		// if wheel rotated forward
 		if (e.getWheelRotation() < 0) {		
 			if (ctrl) stage.zoomIn();
@@ -246,11 +266,12 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		inputMap.put(KeyStroke.getKeyStroke("INSERT"), "insertAction");
 		inputMap.put(KeyStroke.getKeyStroke("DELETE"), "deleteAction");
 		inputMap.put(KeyStroke.getKeyStroke("ESCAPE"), "escAction");
+		/*inputMap.put(KeyStroke.getKeyStroke("C"), "cAction");
 		//inputMap.put(KeyStroke.getKeyStroke("VK_CONTROL"), "ctrlAction");
 		inputMap.put(KeyStroke.getKeyStroke("P"), "pAction");
 		inputMap.put(KeyStroke.getKeyStroke("R"), "rAction");
 		inputMap.put(KeyStroke.getKeyStroke("G"), "gAction");
-		inputMap.put(KeyStroke.getKeyStroke("B"), "bAction");
+		inputMap.put(KeyStroke.getKeyStroke("B"), "bAction");*/
 		
 		actionMap.put("rAction", rArrowAction);
 		actionMap.put("lAction", lArrowAction);
@@ -264,11 +285,12 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		actionMap.put("insertAction", insertAction);
 		actionMap.put("deleteAction", deleteAction);
 		actionMap.put("escAction", escAction);
-		//actionMap.put("ctrlAction", ctrlAction);
+		/*actionMap.put("cAction", cAction);
+		actionMap.put("ctrlAction", ctrlAction);
 		actionMap.put("pAction", pAction);
 		actionMap.put("rAction", rAction);
 		actionMap.put("gAction", gAction);
-		actionMap.put("bAction", bAction);
+		actionMap.put("bAction", bAction);*/
 	}
 	
 	
@@ -332,12 +354,6 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 			System.out.println("escAction");
 		}
 	};
-	/*@SuppressWarnings("serial")
-	Action ctrlAction = new AbstractAction() {
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("ctrlAction");
-		}
-	};*/
 	@SuppressWarnings("serial")
 	Action insertAction = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
@@ -357,6 +373,25 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 			System.out.println("pAction");
 		}
 	};
+	/*@SuppressWarnings("serial")
+	Action cAction = new AbstractAction() {
+		public void actionPerformed(ActionEvent e) {
+			if (shift) {
+				System.out.println(" C + SHIFT");
+				inputReceiver.cShiftAction();
+			}
+			else {
+				System.out.println(" C ALONE");
+				inputReceiver.cAction();
+			}
+		}
+	};
+	@SuppressWarnings("serial")
+	Action ctrlAction = new AbstractAction() {
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("ctrlAction");
+		}
+	};
 	@SuppressWarnings("serial")
 	Action rAction = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
@@ -374,7 +409,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		public void actionPerformed(ActionEvent e) {
 			System.out.println("b");
 		}
-	};
+	};*/
 	
 	//ComponentListener:
 		@Override

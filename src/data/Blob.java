@@ -14,7 +14,8 @@ public class Blob implements Collidable {
 	private double previousRadius = 0;
 	private double mass = 1;// for the future
 	private Colour colour;
-	private BlobState state;
+	private BlobType type;
+	private BlobPhase phase;
 	private boolean colDetDone;
 	// Settings:
 	private double maxVelocity = 40;
@@ -37,7 +38,7 @@ public class Blob implements Collidable {
 		this.previousRadius= b.previousRadius;
 		this.mass = b.mass;
 		this.colour = new Colour(b.getColour());
-		this.state = b.state;	
+		this.type = b.type;	
 		this.colDetDone = b.colDetDone;
 		
 		this.newbornInflationSpeed = b.newbornInflationSpeed;
@@ -54,7 +55,7 @@ public class Blob implements Collidable {
 		// settings
 		setRadius(startingRadius);
 		
-		this.state = BlobState.NEWBORN_PRE_APEX;
+		this.phase = BlobPhase.NEWBORN_PRE_APEX;
 		newbornInflationSpeed = Math.max(energy / 10, 15);
 	}
 	public Blob (Vec position, int energy) {
@@ -73,15 +74,19 @@ public class Blob implements Collidable {
 	
 	// LIFECYCLE START
 	// TODO: regulate things from the enum according to state change? - separate FSM?
-		public enum BlobState {
-			IN, OUT, NEWBORN_PRE_APEX, NEWBORN_POST_APEX, PLAYER_CONTROLLED;
+		public enum BlobType {
+			INSIDE, STANDARD, DEBRIS, PLAYER_CONTROLLED;
+		}
+		
+		public enum BlobPhase {
+			 NEWBORN_PRE_APEX, NEWBORN_POST_APEX, ADULT, DEAD
 		}
 	
 	public void update(double timeInterval, Vec drag, Vec stageDelta) {
 
 		velocity.addAndSet(drag.multiply(timeInterval));
 
-		switch (state) {
+		switch (phase) {
 		case NEWBORN_PRE_APEX:
 		case NEWBORN_POST_APEX:
 			updateNEWBORN(timeInterval);
@@ -143,18 +148,18 @@ public class Blob implements Collidable {
 		double shrinkingSpeedModifier = 2.5;//speed of shrinking back to proper size after initial "overblow"
 				
 		//update radius
-		if (state == BlobState.NEWBORN_PRE_APEX) {
+		if (phase == BlobPhase.NEWBORN_PRE_APEX) {
 			setRadius(radius + (newbornInflationSpeed * timeInterval));
 			if (radius > inflationApex) {
-				state = BlobState.NEWBORN_POST_APEX;
+				phase = BlobPhase.NEWBORN_POST_APEX;
 			}	
 		}
 		// if inflationApex has been reached, deflate until below nominal size and then
 		// change state to OUT
-		if (state == BlobState.NEWBORN_POST_APEX) {
+		if (phase == BlobPhase.NEWBORN_POST_APEX) {
 			setRadius(radius - (newbornInflationSpeed * timeInterval)/shrinkingSpeedModifier);
 			if (radius < energy) {
-				state = BlobState.OUT;
+				phase = BlobPhase.ADULT;
 			}
 		}
 	}
@@ -234,12 +239,12 @@ public class Blob implements Collidable {
 		this.radius = radius;
 	}
 
-	public BlobState getType() {
-		return state;
+	public BlobType getType() {
+		return type;
 	}
 
-	public void setType(BlobState type) {
-		this.state = type;
+	public void setType(BlobType type) {
+		this.type = type;
 	}
 
 	public double getX() {

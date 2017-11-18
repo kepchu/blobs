@@ -9,6 +9,7 @@ import ColDet.CollDetectAllign;
 import ColDet.ColDetDebris;
 import ColDet.ColDetDisabled;
 import ColDet.Collidable;
+import data.ChargePoint.Charger;
 import data.Colour.ColourCategory;
 import utils.U;
 import utils.VecMath;
@@ -17,9 +18,9 @@ import utils.VecMath;
 //TODO: make sure all mutations of core data happen only in "update" loop via buffering Lists to avoid concurrent access
 public class World implements Runnable{
 	//SETTINGS
-	static int maxX = 4000;
+	static int maxX = 8000;
 	static int maxY = 0;
-	static int minX = -2000;
+	static int minX = -4000;
 	static int minY = -800;
 	static int spanX = maxX - minX;
 	static int spanY = maxY - minY;
@@ -144,7 +145,30 @@ public class World implements Runnable{
 		}
 		System.out.println("Col. det. set to " + collisionsArray[currentColl].getClass().getSimpleName());
 	}
+	public void switchChargeTypes() {
+		Charger ch;
+		for (ChargePoint c : charges) {
+			ch = c.getType();
+			
+			if (ch.ordinal() == Charger.values().length-1)
+				c.setType(Charger.values()[0]);
+			else
+				c.setType(Charger.values()[ch.ordinal()+1]);
+		}
+	}
 	
+	public void switchChargeColourCategories() {
+		ColourCategory cc;		
+		for (ChargePoint c : charges) {
+			cc = c.getColourCategory();
+			
+			if (cc.ordinal() >= ColourCategory.values().length-2)// "-2" - eliminating NEUTRAL
+				c.setColourCategory(ColourCategory.values()[0]);
+			else
+				c.setColourCategory(ColourCategory.values()[cc.ordinal()+1]);
+		}
+	}
+
 	
 		public void speedUp() {
 			timeInterval *= timeIntervalStep;
@@ -178,8 +202,9 @@ public class World implements Runnable{
 	
 	
 	public void addCharge(double x, double y, double power, ColourCategory cc) {
-		charges.add(new ChargePoint(new Vec(x,y), power, cc));
-		System.out.println("length of charges: " + charges.size());
+		newCharges.add(new ChargePoint(new Vec(x,y), power, cc));
+		System.out.println("length of charges: " +
+		(charges.size() + newCharges.size()));
 	}
 	
 	//GETTERS & SETTERS
@@ -245,5 +270,5 @@ public class World implements Runnable{
 	public List<ChargePoint> getCharges() {
 		return this.charges;
 	}
-	
+		
 }
