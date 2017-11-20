@@ -45,8 +45,7 @@ public class Blob implements Collidable {
 	}
 	
 	public Blob(Vec position, Vec velocity, int energy) {
-		staticID++;
-		ID = staticID;
+		ID = ++staticID;
 		this.position = position;
 		this.previousPosition = new Vec (position);
 		this.velocity = velocity;

@@ -61,6 +61,8 @@ public class ChargePoint {
 		
 	}
 	
+	private static int staticID;
+	public final int ID;
 	private Vec position;
 	private double power;
 	private ColourCategory colourCategory;
@@ -69,22 +71,23 @@ public class ChargePoint {
 	public ChargePoint(ChargePoint c) {
 		this.position = c.position;
 		this.power = c.power;
-		
+		this.ID = c.ID;
 		this.colourCategory = c.colourCategory;
 		
 	}
 	public ChargePoint(Vec position, double power, ColourCategory colourCategory) {
 		super();
+		this.ID = ++staticID;
 		this.position = position;
 		this.power = power;
 		this.colourCategory = colourCategory;
 		this.charger = Charger.COLOUR_CATEGORY;
 	}
 	public ChargePoint(Vec position, double power) {
-		this(position, power, ColourCategory.R);
+		this(position, power, ColourCategory.NEUTRAL);
 	}
 	public ChargePoint(Vec position) {
-		this(position, 1.0, ColourCategory.R);
+		this(position, 1.0, ColourCategory.NEUTRAL);
 	}
 	
 	public void setColourCategory (ColourCategory colourCategory) {
@@ -118,13 +121,6 @@ public class ChargePoint {
 
 	public void charge(Blob b) {
 		charger.charge(b, this);
-	}
-	
-	private void modify(Blob b) {
-		Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), this.position);
-		chargeInfluence.setMagnitude(this.power * World.getTimeInterval());
-		//chargeInfluence.setMagnitude(this.power).multiplyAndSet(World.getTimeInterval());
-		b.getVelocity().addAndSet(chargeInfluence);		
 	}
 	
 }

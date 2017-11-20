@@ -5,7 +5,21 @@ import java.awt.Color;
 public class Colour {
 	
 	public enum ColourCategory {
-		R,G,B, NEUTRAL
+		R(new Color(230,50,50,200)),
+		G(new Color(50,230,50,200)),
+		B(new Color(50,50,230,200)),
+		NEUTRAL(new Color(180,180,180,150));
+		
+		private final Color defaultCategoryColor;
+		
+		private ColourCategory (Color c) {
+			defaultCategoryColor = c;
+		}
+		
+		public Color getDefaultCategoryColor () {
+			return defaultCategoryColor;
+		}
+		
 	}
 	
 	private Color c;
@@ -63,6 +77,8 @@ public class Colour {
 		return cat;
 	}
 
+	
+	
 	public double getComponent(ColourCategory component) {
 		switch(component) {
 		case R:	return r;
