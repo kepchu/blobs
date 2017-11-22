@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ColDet.CoIDetInwardCol;
-import ColDet.ColDetect;
-import ColDet.CollDetectAllign;
 import ColDet.ColDetDebris;
 import ColDet.ColDetDisabled;
+import ColDet.ColDetect;
 import ColDet.Collidable;
 import data.ChargePoint.Charger;
 import data.Colour.ColourCategory;
@@ -30,7 +29,7 @@ public class World implements Runnable{
 	
 	//static public int stageDeltaX = 0, stageDeltaY = 0;
 	//static Vec gravity = new Vec(0.000001, 0.03);
-	private static Vec gravity = new Vec(0.00000, 0.2);
+	private static double gravity =  0.2;
 	private static double gravityDelta = 1.02;
 	private int groundLevel = maxY;	
 	private static double timeInterval = 1.0; //amount of "app world" time between updates
@@ -45,12 +44,12 @@ public class World implements Runnable{
 	
 	private FrameBuffer buffer;
 	
-	private Object lock1 = new Object();
-	
-	
 	//TODO
 	private Object[] collisionsArray;
 	private int currentColl;
+	private Vec stageCentre;
+	private boolean gravityInCentre;
+	private Vec newStageCentre;
 	
 	
 	public World (int noOfBlobs) {
@@ -61,6 +60,8 @@ public class World implements Runnable{
 		blobs = new ArrayList<Blob> (noOfBlobs);
 		newCharges = new ArrayList<ChargePoint>();
 		charges = new ArrayList<ChargePoint>();
+		newStageCentre = new Vec(400,400);
+		stageCentre = new Vec(400, 400);
 		
 		pointer = new ChargePoint(new Vec(0,0), 1.0, ColourCategory.NEUTRAL, Charger.REPULSE_ALL);
 		
@@ -68,12 +69,11 @@ public class World implements Runnable{
 		listOfCollisionPoints = new ArrayList<Vec>();
 		
 		currentColl = 0;
-		collisionsArray = new Object[5];
+		collisionsArray = new Object[4];
 		collisionsArray[0] = new ColDetect(getListOfCollisionPoints(), getTimeInterval());
-		collisionsArray[1] = new CollDetectAllign(getListOfCollisionPoints(), getTimeInterval());
-		collisionsArray[2] = new ColDetDisabled(getListOfCollisionPoints());
-		collisionsArray[3] = new CoIDetInwardCol(getListOfCollisionPoints());
-		collisionsArray[4] = new ColDetDebris(getListOfCollisionPoints());
+		collisionsArray[1] = new ColDetDisabled(getListOfCollisionPoints());
+		collisionsArray[2] = new CoIDetInwardCol(getListOfCollisionPoints());
+		collisionsArray[3] = new ColDetDebris(getListOfCollisionPoints());
 		//initData(noOfBlobs);
 	}
 	public World() {
@@ -99,18 +99,24 @@ public class World implements Runnable{
 	
 	private void updateLoop() {
 
-		//0 - update data structures
+		Vec drag = new Vec(0, gravity);
+		
+		//0 - copy exposed data structures to create core data free of errors caused by mutations during computations; 
 		blobs.addAll(newBlobs);		
 		newBlobs.clear();
 		
 		charges.addAll(newCharges);
 		newCharges.clear();
 		
+		stageCentre = new Vec(newStageCentre);
+		
 		// 1 a - update data in data structures
 		for (Blob b : blobs) {
 			// account for gravity
-			Vec drag = new Vec(gravity);
-			
+			if (gravityInCentre) {
+				drag = VecMath.vecFromAtoB(b.getPosition(), stageCentre).
+						setMagnitude(gravity);
+			}
 			// account for charges
 			for (ChargePoint c : charges) {				
 				c.charge(b);
@@ -142,8 +148,7 @@ public class World implements Runnable{
 //					 try { Thread.sleep(100); } catch (InterruptedException e)
 //					 {e.printStackTrace(); }
 	}
-	
-	
+		
 	//Control interface
 	
 	public void switchCollisonsDetect() {
@@ -189,11 +194,11 @@ public class World implements Runnable{
 		}
 		
 		public void gravityUp() {
-			gravity.multiplyAndSet(gravityDelta);
+			gravity *= gravityDelta;
 			System.out.println("gravity: " + gravity);
 		}
 		public void gravityDown() {
-			gravity.multiplyAndSet(1/gravityDelta);
+			gravity /= gravityDelta;
 			System.out.println("gravity: " + gravity);
 		}
 	
@@ -283,6 +288,13 @@ public class World implements Runnable{
 	public void repulseFromPointer() {
 		repulseFromPointer = !repulseFromPointer;
 		System.out.println("repulseFromPointer(boolean b): " + repulseFromPointer);
+	}
+	public void switchGravity() {
+		gravityInCentre = !gravityInCentre;
+		System.out.println("gravity switched");
+	}
+	public void updateStageCentre(double x, double y) {
+		newStageCentre.setXY(x,y);
 	}
 		
 }

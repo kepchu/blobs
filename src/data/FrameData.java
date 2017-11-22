@@ -7,18 +7,18 @@ public class FrameData {
 	public List<Blob> blobs;
 	public List<ChargePoint> charges;
 	public List<Vec> collisions;
-	public Vec gravity;
+	public double gravity;
 	public double ground;
 	public double speed;
 	
 	//DEEP COPY during instantiation
-	public FrameData(List<Blob> blobs, List<ChargePoint> charges, List<Vec> collisions, Vec gravity,
-			double ground, double speed) {
+	public FrameData(List<Blob> blobs, List<ChargePoint> charges, List<Vec> collisions,
+			double gravity,	double ground, double speed) {
 		super();
 		this.blobs = cloneBlobs(blobs);
 		this.charges = cloneCharges(charges);
 		this.collisions = cloneCollisions(collisions);
-		this.gravity = new Vec(gravity);
+		this.gravity = gravity;
 		this.ground = ground;
 		this.speed = speed;
 	}
@@ -58,7 +58,7 @@ public class FrameData {
 		return collisions;
 	}
 
-	public Vec getGravity() {
+	public double getGravity() {
 		return gravity;
 	}
 

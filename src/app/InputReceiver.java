@@ -65,13 +65,13 @@ public class InputReceiver {
 
 
 	public void rLeftClick(double x, double y) {
-		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.R, Charger.COLOUR_CATEGORY_ABSOLUTE));
+		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.R, Charger.COLOUR_COMPONENT));
 	}
 	public void gLeftClick(double x, double y) {
-		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.G, Charger.COLOUR_CATEGORY_ABSOLUTE));
+		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.G, Charger.COLOUR_COMPONENT));
 	}
 	public void bLeftClick(double x, double y) {
-		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.B, Charger.COLOUR_CATEGORY_ABSOLUTE));
+		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.B, Charger.COLOUR_COMPONENT));
 	}
 
 
@@ -84,14 +84,22 @@ public class InputReceiver {
 		w.switchChargeTypes();
 	}
 
-
-	public void newMousePointerPosition(double x, double y) {
-		w.updatePointer(x, y);
-		
+	public void switchGravity() {
+		w.switchGravity();	
 	}
-
-
+	
 	public void togglePointerRepulse() {
 		w.repulseFromPointer();
 	}
+
+	public void udateStageCentre(double x, double y) {
+		w.updateStageCentre(x,y);
+		
+	}
+
+	public void updateMousePointerPosition(double x, double y) {
+		w.updatePointer(x, y);
+		
+	}
+	
 }

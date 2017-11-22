@@ -8,7 +8,7 @@ public class Colour {
 		R(new Color(230,50,50,200)),
 		G(new Color(50,230,50,200)),
 		B(new Color(50,50,230,200)),
-		NEUTRAL(new Color(180,180,180,150));
+		NEUTRAL(new Color(180,180,180,220));
 		
 		private final Color defaultCategoryColor;
 		

@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -27,7 +26,7 @@ public class Stage extends JPanel implements ComponentListener {
 	private int panelHeight;
 	private int panelWidth;
 
-	Vec pointerPosition = new Vec(0,0);
+	private Vec pointerPosition = new Vec(0,0);
 	
 	private int panelCentreX;
 	private int panelCentreY;
@@ -36,6 +35,8 @@ public class Stage extends JPanel implements ComponentListener {
 
 	private double deltaZoom = 1.5;
 	private int deltaY = 100;
+
+	private boolean drawColl;
 	
 	public Stage(int initialCameraPosition, BufferableFrames displayBuffer) {
 		System.out.println("Stage constr. thread - " + Thread.currentThread().getName());
@@ -87,7 +88,7 @@ public class Stage extends JPanel implements ComponentListener {
 		drawBorders(g2d);
 		drawBlobs(g2d);
 		drawCharges(g2d);
-		drawCollisions(g2d);
+		if (drawColl) drawCollisions(g2d);
 		drawInfo(g2d);
 		displayBuffer.advanceFrame();
 	}
@@ -126,8 +127,8 @@ public class Stage extends JPanel implements ComponentListener {
 	private void drawBlobs(Graphics2D g) {
 		
 		int medDrawingSize = 1;
-		int fullDrawingSize = 5;
-		int minTaggingSize = 25;
+		int fullDrawingSize = 30;
+		int minTaggingSize = 50;
 		
 		
 		for (Blob b : frame.getBlobs()) {
@@ -165,7 +166,7 @@ public class Stage extends JPanel implements ComponentListener {
 			//TODO:
 			if (radius > minTaggingSize) {
 				//g.drawString(b.getID() + ", " + b.getColour().getCategory(), offsetX + radius, (int)(offsetY + radius * 1.5));
-				g.drawString(b.toString(),offsetX + radius, (int)(offsetY + radius * 1.5));
+				g.drawString(b.toString(),offsetX, (int)(offsetY + radius/2));
 			}
 		}
 	}
@@ -227,21 +228,6 @@ public class Stage extends JPanel implements ComponentListener {
 			if(++i > maxNumberOfDrawnCollisions) {break;}
 		}
 	}
-
-	private void drawInfo(Graphics2D g) {
-		int x = 20, y = 20;
-		g.setColor(Color.BLACK);
-		g.drawString("Blobs [left-click] or [Insert]: " + frame.getBlobs().size(), x, y);
-		g.drawString("Charges: [R]/[G]/[B] + [left click]: " + frame.getCharges().size(), x, y+12);
-		g.drawString("Collisions ([SPACE BAR] to toggle: " + frame.getCollisions().size(), x, y+24);
-		g.drawString("Buffered frames: " + displayBuffer.currentSize(), x, y+36);
-		g.drawString("Speed [PgUp] / [PgDown]:" + frame.getSpeed(), x, y+48);
-		g.drawString("Gravity [Home] / [End]:" + frame.getGravity(), x, y+60);
-		g.drawString("Scale [CTRL] + m. wheel): " + scale, x, y+72);
-		g.drawString("Scroll: mouse wheel", x, y+84);
-		g.drawString("Modify Charges: [C] & [SHIFT] + [C]", x, y+96);
-		g.drawString("(De)activate mouse pointer: [middle-click] (mouse wheel click)", x, y+108);
-	}
 	
 	public void zoomOut() {
 		//System.out.println("zoomOut");
@@ -283,6 +269,7 @@ public class Stage extends JPanel implements ComponentListener {
 		
 		panelCentreX = panelWidth / 2;
 		panelCentreY = panelHeight / 2;
+		
 		//currentElevation = ground + panelHeight;
 	}
 	@Override
@@ -296,4 +283,31 @@ public class Stage extends JPanel implements ComponentListener {
 		pointerPosition.setXY(x, y);
 	}
 
+	public void switchCollisionsDrawing() {
+		drawColl = !drawColl;
+	}
+	
+	public double descaledStageCentreY() {
+		return descaleY(panelCentreY);
+	}
+
+	public double descaledStageCentreX() {
+		return descaleX(panelCentreX);
+	}
+
+	private void drawInfo(Graphics2D g) {
+		int x = 20, y = 20;
+		g.setColor(Color.BLACK);
+		g.drawString("Blobs [left-click] or [Insert]: " + frame.getBlobs().size(), x, y);
+		g.drawString("Charges: [R]/[G]/[B] + [left click]: " + frame.getCharges().size(), x, y+12);
+		g.drawString("Collisions ([SPACE BAR] to toggle: " + frame.getCollisions().size(), x, y+24);
+		g.drawString("Buffered frames: " + displayBuffer.currentSize(), x, y+36);
+		g.drawString("Speed [PgUp] / [PgDown]:" + frame.getSpeed(), x, y+48);
+		g.drawString("Gravity [Home] / [End]:" + frame.getGravity(), x, y+60);
+		g.drawString("Scale [CTRL] + m. wheel): " + scale, x, y+72);
+		g.drawString("Scroll: mouse wheel", x, y+84);
+		g.drawString("Modify Charges: [C] & [SHIFT] + [C]", x, y+96);
+		g.drawString("(De)activate mouse pointer: [middle-click] (mouse wheel click)", x, y+108);
+	}
+	
 }

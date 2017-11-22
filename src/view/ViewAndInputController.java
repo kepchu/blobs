@@ -137,6 +137,8 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 									inputReceiver.cAction();
 								}
 								break;
+							case KeyEvent.VK_Z:
+								inputReceiver.switchGravity();
 							}
 						}
 						
@@ -151,6 +153,10 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	}
 	
 	public void update() {
+		//TODO: updating here so Stage won't know anything about inputReceiver/World -a  makeshift solution...
+		inputReceiver.udateStageCentre(
+				stage.descaledStageCentreX(),
+				stage.descaledStageCentreY());
 		stage.repaint();
 	}
 	
@@ -201,6 +207,8 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 			
 		} else {
 			System.out.println("mouseClicked, unknown mouse button - X: " + arg0.getX() + ", Y: " + arg0.getY());
+			System.out.println("Switching collisions drawing");
+			stage.switchCollisionsDrawing();
 		}
 		
 	}
@@ -236,7 +244,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		//System.out.println("View: mouseMoved: " + arg0.getX() + ", " + arg0.getY());
 		stage.updatePointerPosition(arg0.getX(), arg0.getY());
 		
-		inputReceiver.newMousePointerPosition(
+		inputReceiver.updateMousePointerPosition(
 				stage.descaleX(arg0.getX()),
 				stage.descaleY(arg0.getY()));
 	}

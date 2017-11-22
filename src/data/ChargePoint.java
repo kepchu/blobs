@@ -74,7 +74,8 @@ public class ChargePoint {
 				
 				Vec chargeInfluence = VecMath.vecFromAtoB(c.position, b.getPosition());
 				double magnitude = chargeInfluence.getMagnitude();
-				//System.out.println("magnitude: " + magnitude);
+//				if (Double.isNaN(magnitude))
+//					System.out.println("Got NaN in REPULSE_ALL");
 				if (magnitude < range) {
 								
 					chargeInfluence.setMagnitude(c.power);

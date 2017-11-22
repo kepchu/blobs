@@ -83,6 +83,10 @@ public class Vec {
 	}
 
 	private Vec normalise() {
+		double m = getMagnitude();
+		if (!Double.isFinite(m)) {
+			System.out.println("Got NaN/Infinite in normalise()");
+		}
 		return multiply(1d/getMagnitude());
 	}
 	
@@ -95,7 +99,13 @@ public class Vec {
 	}
 
 	public double getMagnitude() {
-		return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+				
+		double m = Math.pow(x, 2) + Math.pow(y, 2);
+		if ( m < 0.0000001) {//!Double.isFinite(m) ||
+			System.out.println("Got NaN/Infinite or very small value in  getMagnitude()");
+			return 0.0000001;
+		}
+		return Math.sqrt(m);
 	}
 
 	public boolean isboundByStageX() {

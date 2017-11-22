@@ -35,9 +35,15 @@ public class VecMath {
 			}
 			
 			public static double magnitudeOf(Vec v) {
-				return Math.sqrt(
-						Math.pow(v.getX(), 2) + 
-						Math.pow(v.getY(), 2));
+				
+				double m = Math.pow(v.getX(), 2) + 
+						Math.pow(v.getY(), 2);
+				
+				if ( m < 0.0000001) {//!Double.isFinite(m) ||
+					//System.out.println("Got very small value in magnitudeOf()");
+					return 0.0000001;
+				}			
+				return Math.sqrt(m);
 			}
 			
 			// normalise = divide x & y by vector's length == multiplying by 1/length
