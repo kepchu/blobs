@@ -6,13 +6,13 @@ import data.FrameBuffer;
 import data.World;
 import view.ViewAndInputController;
 
-public class Blobs12 {
+public class BlobsD1 {
 
 	public static void main (String[] args) {	
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					new Blobs12();
+					new BlobsD1();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -22,7 +22,7 @@ public class Blobs12 {
 	
 	
 	
-	public Blobs12 () {
+	public BlobsD1 () {
 		
 		System.out.println("Blobs01 thread - " + Thread.currentThread().getName());
 		//MVC pattern variation
