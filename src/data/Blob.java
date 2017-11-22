@@ -22,7 +22,7 @@ public class Blob implements Collidable {
 	private double maxInflationSpeed = 5.0;
 	private double newbornInflationSpeed;// = 15.0;
 	private int startingRadius = 1;
-	private double bounceDampeningFactor = 1;
+	private double bounceDampeningFactor = 0.8;
 	private double stageFriction = 0.005;
 	//things adjusted on per-frame basis by timeInterval received in update() call:
 	//velocity -> position, inflationSpeed & newbornInflationSpeed

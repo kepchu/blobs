@@ -24,9 +24,13 @@ public class World implements Runnable{
 	static int minY = -800;
 	static int spanX = maxX - minX;
 	static int spanY = maxY - minY;
+	
+	private ChargePoint pointer;
+	private boolean repulseFromPointer;
+	
 	//static public int stageDeltaX = 0, stageDeltaY = 0;
 	//static Vec gravity = new Vec(0.000001, 0.03);
-	private static Vec gravity = new Vec(0.00000, 0.03);
+	private static Vec gravity = new Vec(0.00000, 0.2);
 	private static double gravityDelta = 1.02;
 	private int groundLevel = maxY;	
 	private static double timeInterval = 1.0; //amount of "app world" time between updates
@@ -57,6 +61,8 @@ public class World implements Runnable{
 		blobs = new ArrayList<Blob> (noOfBlobs);
 		newCharges = new ArrayList<ChargePoint>();
 		charges = new ArrayList<ChargePoint>();
+		
+		pointer = new ChargePoint(new Vec(0,0), 1.0, ColourCategory.NEUTRAL, Charger.REPULSE_ALL);
 		
 		stageMovementDelta = new Vec(0,0);
 		listOfCollisionPoints = new ArrayList<Vec>();
@@ -105,12 +111,15 @@ public class World implements Runnable{
 			// account for gravity
 			Vec drag = new Vec(gravity);
 			
-			// account for charges. TODO: delegate effects of charges to charges themselves (to facilitate for different types of charges)
-			for (ChargePoint c : charges) {
-				
+			// account for charges
+			for (ChargePoint c : charges) {				
 				c.charge(b);
-				
 			}
+			if (repulseFromPointer) {
+				//extra ChargePoint with position equal to mouse pointer position
+				pointer.charge(b);
+			}
+			
 			b.update(timeInterval, drag, stageMovementDelta);
 		}
 		
@@ -200,12 +209,10 @@ public class World implements Runnable{
 		}
 	}
 	
-	
-	public void addCharge(double x, double y, double power, ColourCategory cc) {
-		newCharges.add(new ChargePoint(new Vec(x,y), power, cc));
-		System.out.println("length of charges: " +
-		(charges.size() + newCharges.size()));
+	public void addCharge(ChargePoint ch) {
+		newCharges.add(ch);
 	}
+	
 	
 	//GETTERS & SETTERS
 	public List<Blob> getBlobs() {
@@ -269,6 +276,13 @@ public class World implements Runnable{
 	}
 	public List<ChargePoint> getCharges() {
 		return this.charges;
+	}
+	public void updatePointer(double x, double y) {
+		pointer.getPosition().setXY(x, y);		
+	}
+	public void repulseFromPointer() {
+		repulseFromPointer = !repulseFromPointer;
+		System.out.println("repulseFromPointer(boolean b): " + repulseFromPointer);
 	}
 		
 }

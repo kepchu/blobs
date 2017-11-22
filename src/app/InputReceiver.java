@@ -2,6 +2,9 @@ package app;
 
 import data.Colour;
 import data.Colour.ColourCategory;
+import data.Vec;
+import data.ChargePoint;
+import data.ChargePoint.Charger;
 import data.World;
 
 public class InputReceiver {
@@ -57,18 +60,18 @@ public class InputReceiver {
 	//add charge point
 	public void rightClickAt(double x, double y) {
 		System.out.println("rightClickAt " + x + ", " + y + ". Adding a charge.");
-		w.addCharge(x,y, 1, ColourCategory.NEUTRAL);	
+		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.NEUTRAL, Charger.COLOUR_CATEGORY_ABSOLUTE));	
 	}
 
 
 	public void rLeftClick(double x, double y) {
-		w.addCharge(x, y, 1.0, ColourCategory.R);	
+		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.R, Charger.COLOUR_CATEGORY_ABSOLUTE));
 	}
 	public void gLeftClick(double x, double y) {
-		w.addCharge(x, y, 1.0, ColourCategory.G);	
+		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.G, Charger.COLOUR_CATEGORY_ABSOLUTE));
 	}
 	public void bLeftClick(double x, double y) {
-		w.addCharge(x, y, 1.0, ColourCategory.B);	
+		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.B, Charger.COLOUR_CATEGORY_ABSOLUTE));
 	}
 
 
@@ -79,5 +82,16 @@ public class InputReceiver {
 	public void cShiftAction() {
 		System.out.println("cShiftAction()");
 		w.switchChargeTypes();
+	}
+
+
+	public void newMousePointerPosition(double x, double y) {
+		w.updatePointer(x, y);
+		
+	}
+
+
+	public void togglePointerRepulse() {
+		w.repulseFromPointer();
 	}
 }

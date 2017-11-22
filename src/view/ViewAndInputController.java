@@ -159,8 +159,6 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		
-		
-		
 		if (SwingUtilities.isLeftMouseButton(arg0)) {
 			//System.out.println("mouseClicked, leftClick X: " + arg0.getX() + ", Y: " + arg0.getY());
 			
@@ -198,7 +196,9 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 					stage.descaleY(arg0.getY()));
 			
 		} else if (SwingUtilities.isMiddleMouseButton(arg0)){
-			System.out.println("mouseClicked, middleClick X: " + arg0.getX() + ", Y: " + arg0.getY());
+			
+			inputReceiver.togglePointerRepulse();
+			
 		} else {
 			System.out.println("mouseClicked, unknown mouse button - X: " + arg0.getX() + ", Y: " + arg0.getY());
 		}
@@ -217,12 +217,12 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub	
+		
 	}
 	
 	// MouseMotionListener:
@@ -233,7 +233,12 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 
 	@Override
 	public void mouseMoved(MouseEvent arg0) {
-		// System.out.println("mouseMoved X: " + arg0.getX() + ", Y: " + arg0.getY());
+		//System.out.println("View: mouseMoved: " + arg0.getX() + ", " + arg0.getY());
+		stage.updatePointerPosition(arg0.getX(), arg0.getY());
+		
+		inputReceiver.newMousePointerPosition(
+				stage.descaleX(arg0.getX()),
+				stage.descaleY(arg0.getY()));
 	}
 	
 	// MouseWheelListener
@@ -252,6 +257,8 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 			else stage.scrollUp();
 		}
 	}
+	
+	
 	
 	private void keyBinds() {
 		inputMap.put(KeyStroke.getKeyStroke("RIGHT"), "rAction");
@@ -292,7 +299,6 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		actionMap.put("gAction", gAction);
 		actionMap.put("bAction", bAction);*/
 	}
-	
 	
 	@SuppressWarnings("serial")
 	Action rArrowAction = new AbstractAction() {

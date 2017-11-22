@@ -4,8 +4,8 @@ import data.Colour.ColourCategory;
 import utils.VecMath;
 //attraction/repulsion point
 public class ChargePoint {
-	enum Charger {
-		COLOUR_CATEGORY {
+	public enum Charger {
+		COLOUR_CATEGORY_ABSOLUTE {
 			public void charge(Blob b, ChargePoint c) {
 				if (c.colourCategory == ColourCategory.NEUTRAL) {
 					Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.position);
@@ -22,6 +22,18 @@ public class ChargePoint {
 					chargeInfluence.setMagnitude(c.power * World.getTimeInterval());
 					//chargeInfluence.setMagnitude(this.power).multiplyAndSet(World.getTimeInterval());
 					b.getVelocity().addAndSet(chargeInfluence);
+				}
+			}
+		},
+		COLOUR_CATEGORY_COMPONENT_WEIGHTED {
+			public void charge(Blob b, ChargePoint c) {
+
+				if (c.colourCategory == b.getColourCategory()) {
+					Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.position);
+					chargeInfluence.setMagnitude(c.power * World.getTimeInterval());
+					
+					b.getVelocity().addAndSet(chargeInfluence.multiply(
+							b.getColourComponent(c.colourCategory)/255));
 				}
 			}
 		},
@@ -53,7 +65,45 @@ public class ChargePoint {
 				}
 				
 			}
+			
+		},
+		REPULSE_ALL {
+			public void charge(Blob b, ChargePoint c) {
+				
+				double range = 1000;
+				
+				Vec chargeInfluence = VecMath.vecFromAtoB(c.position, b.getPosition());
+				double magnitude = chargeInfluence.getMagnitude();
+				//System.out.println("magnitude: " + magnitude);
+				if (magnitude < range) {
+								
+					chargeInfluence.setMagnitude(c.power);
+					//chargeInfluence.multiply(-1 * c.power);
+					b.getVelocity().addAndSet(chargeInfluence);
+				}
+				
+			}
+		},
+		RING {
+			public void charge(Blob b, ChargePoint c) {
+				double range = 3000;
+				
+				Vec chargeInfluence = VecMath.vecFromAtoB(c.position, b.getPosition());
+				double magnitude = chargeInfluence.getMagnitude();
+				//System.out.println("magnitude: " + magnitude);
+				if (magnitude < range) {
+								
+					chargeInfluence.setMagnitude(c.power);
+					//chargeInfluence.multiply(-1 * c.power);
+					b.getVelocity().addAndSet(chargeInfluence);
+				} else if (magnitude > range) {
+					chargeInfluence.setMagnitude(c.power);
+					
+					b.getVelocity().subAndSet(chargeInfluence);
+				}
+			}
 		};
+		
 		
 		public void charge(Blob b, ChargePoint c) {
 			System.out.println("Charger: root charge method");
@@ -73,21 +123,15 @@ public class ChargePoint {
 		this.power = c.power;
 		this.ID = c.ID;
 		this.colourCategory = c.colourCategory;
-		
+		this.charger = c.charger;
 	}
-	public ChargePoint(Vec position, double power, ColourCategory colourCategory) {
-		super();
+	
+	public ChargePoint(Vec position, double power, ColourCategory colourCategory, Charger ch) {
 		this.ID = ++staticID;
 		this.position = position;
 		this.power = power;
 		this.colourCategory = colourCategory;
-		this.charger = Charger.COLOUR_CATEGORY;
-	}
-	public ChargePoint(Vec position, double power) {
-		this(position, power, ColourCategory.NEUTRAL);
-	}
-	public ChargePoint(Vec position) {
-		this(position, 1.0, ColourCategory.NEUTRAL);
+		this.charger = ch;
 	}
 	
 	public void setColourCategory (ColourCategory colourCategory) {
@@ -123,4 +167,7 @@ public class ChargePoint {
 		charger.charge(b, this);
 	}
 	
+	public String toString() {
+		return ID +"" + colourCategory + ", " + charger;
+	}
 }
