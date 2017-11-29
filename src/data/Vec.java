@@ -99,11 +99,12 @@ public class Vec {
 	}
 
 	public double getMagnitude() {
-				
+		double margin = 0.0000001;
+		
 		double m = Math.pow(x, 2) + Math.pow(y, 2);
-		if ( m < 0.0000001) {//!Double.isFinite(m) ||
+		if ( m < margin) {//!Double.isFinite(m)
 			System.out.println("Got NaN/Infinite or very small value in  getMagnitude()");
-			return 0.0000001;
+			return margin;
 		}
 		return Math.sqrt(m);
 	}

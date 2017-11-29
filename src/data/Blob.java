@@ -120,25 +120,6 @@ public class Blob implements Collidable {
 		previousPosition.setXY(position);
 		position.addAndSet(velocity.multiply(timeInterval));
 		
-		
-		//bounce off of stage edges:
-		//bottom
-		if (getY() + radius >= World.maxY) {//below bottom edge
-			setY(World.maxY - radius);	//align with bottom edge
-			velocity.multiplyAndSet(1, -bounceDampeningFactor);//reverse vertical velocity
-			velocity.addAndSet(stageDelta.getX()*stageFriction, stageDelta.getY());
-		}
-		//left
-		if (getX() - radius < World.minX) {
-			setX(World.minX + radius);
-			velocity.multiplyAndSet(-bounceDampeningFactor, 1);
-		}
-		//right
-		if (getX() + radius > World.maxX) {
-			setX(World.maxX - radius);
-			velocity.multiplyAndSet(-bounceDampeningFactor, 1);
-		}
-		
 	}
 
 	private void updateNEWBORN(double timeInterval) {	
@@ -231,6 +212,10 @@ public class Blob implements Collidable {
 
 	public double getRadius() {
 		return radius;
+	}
+
+	public double getBounceDampeningFactor() {
+		return bounceDampeningFactor;
 	}
 
 	public void setRadius(double radius) {

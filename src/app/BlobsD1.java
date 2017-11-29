@@ -31,14 +31,12 @@ public class BlobsD1 {
 		new Loop(dc, v);
 		
 	}
-	
 }
 
 //00: create square root alternative for VecMath and use it wherever possible &
 //	switchable gfx: draw blobs as same size "flies" - this should look like  
-//  charges could regulate/scale pulling force based on actual rgb values.
 //0: wrap around, zoom by ctrl + mouse wheel or +/-, 
-//	switchable gravity to centre of the window, make debris "rain-fireworks"
+//	 make debris "rain-fireworks"
 
 //01: a cloud-swirl object: new ColDet that would disregard all collisions between blobs building a cloud
 //		until a blob overlaps with only one other blob - then it would have to "hold on" to it to keep cloud's integrity

@@ -23,4 +23,7 @@ public interface Collidable {
 		//debris = overlapping blobs that move away from each other are allowed to intersect without colliding 
 		STANDARD, DEBRIS, DECORATION
 	}
+	
+	double getBounceDampeningFactor();
+	
 }

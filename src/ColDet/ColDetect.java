@@ -1,36 +1,47 @@
 package ColDet;
 
-import static utils.VecMath.*;
+import static utils.VecMath.distanceBetween;
+import static utils.VecMath.projectAonB;
+import static utils.VecMath.vecFromAtoB;
 
 import java.util.List;
 
-import data.Blob;
 import data.Vec;
+import data.World;
 
 public class ColDetect {
 	
 	private List<Vec> listOfCollisionPoints;
 	@SuppressWarnings("unused")
 	private double timeInterval;
-	private double dampeningFactor = 1.0;
-	
+	//private double dampeningFactor = 1.0;
+	private ColBorders borders;
 	
 	public ColDetect (List <Vec> listOfCollisionPoints, double timeInterval) {
 		this.listOfCollisionPoints = listOfCollisionPoints;
 		this.timeInterval = timeInterval;
+		//this.borders = new ColBorders();
 	}
 	
-	
-	public void detectCollisions (List<Collidable> blobs) {
-		//listOfCollisionPoints.clear();
-		//for (int i = blobs.size()-1; i > 0; i--) {
+	public void detectCollisions (List<Collidable> blobs, int minX, int maxX, int minY, int maxY) {
+				
+		Collidable c;
 		for (int i = 0; i < blobs.size(); i++ ) {
-			detectCollisions(blobs.get(i), blobs, 1);
-		}	
+			c = blobs.get(i);
+			
+			System.out.println("detectCollisions");
+			//borders.bounceOffGround(c, maxY, radiusFactor);
+			//borders.wrapX(c, minX, maxX);
+			//borders.wrapY(c, minY, maxY);
+			
+			//doBlobs(c, blobs, 1);
+		}
 	}
 	
-	//detection of collisions
-	private void detectCollisions (Collidable subject, List<Collidable> objects, double radius) {
+	
+		
+	//detection of collisions with blobs
+	private void doBlobs (Collidable subject, List<Collidable> objects, double radiusFactor) {
 			
 		double actualDistance;
 		double previousDistance;
@@ -83,7 +94,7 @@ public class ColDetect {
 		listOfCollisionPoints.add(0, prodCollPoint(subject, object));
 		//listOfCollisionPoints.add(new Vec(subject.getPosition()));
 		
-		bounceOff(subject, object);
+		bounceBlobs(subject, object);
 		//placeOverlappingCollideesNextToEachOther(subject, object);
 	}
 	
@@ -97,10 +108,11 @@ public class ColDetect {
 		
 		double overlap = (subject.getRadius() + object.getRadius()) - fromObjToSub.getMagnitude();
 		Vec displacement = fromObjToSub.setMagnitude(overlap);
-		subject.setPosition(subject.getPosition().add(displacement));		
+		subject.setPosition(subject.getPosition().add(displacement));
+		
 	}
 	
-	private void bounceOff (Collidable subj, Collidable obj) {
+	private void bounceBlobs (Collidable subj, Collidable obj) {
 		//TODO: tagging instead of simple removal from input list (can be used for visual cues and logic)
 		//Will switch later from boolean tags to location of collision.
 		subj.setColDetDone(true);

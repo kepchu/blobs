@@ -17,9 +17,9 @@ import utils.VecMath;
 //TODO: make sure all mutations of core data happen only in "update" loop via buffering Lists to avoid concurrent access
 public class World implements Runnable{
 	//SETTINGS
-	static int maxX = 8000;
-	static int maxY = 0;
-	static int minX = -4000;
+	static int maxX = 800;
+	static int minX = 0;
+	static int maxY = 0;	
 	static int minY = -800;
 	static int spanX = maxX - minX;
 	static int spanY = maxY - minY;
@@ -51,6 +51,7 @@ public class World implements Runnable{
 	private boolean gravityInCentre;
 	private Vec newStageCentre;
 	
+	ColDetect code;
 	
 	public World (int noOfBlobs) {
 		System.out.println("World constr. thread - " + Thread.currentThread().getName());
@@ -68,12 +69,13 @@ public class World implements Runnable{
 		stageMovementDelta = new Vec(0,0);
 		listOfCollisionPoints = new ArrayList<Vec>();
 		
-		currentColl = 0;
-		collisionsArray = new Object[4];
-		collisionsArray[0] = new ColDetect(getListOfCollisionPoints(), getTimeInterval());
-		collisionsArray[1] = new ColDetDisabled(getListOfCollisionPoints());
-		collisionsArray[2] = new CoIDetInwardCol(getListOfCollisionPoints());
-		collisionsArray[3] = new ColDetDebris(getListOfCollisionPoints());
+		code = new  ColDetect(getListOfCollisionPoints(), getTimeInterval());
+//		currentColl = 0;
+//		collisionsArray = new Object[4];
+//		collisionsArray[0] = new ColDetect(getListOfCollisionPoints(), getTimeInterval());
+//		collisionsArray[1] = new ColDetDisabled(getListOfCollisionPoints());
+//		collisionsArray[2] = new CoIDetInwardCol(getListOfCollisionPoints());
+//		collisionsArray[3] = new ColDetDebris(getListOfCollisionPoints());
 		//initData(noOfBlobs);
 	}
 	public World() {
@@ -142,22 +144,21 @@ public class World implements Runnable{
 	}
 	
 	private void colDet() {
-		// testing - find collisions:
-					((ColDetect) collisionsArray[currentColl])
-							.detectCollisions(new ArrayList<Collidable>(getBlobs()));
+					//((ColDetect) collisionsArray[currentColl]).detectCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY);
 //					 try { Thread.sleep(100); } catch (InterruptedException e)
 //					 {e.printStackTrace(); }
+					code.detectCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY);
 	}
 		
 	//Control interface
 	
 	public void switchCollisonsDetect() {
-		if (currentColl < collisionsArray.length - 1) {
-			currentColl++;
-		} else {
-			currentColl = 0;
-		}
-		System.out.println("Col. det. set to " + collisionsArray[currentColl].getClass().getSimpleName());
+//		if (currentColl < collisionsArray.length - 1) {
+//			currentColl++;
+//		} else {
+//			currentColl = 0;
+//		}
+//		System.out.println("Col. det. set to " + collisionsArray[currentColl].getClass().getSimpleName());
 	}
 	public void switchChargeTypes() {
 		Charger ch;
@@ -204,7 +205,7 @@ public class World implements Runnable{
 	
 		
 	public void addBlobAt(double x, double y) {
-			newBlobs.add(new Blob (new Vec(x,y), U.rndInt(5, 200)));
+			newBlobs.add(new Blob (new Vec(x,y, true), U.rndInt(5, 200)));
 	}
 	
 	public void addBlob(int i) {

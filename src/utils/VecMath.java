@@ -36,12 +36,14 @@ public class VecMath {
 			
 			public static double magnitudeOf(Vec v) {
 				
+				double margin = 0.0000001;
+				
 				double m = Math.pow(v.getX(), 2) + 
 						Math.pow(v.getY(), 2);
 				
-				if ( m < 0.0000001) {//!Double.isFinite(m) ||
+				if ( m < margin) {//!Double.isFinite(m) ||
 					//System.out.println("Got very small value in magnitudeOf()");
-					return 0.0000001;
+					return margin;
 				}			
 				return Math.sqrt(m);
 			}
