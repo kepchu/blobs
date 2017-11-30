@@ -102,14 +102,7 @@ public class Blob implements Collidable {
 	private void updateAllStates(double timeInterval, Vec stageDelta) {
 		
 		setColDetDone(false);
-		//account for window movement
-		//TIME INTERVAL not applied as real window movement should be matched
-		if (false) {// (stageDelta.getMagnitude() > 0) {
-			System.out.println("stageDelta in updateAllStates: " + stageDelta);		
-			position.addAndSet(stageDelta.multiply(-1));
-			velocity.addAndSet(stageDelta.multiply(stageFriction));
-		}
-
+		
 		// cap speed and update position
 		if (velocity.getMagnitude() > maxVelocity) {
 			//System.out.println(this + " MAXED");

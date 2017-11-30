@@ -17,18 +17,15 @@ import utils.VecMath;
 //TODO: make sure all mutations of core data happen only in "update" loop via buffering Lists to avoid concurrent access
 public class World implements Runnable{
 	//SETTINGS
-	static int maxX = 800;
-	static int minX = 0;
-	static int maxY = 0;	
-	static int minY = -800;
-	static int spanX = maxX - minX;
-	static int spanY = maxY - minY;
+	private static int maxX = 4000;
+	private static int minX = -4000;
+	private static int maxY = 0;	
+	private static int minY = -2000;
 	
 	private ChargePoint pointer;
 	private boolean repulseFromPointer;
 	
-	//static public int stageDeltaX = 0, stageDeltaY = 0;
-	//static Vec gravity = new Vec(0.000001, 0.03);
+	private double defaultRadiusMultiplier = 1.0;
 	private static double gravity =  0.2;
 	private static double gravityDelta = 1.02;
 	private int groundLevel = maxY;	
@@ -70,12 +67,12 @@ public class World implements Runnable{
 		listOfCollisionPoints = new ArrayList<Vec>();
 		
 		code = new  ColDetect(getListOfCollisionPoints(), getTimeInterval());
-//		currentColl = 0;
-//		collisionsArray = new Object[4];
-//		collisionsArray[0] = new ColDetect(getListOfCollisionPoints(), getTimeInterval());
-//		collisionsArray[1] = new ColDetDisabled(getListOfCollisionPoints());
-//		collisionsArray[2] = new CoIDetInwardCol(getListOfCollisionPoints());
-//		collisionsArray[3] = new ColDetDebris(getListOfCollisionPoints());
+		currentColl = 0;
+		collisionsArray = new Object[4];
+		collisionsArray[0] = new ColDetect(getListOfCollisionPoints(), getTimeInterval());
+		collisionsArray[1] = new ColDetDisabled(getListOfCollisionPoints());
+		collisionsArray[2] = new CoIDetInwardCol(getListOfCollisionPoints());
+		collisionsArray[3] = new ColDetDebris(getListOfCollisionPoints());
 		//initData(noOfBlobs);
 	}
 	public World() {
@@ -147,18 +144,18 @@ public class World implements Runnable{
 					//((ColDetect) collisionsArray[currentColl]).detectCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY);
 //					 try { Thread.sleep(100); } catch (InterruptedException e)
 //					 {e.printStackTrace(); }
-					code.detectCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY);
+					code.detectCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY, defaultRadiusMultiplier);
 	}
 		
 	//Control interface
 	
 	public void switchCollisonsDetect() {
-//		if (currentColl < collisionsArray.length - 1) {
-//			currentColl++;
-//		} else {
-//			currentColl = 0;
-//		}
-//		System.out.println("Col. det. set to " + collisionsArray[currentColl].getClass().getSimpleName());
+		if (currentColl < collisionsArray.length - 1) {
+			currentColl++;
+		} else {
+			currentColl = 0;
+		}
+		System.out.println("Col. det. set to " + collisionsArray[currentColl].getClass().getSimpleName());
 	}
 	public void switchChargeTypes() {
 		Charger ch;
@@ -205,7 +202,7 @@ public class World implements Runnable{
 	
 		
 	public void addBlobAt(double x, double y) {
-			newBlobs.add(new Blob (new Vec(x,y, true), U.rndInt(5, 200)));
+			newBlobs.add(new Blob (new Vec(x,y), U.rndInt(5, 200)));
 	}
 	
 	public void addBlob(int i) {

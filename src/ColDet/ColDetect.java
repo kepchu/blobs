@@ -14,27 +14,26 @@ public class ColDetect {
 	private List<Vec> listOfCollisionPoints;
 	@SuppressWarnings("unused")
 	private double timeInterval;
-	//private double dampeningFactor = 1.0;
+	private double defaultRadiusFactor = 1.0;
 	private ColBorders borders;
 	
 	public ColDetect (List <Vec> listOfCollisionPoints, double timeInterval) {
 		this.listOfCollisionPoints = listOfCollisionPoints;
 		this.timeInterval = timeInterval;
-		//this.borders = new ColBorders();
+		this.borders = new ColBorders();
 	}
 	
-	public void detectCollisions (List<Collidable> blobs, int minX, int maxX, int minY, int maxY) {
+	public void detectCollisions (List<Collidable> blobs, int minX, int maxX, int minY, int maxY, double radiusFactor) {
 				
 		Collidable c;
 		for (int i = 0; i < blobs.size(); i++ ) {
 			c = blobs.get(i);
 			
-			System.out.println("detectCollisions");
-			//borders.bounceOffGround(c, maxY, radiusFactor);
-			//borders.wrapX(c, minX, maxX);
-			//borders.wrapY(c, minY, maxY);
-			
-			//doBlobs(c, blobs, 1);
+			borders.bounceOffGround(c, maxY, radiusFactor);
+			borders.wrapX(c, minX, maxX, radiusFactor);
+//			borders.wrapY(c, minY, maxY, radiusFactor);
+			//borders.wrapXY(c, minX, maxX, minY, maxY, radiusFactor);
+			doBlobs(c, blobs, 1);
 		}
 	}
 	
