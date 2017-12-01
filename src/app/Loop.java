@@ -1,23 +1,15 @@
 package app;
 
-import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import ColDet.CoIDetInwardCol;
-import ColDet.ColDetect;
-import ColDet.ColDetDebris;
-import ColDet.ColDetDisabled;
-import ColDet.Collidable;
-import data.FrameData;
 import data.FrameBuffer;
 import data.World;
 import view.ViewAndInputController;
 
 public class Loop implements Runnable {
 
-	private World dc;
 	private ViewAndInputController v;
 	private InputReceiver uir;
 	private FrameBuffer frameBuffer;
@@ -28,32 +20,28 @@ public class Loop implements Runnable {
 	Object lock = new Object();
 	
 	
-	public Loop(World dc, ViewAndInputController v) {
-
-		this.dc = dc;
-		this.v = v;
+	public Loop(World w, ViewAndInputController v) {
+		this.v = v;//run() has to be in scope
+		
 		frameBuffer = FrameBuffer.getInstance();
 		v.setFrameBuffer(frameBuffer);
-		uir = new InputReceiver(dc, this);
+		
+		uir = new InputReceiver(w, this);
 		v.setUserInputReceiver(uir);
 		
-		//TODO: switch to swing timer
+		// TODO: swing timers?
 		ses = Executors.newSingleThreadScheduledExecutor();
-		ses.scheduleAtFixedRate(this, 16666, 8333, TimeUnit.MICROSECONDS);
+		ses.scheduleAtFixedRate(this, 16666, 16666, TimeUnit.MICROSECONDS);
 		
-		new Thread(dc).start();
+		new Thread(w).start();
 	}
 
 	// the gfx loop
 	@Override
-	public void run() {
-		
-		//dc.update();
-		
+	public void run() {			
 		if (frameBuffer.isEmpty()) 
-			System.out.println("main loop: DisplayBuffer empty");
+			System.out.println("main loop: display buffer empty");
 		
-		v.update();// TODO: switch to swing timer
-					
+		v.update();
 	}
 }

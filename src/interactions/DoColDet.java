@@ -1,4 +1,4 @@
-package ColDet;
+package interactions;
 
 import static utils.VecMath.projectAonB;
 import static utils.VecMath.vecFromAtoB;

@@ -1,7 +1,7 @@
 package data;
 
-import ColDet.Collidable;
 import data.Colour.ColourCategory;
+import interactions.Collidable;
 
 public class Blob implements Collidable {
 	private static int staticID;
@@ -98,9 +98,9 @@ public class Blob implements Collidable {
 		updateAllStates(timeInterval, stageDelta);
 	}
 
-	@SuppressWarnings("unused")
+	//@SuppressWarnings("unused")
 	private void updateAllStates(double timeInterval, Vec stageDelta) {
-		
+		//reset collision state
 		setColDetDone(false);
 		
 		// cap speed and update position
@@ -111,8 +111,7 @@ public class Blob implements Collidable {
 		
 		//TIME INTERVAL APPLIED TODO: change position via mutator method that would update previousPosition...
 		previousPosition.setXY(position);
-		position.addAndSet(velocity.multiply(timeInterval));
-		
+		position.addAndSet(velocity.multiply(timeInterval));		
 	}
 
 	private void updateNEWBORN(double timeInterval) {	
@@ -152,13 +151,15 @@ public class Blob implements Collidable {
 
 	// LIFECYCLE END
 
+	// Getters & setters:
+
 	public int getID() {
 		return ID;
 	}
 	public double getMass() {
 		return energy;
 	}
-	// Getters & setters:
+	
 	public Vec getVelocity() {
 		return velocity;
 	}

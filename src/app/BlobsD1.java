@@ -38,6 +38,28 @@ public class BlobsD1 {
 //0: wrap around, zoom by ctrl + mouse wheel or +/-, 
 //	 make debris "rain-fireworks"
 
+/*G@MES:
+ * 1. "pool" - Blobs of 2 or more colours randomly placed in window. Blobs have random sizes and positions
+ * but sums of contents of each "team" of blobs are equal. These sums are displayed as (initially equal) bars.
+ * P1 punches a hole in a blob choosing P1's colour.Content oozing through the hole propels the blob.
+ * First blob of P1's colour that leaves the window marks the edge it crosses as target.
+ * Content of blobs crossing the target edge become a player's score.
+ * 
+ * 2. "flies": players' directional input is translated to creation and destruction of "charge points"
+ * 	that pull player's fly. The fly at each time "orbits" at least 2 charges - continuous movement.
+ *  flies movement is swift horizontally but it's difficult to gain height. Gravity helps to "drop down"
+ *  to attack other flies. When flies "collide" (collision circle bigger than flies itself) the fly that is lower
+ *  loses control / becomes inert for  a short time. Each fly that gets below certain height dies.
+ * 
+ * 3. "platform game" - Vertical scrolling. Screen populated by slowly moving blobs of random sizes, positions,
+ * directions and colour categories. Player(s) jump from blob to blob trying to get as high as possible as
+ * fast as possible.
+ * Interactions with blobs-platforms: 
+ * 
+ * 4. shooting small blobs that become inside collidees of hit blob - this disrupts control.
+ */
+
+
 //01: a cloud-swirl object: new ColDet that would disregard all collisions between blobs building a cloud
 //		until a blob overlaps with only one other blob - then it would have to "hold on" to it to keep cloud's integrity
 

@@ -1,4 +1,4 @@
-package ColDet;
+package interactions;
 
 import static utils.VecMath.*;
 
@@ -6,10 +6,10 @@ import java.util.List;
 
 import data.Vec;
 
-public class ColDetDisabled extends ColDetect {
+public class ColDetDisabled {
 
 	public ColDetDisabled (List <Vec> listOfCollisionPoints) {
-		super(listOfCollisionPoints, 1.0);
+		//super(listOfCollisionPoints, 1.0);
 	}
 	
 	

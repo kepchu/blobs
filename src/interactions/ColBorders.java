@@ -1,15 +1,15 @@
-package ColDet;
+package interactions;
 
 import data.Vec;
 
 public class ColBorders {
 	//collisions with "world edges"
-	public void bounce(Collidable c, int minX, int maxX, int minY, int maxY, double radiusMultiplier) {
+	void bounce(Collidable c, int minX, int maxX, int minY, int maxY, double radiusMultiplier) {
 		bounceOffGround(c, maxY, radiusMultiplier);
 		bounceOffSides(c, minX, maxX, radiusMultiplier);
 	}
 		
-	public void bounceOffSides(Collidable c, int minX, int maxX, double radiusMultiplier) {
+	void bounceOffSides(Collidable c, int minX, int maxX, double radiusMultiplier) {
 
 		Vec p = c.getPosition();
 		Vec v = c.getVelocity();
@@ -28,7 +28,7 @@ public class ColBorders {
 		}		
 	}
 	
-	public void bounceOffGround(Collidable c, int ground, double radiusMultiplier) {
+	void bounceOffGround(Collidable c, int ground, double radiusMultiplier) {
 		Vec p = c.getPosition();
 		Vec v = c.getVelocity();
 		double radius = c.getRadius() * radiusMultiplier;
@@ -41,17 +41,17 @@ public class ColBorders {
 	}
 		
 	// wrap x and y around the world (== connect the opposite edges of the stage)
-	public void wrapXY(Collidable c, int minX, int maxX, int minY, int maxY, double radiusMultiplier) {
+	void wrapXY(Collidable c, int minX, int maxX, int minY, int maxY, double radiusMultiplier) {
 		wrapX(c, minX, maxX, radiusMultiplier);
 		wrapY(c, minY, maxY, radiusMultiplier);
 	}	
 	//X axis wrapping
-	public void wrapX(Collidable c, int minX, int maxX, double radiusMultiplier) {
+	void wrapX(Collidable c, int minX, int maxX, double radiusMultiplier) {
 		c.getPosition().setX(
 				computeWrap (c.getPosition().getX(), minX, maxX, c.getRadius() * radiusMultiplier));
 	}
 	//wrap vertically
-	public void wrapY(Collidable c, int minY, int maxY, double radiusFactor) {
+	void wrapY(Collidable c, int minY, int maxY, double radiusFactor) {
 		c.getPosition().setY(
 				computeWrap(c.getPosition().getY(), minY, maxY,
 						c.getRadius() * radiusFactor));
@@ -61,11 +61,11 @@ public class ColBorders {
 		//this method expands stage's dimensions for each "wrapped" collidable
 		//by margin*2. (and "margin" is particular collidable's radius + mod factor)...
 		int span = max - min;
-		//wrap when collidable moves outside limits denoted by min & max by more than margin
+		//wrap when "position" outside limits denoted by min & max by more than margin
 		if (position - margin > max) {
 			//Subtracting margin twice to:
 			//A. account for "position - margin" in previous line, and
-			//B. place blob off-stage (minus this frame's movement)  
+			//B. place blob off-stage (except movement calculated for the frame)
 			position = min + ((position - max - margin - margin) % span);
 			return position;
 		} else if (position + margin < min) {
@@ -73,10 +73,10 @@ public class ColBorders {
 			return position;
 		}
 		
-		
-				
 		return position;
 	}
+	
+	@SuppressWarnings("unused")
 	private double computeWrap(Double position, int min, int max) {
 		//straight-forward wrapping that accounts only for collidable's position
 		int span = max - min;

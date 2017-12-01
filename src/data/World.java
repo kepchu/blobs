@@ -3,13 +3,14 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-import ColDet.CoIDetInwardCol;
-import ColDet.ColDetDebris;
-import ColDet.ColDetDisabled;
-import ColDet.ColDetect;
-import ColDet.Collidable;
 import data.ChargePoint.Charger;
 import data.Colour.ColourCategory;
+import interactions.CoIDetInwardCol;
+import interactions.ColDet;
+import interactions.ColDetDebris;
+import interactions.ColDetDisabled;
+import interactions.ColFlag;
+import interactions.Collidable;
 import utils.U;
 import utils.VecMath;
 
@@ -21,9 +22,6 @@ public class World implements Runnable{
 	private static int minX = -4000;
 	private static int maxY = 0;	
 	private static int minY = -2000;
-	
-	private ChargePoint pointer;
-	private boolean repulseFromPointer;
 	
 	private double defaultRadiusMultiplier = 1.0;
 	private static double gravity =  0.2;
@@ -39,6 +37,9 @@ public class World implements Runnable{
 	private List <Vec> listOfCollisionPoints;
 	private static Vec stageMovementDelta;
 	
+	private ChargePoint pointer;
+	private boolean repulseFromPointer;
+	
 	private FrameBuffer buffer;
 	
 	//TODO
@@ -48,10 +49,12 @@ public class World implements Runnable{
 	private boolean gravityInCentre;
 	private Vec newStageCentre;
 	
-	ColDetect code;
+	ColDet colDet;
+	private ColFlag colFlag;
 	
 	public World (int noOfBlobs) {
 		System.out.println("World constr. thread - " + Thread.currentThread().getName());
+		System.out.println("colFlag: " + colFlag);
 		buffer = FrameBuffer.getInstance();
 		
 		newBlobs = new ArrayList<Blob>();
@@ -66,14 +69,15 @@ public class World implements Runnable{
 		stageMovementDelta = new Vec(0,0);
 		listOfCollisionPoints = new ArrayList<Vec>();
 		
-		code = new  ColDetect(getListOfCollisionPoints(), getTimeInterval());
+		colDet = new ColDet(getListOfCollisionPoints(), getTimeInterval());
 		currentColl = 0;
-		collisionsArray = new Object[4];
-		collisionsArray[0] = new ColDetect(getListOfCollisionPoints(), getTimeInterval());
-		collisionsArray[1] = new ColDetDisabled(getListOfCollisionPoints());
-		collisionsArray[2] = new CoIDetInwardCol(getListOfCollisionPoints());
-		collisionsArray[3] = new ColDetDebris(getListOfCollisionPoints());
+//		collisionsArray = new Object[4];
+//		collisionsArray[0] = new ColDetect(getListOfCollisionPoints(), getTimeInterval());
+//		collisionsArray[1] = new ColDetDisabled(getListOfCollisionPoints());
+//		collisionsArray[2] = new CoIDetInwardCol(getListOfCollisionPoints());
+//		collisionsArray[3] = new ColDetDebris(getListOfCollisionPoints());
 		//initData(noOfBlobs);
+		System.out.println(this.getClass().getSimpleName());
 	}
 	public World() {
 		this(8);
@@ -144,17 +148,18 @@ public class World implements Runnable{
 					//((ColDetect) collisionsArray[currentColl]).detectCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY);
 //					 try { Thread.sleep(100); } catch (InterruptedException e)
 //					 {e.printStackTrace(); }
-					code.detectCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY, defaultRadiusMultiplier);
+					colDet.doCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY,
+							defaultRadiusMultiplier, ColFlag.DO_NOT_FORCE);
 	}
 		
 	//Control interface
 	
 	public void switchCollisonsDetect() {
-		if (currentColl < collisionsArray.length - 1) {
-			currentColl++;
-		} else {
-			currentColl = 0;
-		}
+//		if (currentColl < collisionsArray.length - 1) {
+//			currentColl++;
+//		} else {
+//			currentColl = 0;
+//		}
 		System.out.println("Col. det. set to " + collisionsArray[currentColl].getClass().getSimpleName());
 	}
 	public void switchChargeTypes() {

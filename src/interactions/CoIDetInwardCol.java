@@ -1,4 +1,4 @@
-package ColDet;
+package interactions;
 
 import static utils.VecMath.*;
 
@@ -6,12 +6,12 @@ import java.util.List;
 
 import data.Vec;
 
-public class CoIDetInwardCol extends ColDetect {
+public class CoIDetInwardCol {
 	
 	private List<Vec> listOfCollisionPoints;
 
 	public CoIDetInwardCol (List <Vec> listOfCollisionPoints) {
-		super(listOfCollisionPoints, 1.0);
+		//super(listOfCollisionPoints, 1.0);
 		this.listOfCollisionPoints = listOfCollisionPoints;
 	}
 	
