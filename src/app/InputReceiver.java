@@ -38,12 +38,11 @@ public class InputReceiver {
 	}
 	
 	public void  sBarAction() {
-		w.switchCollisonsDetect();
+		w.switchCollisonDetections();
 	}
 	
 	public void stageMoved (int deltaX, int deltaY) {
 		//System.out.println("UserInput.stageMoved deltaX: " + deltaX + ", y: " + deltaY);
-		World.getStageMovementDelta().setXY(deltaX, deltaY);
 	}
 
 	//add blob

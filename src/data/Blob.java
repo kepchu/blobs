@@ -1,7 +1,7 @@
 package data;
 
+import collisions.Collidable;
 import data.Colour.ColourCategory;
-import interactions.Collidable;
 
 public class Blob implements Collidable {
 	private static int staticID;
@@ -16,6 +16,7 @@ public class Blob implements Collidable {
 	private Colour colour;
 	private BlobType type;
 	private BlobPhase phase;
+	private ColliderType colliderType;
 	private boolean colDetDone;
 	// Settings:
 	private double maxVelocity = 40;
@@ -24,6 +25,7 @@ public class Blob implements Collidable {
 	private int startingRadius = 1;
 	private double bounceDampeningFactor = 0.9;
 	private double stageFriction = 0.005;
+	
 	//things adjusted on per-frame basis by timeInterval received in update() call:
 	//velocity -> position, inflationSpeed & newbornInflationSpeed
 
@@ -40,11 +42,12 @@ public class Blob implements Collidable {
 		this.colour = new Colour(b.getColour());
 		this.type = b.type;	
 		this.colDetDone = b.colDetDone;
+		this.colliderType = b.colliderType;
 		
 		this.newbornInflationSpeed = b.newbornInflationSpeed;
 	}
 	
-	public Blob(Vec position, Vec velocity, int energy) {
+	public Blob(Vec position, Vec velocity, int energy, ColliderType colliderType) {
 		ID = ++staticID;
 		this.position = position;
 		this.previousPosition = new Vec (position);
@@ -53,15 +56,22 @@ public class Blob implements Collidable {
 		this.colour = new Colour();
 		// settings
 		setRadius(startingRadius);
-		
+		this.colliderType = colliderType;
 		this.phase = BlobPhase.NEWBORN_PRE_APEX;
 		newbornInflationSpeed = Math.max(energy / 10, 15);
 	}
+	
+	public Blob (Vec position, int energy, ColliderType colliderType) {
+		this(position, new Vec(0, 0), energy, colliderType);
+	}
+	public Blob(Vec position, Vec velocity, int energy) {
+		this(position, velocity, energy, ColliderType.STANDARD);
+	}
 	public Blob (Vec position, int energy) {
-		this(position, new Vec(0, 0), energy);
+		this(position, energy, ColliderType.STANDARD);
 	}
 	
-	
+
 	public boolean isColDetDone() {
 		return colDetDone;
 	}
@@ -74,15 +84,15 @@ public class Blob implements Collidable {
 	// LIFECYCLE START
 	// TODO: regulate things from the enum according to state change? - separate FSM?
 		public enum BlobType {
-			INSIDE, STANDARD, DEBRIS, PLAYER_CONTROLLED;
+			BOUNDED, STANDARD, DEBRIS, PLAYER_CONTROLLED;
 		}
 		
 		public enum BlobPhase {
 			 NEWBORN_PRE_APEX, NEWBORN_POST_APEX, ADULT, DEAD
 		}
 	
-	public void update(double timeInterval, Vec drag, Vec stageDelta) {
-
+	public void update(double timeInterval, Vec drag) {
+		
 		velocity.addAndSet(drag.multiply(timeInterval));
 
 		switch (phase) {
@@ -95,11 +105,11 @@ public class Blob implements Collidable {
 			break;
 		}
 
-		updateAllStates(timeInterval, stageDelta);
+		updateAllStates(timeInterval);
 	}
 
 	//@SuppressWarnings("unused")
-	private void updateAllStates(double timeInterval, Vec stageDelta) {
+	private void updateAllStates(double timeInterval) {
 		//reset collision state
 		setColDetDone(false);
 		
@@ -249,6 +259,11 @@ public class Blob implements Collidable {
 //		return "Blob # " + ID + ", y: " + (int)getY() + ", x: " + (int)getX() +
 //				", energy: " + energy + ", Y + radius = " + (getY() + radius);
 		return ID + ", " + colour.getCategory() + " inf: " + inflationDelta();
+	}
+
+	@Override
+	public ColliderType getColliderType() {
+		return this.colliderType;
 	}
 
 }

@@ -22,14 +22,12 @@ public class BlobsD1 {
 	
 	
 	
-	public BlobsD1 () {
-		
+	public BlobsD1 () {	
 		System.out.println("Blobs01 thread - " + Thread.currentThread().getName());
 		//MVC pattern variation
 		World dc = new World();
 		ViewAndInputController v = new ViewAndInputController(FrameBuffer.getInstance());
-		new Loop(dc, v);
-		
+		new Loop(dc, v);		
 	}
 }
 

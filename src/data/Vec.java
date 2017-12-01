@@ -58,9 +58,13 @@ public class Vec {
 	private Vec normalise() {
 		double m = getMagnitude();
 		if (!Double.isFinite(m)) {
-			System.out.println("Got NaN/Infinite in normalise()");
+//			System.out.println("Got NaN/Infinite magnitude in normalise()");
 		}
 		return multiply(1d/getMagnitude());
+	}
+	
+	public Vec withMagnitudeOf(double magnitude) {
+		return normalise().multiplyAndSet(magnitude);
 	}
 	
 	// GETTERS/SETTERS START

@@ -1,4 +1,4 @@
-package interactions;
+package collisions;
 
 import data.Vec;
 
@@ -21,8 +21,10 @@ public interface Collidable {
 	enum ColliderType {
 		//standard = impenetrable;  decoration - no collisions;
 		//debris = overlapping blobs that move away from each other are allowed to intersect without colliding 
-		STANDARD, DEBRIS, DECORATION
+		STANDARD, DEBRIS, INWARD, BOUNDED, DECORATION
 	}
+	
+	ColliderType getColliderType ();
 	
 	double getBounceDampeningFactor();
 	

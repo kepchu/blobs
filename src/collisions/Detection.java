@@ -1,4 +1,4 @@
-package interactions;
+package collisions;
 
 import java.util.List;
 

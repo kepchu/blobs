@@ -1,8 +1,8 @@
-package interactions;
+package collisions;
 
 import data.Vec;
 
-public class ColBorders {
+public class ColliderStageLimits {
 	//collisions with "world edges"
 	void bounce(Collidable c, int minX, int maxX, int minY, int maxY, double radiusMultiplier) {
 		bounceOffGround(c, maxY, radiusMultiplier);

@@ -1,4 +1,4 @@
-package interactions;
+package collisions;
 
 import static utils.VecMath.projectAonB;
 import static utils.VecMath.vecFromAtoB;
