@@ -3,7 +3,7 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-import collisions.CollisionDetection;
+import collisions.ProcessorOfCollisions;
 import collisions.ColFlag;
 import collisions.Collidable;
 import data.ChargePoint.Charger;
@@ -43,7 +43,7 @@ public class World implements Runnable{
 	private boolean gravityInCentre;
 	private Vec newStageCentre;
 	
-	CollisionDetection colDet;
+	ProcessorOfCollisions colDet;
 	private ColFlag colFlag;
 	
 	public World () {
@@ -61,7 +61,7 @@ public class World implements Runnable{
 		
 		listOfCollisionPoints = new ArrayList<Vec>();
 		
-		colDet = new CollisionDetection(getListOfCollisionPoints(), getTimeInterval());
+		colDet = new ProcessorOfCollisions(getListOfCollisionPoints(), getTimeInterval());
 		colFlag = ColFlag.DO_NOT_FORCE;
 	}
 	
@@ -189,6 +189,10 @@ public class World implements Runnable{
 			System.out.println("gravity: " + gravity);
 		}
 	
+	
+	public void addHugeBlob(double x, double y) {
+		newBlobs.add(new Blob (new Vec(x,y), 300));
+}
 		
 	public void addBlobAt(double x, double y) {
 			newBlobs.add(new Blob (new Vec(x,y), U.rndInt(5, 200)));

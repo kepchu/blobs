@@ -19,12 +19,12 @@ public class Blob implements Collidable {
 	private ColliderType colliderType;
 	private boolean colDetDone;
 	// Settings:
-	private double maxVelocity = 40;
+	private double maxVelocity = 50;
 	private double maxInflationSpeed = 5.0;
 	private double newbornInflationSpeed;// = 15.0;
 	private int startingRadius = 1;
 	private double bounceDampeningFactor = 0.9;
-	private double stageFriction = 0.005;
+	private double stageFriction = 1;
 	
 	//things adjusted on per-frame basis by timeInterval received in update() call:
 	//velocity -> position, inflationSpeed & newbornInflationSpeed
@@ -121,7 +121,7 @@ public class Blob implements Collidable {
 		
 		//TIME INTERVAL APPLIED TODO: change position via mutator method that would update previousPosition...
 		previousPosition.setXY(position);
-		position.addAndSet(velocity.multiply(timeInterval));		
+		position.addAndSet(velocity.multiply(stageFriction * timeInterval));		
 	}
 
 	private void updateNEWBORN(double timeInterval) {	
@@ -171,11 +171,11 @@ public class Blob implements Collidable {
 	}
 	
 	public Vec getVelocity() {
-		return velocity;
+		return new Vec(velocity);
 	}
 
 	public void setVelocity(Vec velocity) {
-		this.velocity = velocity;
+		this.velocity = velocity.multiply(1.0/energy);
 	}
 
 	public Vec getPreviousPosition() {

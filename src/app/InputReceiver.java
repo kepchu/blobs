@@ -48,7 +48,8 @@ public class InputReceiver {
 	//add blob
 	public void leftClickAt(double x, double y) {
 		System.out.println("leftClickAt " + x + ", " + y + ". Adding a blob.");
-		w.addBlobAt(x, y);
+		//w.addBlobAt(x, y);
+		w.addHugeBlob(x, y);
 	}
 
 	//add blob at random position

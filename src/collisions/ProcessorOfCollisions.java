@@ -8,7 +8,7 @@ import java.util.List;
 
 import data.Vec;
 
-public class CollisionDetection {
+public class ProcessorOfCollisions {
 	
 	private List<Vec> listOfCollisionPoints;
 	@SuppressWarnings("unused")
@@ -19,7 +19,7 @@ public class CollisionDetection {
 	private Detection detDebris;
 	private Detection detInward;
 
-	public CollisionDetection(List<Vec> listOfCollisionPoints, double timeInterval) {
+	public ProcessorOfCollisions(List<Vec> listOfCollisionPoints, double timeInterval) {
 		this.listOfCollisionPoints = listOfCollisionPoints;
 		this.timeInterval = timeInterval;
 		this.colBorders = new ColliderStageLimits();
@@ -65,7 +65,7 @@ public class CollisionDetection {
 			
 			
 			//B. Interaction with collidable objects
-			if(flag == ColFlag.DISABLE) {//TODO: branch to optimised loop at the beginning of this method?
+			if(flag == ColFlag.DISABLE) {
 				continue;
 			}
 			
@@ -97,7 +97,7 @@ public class CollisionDetection {
 			//listOfCollisionPoints.add(0, colBlobs.computeCollisionPoint(col[0], col [1]));
 			
 			//change direction
-			colBlobs.bounceBlobs(col[0], col [1]);
+			colBlobs.bounceCollidables(col[0], col [1]);
 		}
 	}
 }

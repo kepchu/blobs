@@ -39,8 +39,8 @@ public class Loop implements Runnable {
 	// the gfx loop
 	@Override
 	public void run() {			
-		if (frameBuffer.isEmpty()) 
-			System.out.println("main loop: display buffer empty");
+//		if (frameBuffer.isEmpty()) 
+//			System.out.println("main loop: display buffer empty");
 		
 		v.update();
 	}

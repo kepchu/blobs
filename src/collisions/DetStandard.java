@@ -37,19 +37,20 @@ public class DetStandard implements Detection {
 			// if (sub and obj are overlapping)
 			if (currentDistance < subj.getRadius() + obj.getRadius()) {
 				
-				double previousDistance = distanceBetween(
-						subj.getPreviousPosition(),
-						obj.getPreviousPosition());
-				
 				//correct overlap
 				correctOverlapping(subj, obj);
+				
+				
 				
 				//TODO add test for (and deal with) growing blobs here because:
 				// 1. inflating/growing blob has to affect POSITION and not just velocity of its neighbours
 				// 2. distance test below excludes many valid cases
-				// 3. shrinking should be taken care of in "bounceOff"
+				// 3. shrinking should be taken care of in "bounceOff
 				
 				//do not process collision if blobs already move away
+				double previousDistance = distanceBetween(
+						subj.getPreviousPosition(),
+						obj.getPreviousPosition());
 				if (currentDistance < previousDistance) {
 				//if (futureDistance < actualDistance) {
 					return new Collidable[] {subj, obj};
@@ -59,7 +60,7 @@ public class DetStandard implements Detection {
 		//nothing found
 		return null;	
 	}
-
+	
 	private void correctOverlapping(Collidable subj, Collidable obj) {
 		//this method moves subject away from object in the direction of fromObjToSub
 		//for the length that make both collidees touch at the time the collision was detected (just now)
