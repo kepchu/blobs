@@ -32,7 +32,7 @@ public class Loop implements Runnable {
 		// TODO: swing timers?
 		ses = Executors.newSingleThreadScheduledExecutor();
 		ses.scheduleAtFixedRate(this, 16666, 16666, TimeUnit.MICROSECONDS);
-		
+		//ses.scheduleAtFixedRate(this, 4166, 4166, TimeUnit.MICROSECONDS);
 		new Thread(w).start();
 	}
 

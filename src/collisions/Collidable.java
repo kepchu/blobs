@@ -11,7 +11,7 @@ public interface Collidable {
 	void setVelocity(Vec v);
 	double getRadius();
 	double inflationDelta();	
-	double getEnergy();
+	double getMass();
 
 	boolean isColDetDone();
 	void setColDetDone(boolean b);

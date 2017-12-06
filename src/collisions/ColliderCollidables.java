@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import data.Vec;
+import view.Stage;
 
 public class ColliderCollidables {
 
@@ -62,69 +63,65 @@ public class ColliderCollidables {
 
 	void bounceCollidables(Collidable subj, Collidable obj) {
 		
+		double bounceFactor = 1.0;
+		
 		//mark as already "collided"
 		subj.setColDetDone(true);
 		obj.setColDetDone(true);
 		
-		//calculate changes
+		//A calculate
+		//Velocities involved at the angle of collision:
 		Vec fromSubToObj = vecFromAtoB(subj.getPosition(), obj.getPosition());
-		Vec involvementOfSubj = bounce(subj, fromSubToObj);
-		Vec involvementOfObj = bounce(obj, fromSubToObj.multiply(-1));//reversed fromSubToObj
+		Vec invVelSubj = involovedVelocity(subj, fromSubToObj);
+		Vec invVelObj = involovedVelocity(obj, fromSubToObj.multiply(-1));//.multiply(-1) reverses fromSubToObj
 		
-	/*	System.out.println("SubVel: " + subj.getVelocity());
-		System.out.println("SubInv: " + involvementOfSubj);
-		System.out.println("ObjVel: " + obj.getVelocity());
-		System.out.println("ObjInv: " + involvementOfObj);
+		Vec kinSubj = invVelSubj.multiply(subj.getMass());
+		Vec kinObj = invVelObj.multiply(obj.getMass());
 		
-		s.nextLine();*/
+//		double kinSubj = invVelSubj.getMagnitude() * subj.getMass();
+//		double kinObj = invVelObj.getMagnitude() * obj.getMass();				
+//		System.out.println("SubVel: " + subj.getVelocity());
+//		System.out.println("invVelSubj: " + invVelSubj + ", mag: " + invVelSubj.getMagnitude());
+//		System.out.println("subj.getMass(): " + subj.getMass());
+//		System.out.println("ObjVel: " + obj.getVelocity());
+//		System.out.println("invVelObj: " + invVelObj + ", mag: " + invVelObj.getMagnitude());
+//		System.out.println("obj.getMass(): " + obj.getMass());
+//		System.out.println("action: " + action);
+//		System.out.println("reaction: " + reaction);		
+		//s.nextLine();
 		
-		//apply changes according to 3rd law of motion (action meets equal opposite reaction):
-		//A. influence of self
-//		subj.getVelocity().subAndSet(involvementOfSubj);///subj.getEnergy()));
-//		obj.getVelocity().subAndSet(involvementOfObj);//obj.getEnergy()));
-		subj.setVelocity(subj.getVelocity().sub(involvementOfSubj));
-		obj.setVelocity(obj.getVelocity().sub(involvementOfObj));
-//		subj.getVelocity().addAndSet(involvementOfSubj.multiply(-1).add(involvementOfObj));
-//		obj.getVelocity().addAndSet(involvementOfObj.multiply(-1).add(involvementOfSubj));
+//		double dotProd = VecMath.dot(VecMath.normalise(kinSubj),VecMath.normalise(kinObj));
+//		int div = 1;
+//		if (dotProd < 0) div = -1;
+//		subj.getVelocity().subAndSet(invVelSubj);	
+//		obj.getVelocity().subAndSet(invVelObj);
+//		subj.getVelocity().subAndSet(kinObj.multiply(div/subj.getMass()));
+//		obj.getVelocity().subAndSet(kinSubj.multiply(div/obj.getMass()));
+				
+		subj.getVelocity().subAndSet(invVelSubj);	
+		obj.getVelocity().subAndSet(invVelObj);
+		subj.getVelocity().addAndSet(kinObj.multiply(1/subj.getMass()));
+		obj.getVelocity().addAndSet(kinSubj.multiply(1/obj.getMass()));
 		
-//		//B. influence of other
-//		subj.getVelocity().addAndSet(involvementOfObj);///subj.getEnergy()));
-//		obj.getVelocity().addAndSet(involvementOfSubj);//obj.getEnergy()));
-//		subj.getVelocity().addAndSet(involvementOfObj.multiply(1));
-//		obj.getVelocity().addAndSet(involvementOfSubj.multiply(1));
-		
-		//account for mass
-		/*//involvementOfObj.multiplyAndSet(obj.getEnergy());
-		subj.getVelocity().addAndSet(involvementOfObj.multiply(1/subj.getEnergy()));
-		
-		//involvementOfSubj.multiplyAndSet(subj.getEnergy());
-		obj.getVelocity().addAndSet(involvementOfSubj.multiply(1/obj.getEnergy()));*/
-		
-		subj.setVelocity(subj.getVelocity().addAndSet(involvementOfObj));
-		obj.setVelocity(obj.getVelocity().addAndSet(involvementOfSubj));
-//		subj.getVelocity().addAndSet(involvementOfObj.multiply(obj.getEnergy()).
-//				multiply(1/subj.getEnergy()));
-//		obj.getVelocity().addAndSet(involvementOfSubj.multiply(subj.getEnergy()).
-//				multiply(1/obj.getEnergy()));
-//		
-//		subj.getVelocity().addAndSet(involvementOfObj.multiply(obj.getEnergy()/subj.getEnergy()));
-//		obj.getVelocity().addAndSet(involvementOfSubj.multiply(subj.getEnergy()/obj.getEnergy()));
-//		subj.getVelocity().addAndSet(involvementOfObj.multiply(1/(obj.getEnergy()/subj.getEnergy())));
-//		obj.getVelocity().addAndSet(involvementOfSubj.multiply(1/(subj.getEnergy()/obj.getEnergy())));
-		//.add(involvementOfObj.multiply(1/subj.getEnergy())));obj.getEnergy()/subj.getEnergy())
-		
+//		subj.getVelocity().subAndSet(invVelSubj);	
+//		obj.getVelocity().subAndSet(invVelObj);
+//		subj.getVelocity().addAndSet(invVelObj);
+//		obj.getVelocity().addAndSet(invVelSubj);
+
 	}
 	
-	private Vec bounce(Collidable c, Vec angle) {
+	
+	
+	private Vec involovedVelocity(Collidable c, Vec angle) {
 		// get amount of collidable's kinetic energy transferred at the angle of collision
 		Vec involvement = projectAonB(c.getVelocity(), angle);
 		// account for change of size:
-		if (c.inflationDelta() != 0)
-			involvement.setMagnitude(
-			involvement.getMagnitude() + c.inflationDelta());
+//		if (c.inflationDelta() != 0)
+//			involvement.setMagnitude(
+//			involvement.getMagnitude() + c.inflationDelta());
 		
 		//account for mass
-		return involvement.multiply(c.getEnergy());
+		return involvement;
 	}
 	
 	// This the only method I didn't create

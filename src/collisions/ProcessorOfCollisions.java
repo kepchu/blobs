@@ -15,6 +15,7 @@ public class ProcessorOfCollisions {
 	private double timeInterval;
 	private ColliderStageLimits colBorders;
 	private ColliderCollidables colBlobs;
+	private Collide collider;
 	private Detection detStandard;
 	private Detection detDebris;
 	private Detection detInward;
@@ -24,6 +25,7 @@ public class ProcessorOfCollisions {
 		this.timeInterval = timeInterval;
 		this.colBorders = new ColliderStageLimits();
 		this.colBlobs = new ColliderCollidables();
+		this.collider = new Collide();
 		this.detStandard = new DetStandard();
 		this.detDebris = new DetDebris();
 		this.detInward = new DetInward();
@@ -98,6 +100,7 @@ public class ProcessorOfCollisions {
 			
 			//change direction
 			colBlobs.bounceCollidables(col[0], col [1]);
+			//collider.collide(col[0], col [1]);
 		}
 	}
 }

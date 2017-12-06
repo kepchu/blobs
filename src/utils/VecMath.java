@@ -54,9 +54,8 @@ public class VecMath {
 				//return multiply(1d / getLength());
 			}
 
-			/*dot product - applied to normalised vectors yields cos(angle between vectors) - this
-			will be positive when Vec a is "facing" coordinatesif vectors are
-			"facing each other (within 180 degrees) and negative if not:
+			/*dot product - applied to normalised vectors yields cos(angle between vectors) -
+			 positive when the vectors face each other (within 180 degrees) and negative if not:
 			
 				|--"facing plane" of Vec a
 				|

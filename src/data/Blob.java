@@ -12,7 +12,7 @@ public class Blob implements Collidable {
 	private double energy;
 	private double radius = 0;// a value separate from energy for flexibility
 	private double previousRadius = 0;
-	private double mass = 1;// for the future
+	//private double mass = 1;// for the future
 	private Colour colour;
 	private BlobType type;
 	private BlobPhase phase;
@@ -38,7 +38,7 @@ public class Blob implements Collidable {
 		this.energy = b.energy;
 		this.radius =b.radius;
 		this.previousRadius= b.previousRadius;
-		this.mass = b.mass;
+		//this.mass = b.mass;
 		this.colour = new Colour(b.getColour());
 		this.type = b.type;	
 		this.colDetDone = b.colDetDone;
@@ -167,15 +167,16 @@ public class Blob implements Collidable {
 		return ID;
 	}
 	public double getMass() {
-		return energy;
+		return energy*2;
 	}
 	
 	public Vec getVelocity() {
-		return new Vec(velocity);
+		return velocity;
 	}
 
 	public void setVelocity(Vec velocity) {
-		this.velocity = velocity.multiply(1.0/energy);
+		//this.velocity = velocity.multiply(1.0/energy);
+		this.velocity = velocity;
 	}
 
 	public Vec getPreviousPosition() {

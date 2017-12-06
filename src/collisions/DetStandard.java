@@ -51,6 +51,8 @@ public class DetStandard implements Detection {
 				double previousDistance = distanceBetween(
 						subj.getPreviousPosition(),
 						obj.getPreviousPosition());
+				
+				//return new Collidable[] {subj, obj};
 				if (currentDistance < previousDistance) {
 				//if (futureDistance < actualDistance) {
 					return new Collidable[] {subj, obj};

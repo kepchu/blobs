@@ -92,7 +92,7 @@ public class Stage extends JPanel implements ComponentListener {
 		drawInfo(g2d);
 		displayBuffer.advanceFrame();
 	}
-
+	
 	// methods used by the drawing routine in paint (Graphics g)
 	private void drawBackground(Graphics2D g) {
 		g.setColor(new Color(227, 227, 226, 255));

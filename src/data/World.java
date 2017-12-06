@@ -15,8 +15,8 @@ import utils.VecMath;
 //TODO: make sure all mutations of core data happen only in "update" loop via buffering Lists to avoid concurrent access
 public class World implements Runnable{
 	//SETTINGS
-	private static int maxX = 4000;
-	private static int minX = -4000;
+	private static int maxX = 2000;
+	private static int minX = -1000;
 	private static int maxY = 0;	
 	private static int minY = -2000;
 	
@@ -191,11 +191,15 @@ public class World implements Runnable{
 	
 	
 	public void addHugeBlob(double x, double y) {
-		newBlobs.add(new Blob (new Vec(x,y), 300));
-}
+		newBlobs.add(new Blob (new Vec(x,y), 200));
+	}
 		
+	public void addSmallBlob(double x, double y) {
+		newBlobs.add(new Blob (new Vec(x,y), 30));
+	}
+	
 	public void addBlobAt(double x, double y) {
-			newBlobs.add(new Blob (new Vec(x,y), U.rndInt(5, 200)));
+			newBlobs.add(new Blob (new Vec(x,y), U.rndInt(5, 70)));
 	}
 	
 	public void addBlob(int i) {

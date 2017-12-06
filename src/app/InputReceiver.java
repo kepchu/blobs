@@ -48,8 +48,8 @@ public class InputReceiver {
 	//add blob
 	public void leftClickAt(double x, double y) {
 		System.out.println("leftClickAt " + x + ", " + y + ". Adding a blob.");
-		//w.addBlobAt(x, y);
-		w.addHugeBlob(x, y);
+		w.addBlobAt(x, y);
+		//w.addHugeBlob(x, y);
 	}
 
 	//add blob at random position
@@ -59,7 +59,8 @@ public class InputReceiver {
 
 	//add charge point
 	public void rightClickAt(double x, double y) {
-		System.out.println("rightClickAt " + x + ", " + y + ". Adding a charge.");
+		//w.addSmallBlob(x, y);
+//		System.out.println("rightClickAt " + x + ", " + y + ". Adding a charge.");
 		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.NEUTRAL, Charger.COLOUR_CATEGORY_ABSOLUTE));	
 	}
 
