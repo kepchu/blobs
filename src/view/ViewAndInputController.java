@@ -1,11 +1,12 @@
 package view;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -17,19 +18,23 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import app.InputReceiver;
 import data.FrameData;
 import data.BufferableFrames;
+import data.Colour.ColourCategory;
 import data.FrameBuffer;
 import data.World;
 
 //switch to MouseInputAdapter?
-public class ViewAndInputController implements MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener {
+public class ViewAndInputController implements InputProvider,
+MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener {
 	
 	
 	private JFrame frame;
@@ -40,18 +45,19 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	private BufferableFrames frameBuffer;
 	private InputReceiver inputReceiver;
 
-	boolean r,g,b,ctrl, shift;
-	
-	
+	volatile static boolean r,g,b,n, ctrl, shift;
 	
 	int stageX = Integer.MIN_VALUE, stageY = Integer.MIN_VALUE;
+
+	ControlRGBButtonsJPanel rgbButtons;
+	ControlsJPanel controlsJPanel;
 	
 	public ViewAndInputController (FrameBuffer frameBuffer) {
 		System.out.println("ViewAndDataController constr.");
 		this.frameBuffer = frameBuffer;
 //		this.stage = new Stage(w.getBlobs(), w.getListOfCollisionPoints(), w.getCharges(), w.getGround(),
 //				750);
-		int initialCameraPosition = 750;
+		int initialCameraPosition = 700;
 		this.stage = new Stage(initialCameraPosition, frameBuffer);
 		initGraphics();
 		initInput();	
@@ -60,12 +66,31 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	
 	//SETUP
 	private void initGraphics() {
-		frame = new JFrame("tytul okna");
-		frame.add(stage);
+		
+		frame = new JFrame("demko");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		frame.setSize(800, 800);
 		frame.setLocationRelativeTo(null);//window appears in screens centre
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		//BorderLayot is default - stage in centre
+		frame.getContentPane().add(stage, BorderLayout.CENTER);
+		
+		
+		
+		rgbButtons = new ControlRGBButtonsJPanel();
+		ControlButtonsJPanel controlButtons = new ControlButtonsJPanel();
+		ControlSlidersJPanel controlSliders = new ControlSlidersJPanel();
+		
+		controlsJPanel = new ControlsJPanel(
+				rgbButtons, controlButtons,	controlSliders);
+		
+		//frame.getContentPane().add(new JButton("test"), BorderLayout.PAGE_END);
+		//frame.getContentPane().add(controlButtons, BorderLayout.PAGE_END);
+		//frame.getContentPane().add(rgbButtons, BorderLayout.PAGE_END);
+		frame.getContentPane().add(controlsJPanel, BorderLayout.PAGE_END);
+		
+		frame.setVisible(true);	
 		frame.addComponentListener(this);
 	}
 	
@@ -88,12 +113,19 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 							switch(e.getKeyCode()) {
 							case KeyEvent.VK_R:
 								r = true;
+								rgbButtons.setState(ColourCategory.R);
 								break;
 							case KeyEvent.VK_G:
 								g = true;
+								rgbButtons.setState(ColourCategory.G);
 								break;
 							case KeyEvent.VK_B:
 								b = true;
+								rgbButtons.setState(ColourCategory.B);
+								break;
+							case KeyEvent.VK_N:
+								n = true;
+								rgbButtons.setState(ColourCategory.NEUTRAL);
 								break;
 								
 							case KeyEvent.VK_CONTROL:
@@ -148,8 +180,9 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 		
 		
 	}
-	public void setUserInputReceiver(InputReceiver uir) {
-		this.inputReceiver = uir;			
+	public void setInputReceiver(InputReceiver uir) {
+		this.inputReceiver = uir;
+		controlsJPanel.setInputReceiver(uir);
 	}
 	
 	public void update() {
@@ -169,7 +202,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 			//System.out.println("mouseClicked, leftClick X: " + arg0.getX() + ", Y: " + arg0.getY());
 			
 			if (r) {
-				System.out.println("click while r pressed");
+				System.out.println("click while r pressed");			
 				inputReceiver.rLeftClick(
 						stage.descaleX(arg0.getX()),
 						stage.descaleY(arg0.getY()));
@@ -335,7 +368,7 @@ public class ViewAndInputController implements MouseListener, MouseMotionListene
 	@SuppressWarnings("serial")
 	Action sBarAction = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
-			inputReceiver.sBarAction();
+			inputReceiver.switchCollisions();
 		}
 	};
 	@SuppressWarnings("serial")

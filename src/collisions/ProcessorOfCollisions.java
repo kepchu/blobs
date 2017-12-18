@@ -71,7 +71,7 @@ public class ProcessorOfCollisions {
 				continue;
 			}
 			
-			//find a collider using selected detection logic
+			//detect collisions using selected logic
 			Collidable[] col = null;
 			if (d != null) {
 				col = colBlobs.detect(c, blobs, 1, d);

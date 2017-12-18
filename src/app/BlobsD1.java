@@ -2,14 +2,36 @@ package app;
 
 import java.awt.EventQueue;
 
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 import data.FrameBuffer;
 import data.World;
 import view.ViewAndInputController;
 
 public class BlobsD1 {
 
-	public static void main (String[] args) {	
-		EventQueue.invokeLater(new Runnable() {
+	
+	
+	public static void main (String[] args) {
+		
+		 /* Use an appropriate Look and Feel */
+	    try {
+	        UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+	        //UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+	    } catch (UnsupportedLookAndFeelException ex) {
+	        ex.printStackTrace();
+	    } catch (IllegalAccessException ex) {
+	        ex.printStackTrace();
+	    } catch (InstantiationException ex) {
+	        ex.printStackTrace();
+	    } catch (ClassNotFoundException ex) {
+	        ex.printStackTrace();
+	    }
+	    /* Turn off metal's use bold fonts */
+	    UIManager.put("swing.boldMetal", Boolean.FALSE);
+		
+	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					new BlobsD1();
@@ -33,8 +55,11 @@ public class BlobsD1 {
 
 //00: create square root alternative for VecMath and use it wherever possible &
 //	switchable gfx: draw blobs as same size "flies" - this should look like  
-//0: wrap around, zoom by ctrl + mouse wheel or +/-, 
+//OK 0: wrap around, zoom by ctrl + mouse wheel or +/-, 
 //	 make debris "rain-fireworks"
+// !all the charge-point changes applied to mouse pointer.
+// independent charge point created on click and undo button
+
 
 /*G@MES:
  * 1. "pool" - Blobs of 2 or more colours randomly placed in window. Blobs have random sizes and positions

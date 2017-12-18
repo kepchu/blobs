@@ -10,9 +10,9 @@ public class Blob implements Collidable {
 	private Vec previousPosition;
 	private Vec velocity;
 	private double energy;
-	private double radius = 0;// a value separate from energy for flexibility
+	private double radius = 0;
 	private double previousRadius = 0;
-	//private double mass = 1;// for the future
+	
 	private Colour colour;
 	private BlobType type;
 	private BlobPhase phase;
@@ -43,7 +43,7 @@ public class Blob implements Collidable {
 		this.type = b.type;	
 		this.colDetDone = b.colDetDone;
 		this.colliderType = b.colliderType;
-		
+				
 		this.newbornInflationSpeed = b.newbornInflationSpeed;
 	}
 	
@@ -267,4 +267,6 @@ public class Blob implements Collidable {
 		return this.colliderType;
 	}
 
+	//if internal counter reaches 0 keep it at 0. Otherwise decrement by 1 if argument is negative
+	//or increment by 1 if the argument is positive
 }

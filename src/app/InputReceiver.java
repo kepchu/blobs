@@ -37,10 +37,6 @@ public class InputReceiver {
 		w.gravityDown();
 	}
 	
-	public void  sBarAction() {
-		w.switchCollisonDetections();
-	}
-	
 	public void stageMoved (int deltaX, int deltaY) {
 		//System.out.println("UserInput.stageMoved deltaX: " + deltaX + ", y: " + deltaY);
 	}
@@ -84,10 +80,6 @@ public class InputReceiver {
 		System.out.println("cShiftAction()");
 		w.switchChargeTypes();
 	}
-
-	public void switchGravity() {
-		w.switchGravity();	
-	}
 	
 	public void togglePointerRepulse() {
 		w.repulseFromPointer();
@@ -102,5 +94,39 @@ public class InputReceiver {
 		w.updatePointer(x, y);
 		
 	}
+
+
 	
+	
+	public void colourChanged(ColourCategory colourCategory) {
+		System.out.println(getClass().getSimpleName() + "colourChanged(): " + colourCategory);
+	}
+
+	public void chargeChanged(Charger charger) {
+		System.out.println(getClass().getSimpleName() + "colourChanged(): " + charger);	
+	}
+
+	public void switchStageWrap() {
+		// TODO Auto-generated method stub
+	}
+	
+	public void switchGravity() {
+		w.switchGravity();	
+	}
+	
+	public void  switchCollisions() {
+		w.switchCollisonDetections();
+	}
+
+
+	public void undo() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public void reset() {
+		// TODO Auto-generated method stub
+		
+	}
 }

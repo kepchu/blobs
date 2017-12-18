@@ -24,6 +24,11 @@ public class ChargePoint {
 					b.getVelocity().addAndSet(chargeInfluence);
 				}
 			}
+			
+			public String toString() {
+				return "Magnet A";
+			}
+			
 		},
 		COLOUR_CATEGORY_COMPONENT_WEIGHTED {
 			public void charge(Blob b, ChargePoint c) {
@@ -35,6 +40,9 @@ public class ChargePoint {
 					b.getVelocity().addAndSet(chargeInfluence.multiply(
 							b.getColourComponent(c.colourCategory)/255));
 				}
+			}
+			public String toString() {
+				return "Magnet B";
 			}
 		},
 		COLOUR_COMPONENT {
@@ -65,7 +73,9 @@ public class ChargePoint {
 				}
 				
 			}
-			
+			public String toString() {
+				return "Magnet C";
+			}
 		},
 		REPULSE_ALL {
 			public void charge(Blob b, ChargePoint c) {
@@ -83,6 +93,9 @@ public class ChargePoint {
 					b.getVelocity().addAndSet(chargeInfluence);
 				}
 				
+			}
+			public String toString() {
+				return "Shove off";
 			}
 		},
 		RING {

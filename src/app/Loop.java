@@ -27,7 +27,7 @@ public class Loop implements Runnable {
 		v.setFrameBuffer(frameBuffer);
 		
 		uir = new InputReceiver(w, this);
-		v.setUserInputReceiver(uir);
+		v.setInputReceiver(uir);
 		
 		// TODO: swing timers?
 		ses = Executors.newSingleThreadScheduledExecutor();

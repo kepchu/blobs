@@ -37,7 +37,6 @@ public class DetStandard implements Detection {
 			// if (sub and obj are overlapping)
 			if (currentDistance < subj.getRadius() + obj.getRadius()) {
 				
-				//correct overlap
 				correctOverlapping(subj, obj);
 				
 				
@@ -51,15 +50,14 @@ public class DetStandard implements Detection {
 				double previousDistance = distanceBetween(
 						subj.getPreviousPosition(),
 						obj.getPreviousPosition());
-				
-				//return new Collidable[] {subj, obj};
+								
 				if (currentDistance < previousDistance) {
 				//if (futureDistance < actualDistance) {
 					return new Collidable[] {subj, obj};
 				}
 			}
+			
 		}
-		//nothing found
 		return null;	
 	}
 	
