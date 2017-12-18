@@ -2,6 +2,7 @@ package app;
 
 import data.Colour;
 import data.Colour.ColourCategory;
+import data.StageDescription;
 import data.Vec;
 import data.ChargePoint;
 import data.ChargePoint.Charger;
@@ -72,24 +73,19 @@ public class InputReceiver {
 	}
 
 
-	public void cAction() {
-		System.out.println("cShiftAction()");
-		w.switchChargeColourCategories();
-	}
-	public void cShiftAction() {
-		System.out.println("cShiftAction()");
-		w.switchChargeTypes();
-	}
+	
 	
 	public void togglePointerRepulse() {
 		w.repulseFromPointer();
 	}
 
-	public void udateStageCentre(double x, double y) {
-		w.updateStageCentre(x,y);
-		
+	public void udateStageDimensions (StageDescription sd) {
+		w.updateAlternativeGravityCentre(sd.getAlternativeGravityCentre());
+		w.setMinX((int)sd.getMinXY().getX());
+		w.setMaxX((int)sd.getMaxXY().getX());
 	}
-
+	
+	
 	public void updateMousePointerPosition(double x, double y) {
 		w.updatePointer(x, y);
 		
@@ -118,7 +114,14 @@ public class InputReceiver {
 		w.switchCollisonDetections();
 	}
 
-
+	public void switchChargeColourCategories() {
+		System.out.println("cShiftAction()");
+		w.switchChargeColourCategories();
+	}
+	public void switchChargeTypes() {
+		System.out.println("cShiftAction()");
+		w.switchChargeTypes();
+	}
 	public void undo() {
 		// TODO Auto-generated method stub
 		

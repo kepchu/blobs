@@ -8,6 +8,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import data.Blob;
 import data.BufferableFrames;
@@ -37,6 +38,8 @@ public class Stage extends JPanel implements ComponentListener {
 	private int deltaY = 100;
 
 	private boolean drawColl;
+
+	private boolean initFinished;
 	
 	public Stage(int initialCameraPosition, BufferableFrames displayBuffer) {
 		System.out.println("Stage constr. thread - " + Thread.currentThread().getName());
@@ -45,7 +48,15 @@ public class Stage extends JPanel implements ComponentListener {
 		currentElevation = initialCameraPosition;
 		//IMPORTANT: line below is crucial to get proper dimensions & ground level (in "componentResized").
 		//This functionality could be done by a simple getHeight() call from paint(Graphics g)
-		this.addComponentListener(this);		
+//		SwingUtilities.invokeLater(new Runnable() {
+//		    public void run() {
+//		        this.addComponentListener(new ComponentAdapter() {
+//		            public void componentResized(ComponentEvent e) {
+//		                System.out.println("Component Listener 1");
+//		            }
+//		        });
+//		    }
+//		});
 	}
 
 	
@@ -61,6 +72,22 @@ public class Stage extends JPanel implements ComponentListener {
 	}
 	private int scaleY(double y) {
 		return (int)(y * scale + currentElevation);
+	}
+	
+	
+	public double descaledStageCentreY() {
+		return descaleY(panelCentreY);
+	}
+
+	public double descaledStageCentreX() {
+		return descaleX(panelCentreX);
+	}
+	
+	public Vec descaledMinXY() {
+		return new Vec (descaleX(0), descaleY(0));
+	}
+	public Vec descaledMaxXY() {
+		return new Vec (descaleX(panelWidth), descaleY(panelHeight));
 	}
 	
 	// DRAWING ROUTINE
@@ -263,14 +290,19 @@ public class Stage extends JPanel implements ComponentListener {
 	}
 	@Override
 	public void componentResized(ComponentEvent e) {
-		//System.out.println("componentResized");
-		panelHeight = getHeight();
-		panelWidth = getWidth();
+		System.out.println("componentResized");
 		
-		panelCentreX = panelWidth / 2;
-		panelCentreY = panelHeight / 2;
+		int newPanelWidth = getWidth();
+		int newPanelHeight = getHeight();
 		
-		//currentElevation = ground + panelHeight;
+		panelCentreX = newPanelWidth / 2;
+		panelCentreY = newPanelHeight / 2;
+		
+		currentElevation = currentElevation -
+				(panelHeight - newPanelHeight);
+		
+		panelWidth = newPanelWidth;
+		panelHeight = newPanelHeight;
 	}
 	@Override
 	public void componentShown(ComponentEvent e) {
@@ -285,14 +317,6 @@ public class Stage extends JPanel implements ComponentListener {
 
 	public void switchCollisionsDrawing() {
 		drawColl = !drawColl;
-	}
-	
-	public double descaledStageCentreY() {
-		return descaleY(panelCentreY);
-	}
-
-	public double descaledStageCentreX() {
-		return descaleX(panelCentreX);
 	}
 
 	private void drawInfo(Graphics2D g) {
@@ -309,5 +333,12 @@ public class Stage extends JPanel implements ComponentListener {
 		g.drawString("Modify Charges: [C] & [SHIFT] + [C]", x, y+96);
 		g.drawString("(De)activate mouse pointer: [middle-click] (mouse wheel click)", x, y+108);
 	}
-	
+
+	//called from View controller
+	public void initFinished() {
+		
+		panelHeight = currentElevation = getHeight();
+		componentResized(null);
+		this.addComponentListener(this);
+	}	
 }

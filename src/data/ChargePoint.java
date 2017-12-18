@@ -30,21 +30,6 @@ public class ChargePoint {
 			}
 			
 		},
-		COLOUR_CATEGORY_COMPONENT_WEIGHTED {
-			public void charge(Blob b, ChargePoint c) {
-
-				if (c.colourCategory == b.getColourCategory()) {
-					Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.position);
-					chargeInfluence.setMagnitude(c.power * World.getTimeInterval());
-					
-					b.getVelocity().addAndSet(chargeInfluence.multiply(
-							b.getColourComponent(c.colourCategory)/255));
-				}
-			}
-			public String toString() {
-				return "Magnet B";
-			}
-		},
 		COLOUR_COMPONENT {
 			public void charge(Blob b, ChargePoint c) {
 				Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.position);
@@ -74,9 +59,25 @@ public class ChargePoint {
 				
 			}
 			public String toString() {
+				return "Magnet B";
+			}
+		},
+		COLOUR_CATEGORY_COMPONENT_WEIGHTED {
+			public void charge(Blob b, ChargePoint c) {
+
+				if (c.colourCategory == b.getColourCategory()) {
+					Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.position);
+					chargeInfluence.setMagnitude(c.power * World.getTimeInterval());
+					
+					b.getVelocity().addAndSet(chargeInfluence.multiply(
+							b.getColourComponent(c.colourCategory)/255));
+				}
+			}
+			public String toString() {
 				return "Magnet C";
 			}
 		},
+		
 		REPULSE_ALL {
 			public void charge(Blob b, ChargePoint c) {
 				

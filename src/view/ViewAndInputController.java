@@ -14,6 +14,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import javax.management.DescriptorAccess;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -27,6 +28,8 @@ import javax.swing.SwingUtilities;
 
 import app.InputReceiver;
 import data.FrameData;
+import data.StageDescription;
+import data.Vec;
 import data.BufferableFrames;
 import data.Colour.ColourCategory;
 import data.FrameBuffer;
@@ -47,7 +50,7 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener {
 
 	volatile static boolean r,g,b,n, ctrl, shift;
 	
-	int stageX = Integer.MIN_VALUE, stageY = Integer.MIN_VALUE;
+	
 
 	ControlRGBButtonsJPanel rgbButtons;
 	ControlsJPanel controlsJPanel;
@@ -163,10 +166,10 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener {
 							case KeyEvent.VK_C:
 								if (e.isShiftDown()) {
 									System.out.println("c+shift");
-									inputReceiver.cShiftAction();
+									inputReceiver.switchChargeTypes();
 								} else {
 									System.out.println("c");
-									inputReceiver.cAction();
+									inputReceiver.switchChargeColourCategories();
 								}
 								break;
 							case KeyEvent.VK_Z:
@@ -183,13 +186,23 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener {
 	public void setInputReceiver(InputReceiver uir) {
 		this.inputReceiver = uir;
 		controlsJPanel.setInputReceiver(uir);
+		
+		stage.initFinished();
 	}
 	
 	public void update() {
 		//TODO: updating here so Stage won't know anything about inputReceiver/World -a  makeshift solution...
-		inputReceiver.udateStageCentre(
-				stage.descaledStageCentreX(),
+		
+//		inputReceiver.udateStageDimensions(
+//				stage.descaledStageCentreX(),
+//				stage.descaledStageCentreY()
+//				);
+		Vec gravCentre = new Vec(stage.descaledStageCentreX(),
 				stage.descaledStageCentreY());
+		Vec minXY = stage.descaledMinXY();
+		Vec maxXY = stage.descaledMaxXY();
+		StageDescription sd = new StageDescription(gravCentre, minXY, maxXY);
+		inputReceiver.udateStageDimensions(sd);
 		stage.repaint();
 	}
 	
@@ -466,30 +479,7 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener {
 		}
 		@Override
 		public void componentMoved(ComponentEvent e) {
-			// TODO Auto-generated method stub
-			//System.out.println("JFrame componentMoved");
-			int newStageX = e.getComponent().getX();
-			int newStageY = e.getComponent().getY();
-			//System.out.println("x: " + newStageX + ", y: " + newStageY);
 			
-			//in order to skip the first call at the time of creation of GUI
-			if (stageX == Integer.MIN_VALUE) {
-				//System.out.println("MIN_VALUE");
-				stageX = newStageX;
-				stageY = newStageY;
-				return;
-			}
-			
-			//componentMoved is called multiple times with the same values of X and Y
-			//the below should filter out these repeated calls
-			if (newStageX == stageX && newStageY == stageY) {
-				//System.out.println("old and new stage deltas are the same");
-				return;}
-			
-			//System.out.println("new stagex: " + (newStageX));
-			//System.out.println("new stagey: " + (newStageY));
-			inputReceiver.stageMoved (newStageX - stageX, newStageY - stageY);
-			stageX = newStageX; stageY = newStageY;
 		}
 		@Override
 		public void componentResized(ComponentEvent e) {

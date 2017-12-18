@@ -15,10 +15,10 @@ import utils.VecMath;
 //TODO: make sure all mutations of core data happen only in "update" loop via buffering Lists to avoid concurrent access
 public class World implements Runnable{
 	//SETTINGS
-	private static int maxX = 2000;
-	private static int minX = -1000;
-	private static int maxY = 0;	
-	private static int minY = -2000;
+	private static volatile int maxX = 2000;
+	private static volatile int minX = -1000;
+	private static volatile int maxY = 0;	
+	private static volatile int minY = -2000;
 	
 	private double defaultRadiusMultiplier = 1.0;
 	private static double gravity =  0.2;
@@ -283,8 +283,8 @@ public class World implements Runnable{
 		gravityInCentre = !gravityInCentre;
 		System.out.println("gravity switched");
 	}
-	public void updateStageCentre(double x, double y) {
-		newStageCentre.setXY(x,y);
+	public void updateAlternativeGravityCentre(Vec v) {
+		newStageCentre = v;
 	}
 		
 }
