@@ -1,4 +1,5 @@
-/view/
 /app/
-/data/
 /collisions/
+/data/
+/utils/
+/view/
