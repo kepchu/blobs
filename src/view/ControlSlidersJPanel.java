@@ -33,7 +33,7 @@ class ControlSlidersJPanel extends JPanel implements InputProvider{
 		});
 		add(gravitySlider);
 		
-		heatSlider = new JSlider(0, 1000000000, 2000000);
+		heatSlider = new JSlider(0, 1000000000, 333333333);
 		heatSlider.addChangeListener(new ChangeListener() {
 			
 			@Override
@@ -46,9 +46,16 @@ class ControlSlidersJPanel extends JPanel implements InputProvider{
 		});
 		add(heatSlider);
 		
-		zoomSlider = new JSlider(0, 1000000000, 2000000);
+		zoomSlider = new JSlider(0, 1000000000, 0);
 		add(zoomSlider);
-		speedSlider = new JSlider(0, 1000000000, 2000000);
+		speedSlider = new JSlider(1, 8, 1);
+		speedSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				dispatchChange("speed", ((JSlider)e.getSource()).getValue());				
+			}
+		});
 		add(speedSlider);
 
 	}
@@ -60,6 +67,8 @@ class ControlSlidersJPanel extends JPanel implements InputProvider{
 			break;
 		case "temperature":
 			ir.setTemperature(value);
+		case "speed":
+			ir.videoFrameFactorChanged((int)value);
 		}
 	}
 	

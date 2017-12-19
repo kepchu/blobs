@@ -149,4 +149,9 @@ public class InputReceiver {
 		// TODO Auto-generated method stub
 		w.setTemperature(value);
 	}
+	
+	public void videoFrameFactorChanged(int newLimit) {
+		System.out.println(newLimit);
+		w.setVideoFrameLimit(newLimit);
+	}
 }

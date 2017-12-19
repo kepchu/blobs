@@ -37,8 +37,6 @@ public class Stage extends JPanel implements ComponentListener {
 	private double deltaZoom = 1.5;
 	private int deltaY = 100;
 
-	private boolean drawColl;
-
 	private boolean initFinished;
 
 	private boolean mouseOudside;
@@ -116,7 +114,6 @@ public class Stage extends JPanel implements ComponentListener {
 		drawBorders(g2d);
 		drawBlobs(g2d);
 		drawCharges(g2d);
-		if (drawColl) drawCollisions(g2d);
 		drawInfo(g2d);
 		displayBuffer.advanceFrame();
 	}
@@ -314,10 +311,6 @@ public class Stage extends JPanel implements ComponentListener {
 	
 	public void updatePointerPosition (int x, int y) {
 		pointerPosition.setXY(x, y);
-	}
-
-	public void switchCollisionsDrawing() {
-		drawColl = !drawColl;
 	}
 
 	private void drawInfo(Graphics2D g) {

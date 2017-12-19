@@ -254,7 +254,7 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener {
 		} else {
 			System.out.println("mouseClicked, unknown mouse button - X: " + arg0.getX() + ", Y: " + arg0.getY());
 			System.out.println("Switching collisions drawing");
-			stage.switchCollisionsDrawing();
+//			stage.switchCollisionsDrawing();
 		}
 		
 	}

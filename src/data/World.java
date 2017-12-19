@@ -29,7 +29,7 @@ public class World implements Runnable{
 	
 	//at the moment this object's run() is called 240 times/s (4166666 nanoseconds)
 	private int VideoFrameCounter = 0;
-	private int VideoFrameLimit = 4;
+	private volatile int VideoFrameLimit = 4;
 	
 	private List<Blob> newBlobs;//accessed from concurrent thread to avoid ConcurrentModificationE...
 	private List <Blob> blobs;
@@ -88,11 +88,6 @@ public class World implements Runnable{
 //	}
 	
 	public void run() {
-		if(VideoFrameCounter < VideoFrameLimit) {
-			VideoFrameCounter++;
-			return;
-		}
-		VideoFrameCounter = 0;
 		
 		//0 - copy exposed data structures to create core data free of errors caused by mutations during computations; 
 		blobs.addAll(newBlobs);		
@@ -134,10 +129,13 @@ public class World implements Runnable{
 
 		
 		// 2 - update display buffer (this thread is put to sleep when buffer is full)
+		if(VideoFrameCounter < VideoFrameLimit) {
+			VideoFrameCounter++;
+			return;
+		}
+		VideoFrameCounter = 0;
+		
 		buffer.addFrame(new FrameData(blobs, charges, listOfCollisionPoints, gravity, groundLevel, timeInterval));
-
-		// 3 - clean-up
-		listOfCollisionPoints.clear();
 	}
 	
 	private void colDet() {
@@ -309,6 +307,10 @@ public class World implements Runnable{
 
 	public void setMouseInside(boolean b) {
 		mouseInside = b;		
+	}
+
+	public void setVideoFrameLimit(int videoFrameLimit) {
+		VideoFrameLimit = videoFrameLimit;
 	}
 
 	
