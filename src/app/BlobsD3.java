@@ -49,7 +49,7 @@ public class BlobsD3 {
 		//MVC pattern variation
 		World dc = new World();
 		ViewAndInputController v = new ViewAndInputController(FrameBuffer.getInstance());
-		new Loop(dc, v);		
+		new MainHub(dc, v);		
 	}
 }
 

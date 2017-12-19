@@ -11,9 +11,9 @@ import data.World;
 public class InputReceiver {
 	
 	World w;
-	Loop l;
+	MainHub l;
 	
-	public InputReceiver(World dc, Loop l) {
+	public InputReceiver(World dc, MainHub l) {
 		this.w = dc;
 		this.l = l;
 	}
@@ -21,21 +21,21 @@ public class InputReceiver {
 	
 	//speed
 	public void pageUpAction() {
-		w.speedUp();
+		//w.speedUp();
 	}
 	
 	public void pageDownAction() {
-		w.speedDown();		
+		//w.speedDown();		
 	}
 	
 	//increase gravity
 	public void homeAction() {
-		w.gravityUp();		
+		//w.gravityUp();		
 	}
 	
 	//reduce gravity
 	public void endAction() {
-		w.gravityDown();
+		//w.gravityDown();
 	}
 	
 	public void stageMoved (int deltaX, int deltaY) {
@@ -131,5 +131,22 @@ public class InputReceiver {
 	public void reset() {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	public void setMouseInside(boolean b) {
+		w.setMouseInside(b);		
+	}
+
+
+	public void setGravity(double value) {
+		// TODO Auto-generated method stub
+		w.setGravity(value);
+	}
+
+
+	public void setTemperature(double value) {
+		// TODO Auto-generated method stub
+		w.setTemperature(value);
 	}
 }

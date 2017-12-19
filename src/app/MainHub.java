@@ -8,19 +8,19 @@ import data.FrameBuffer;
 import data.World;
 import view.ViewAndInputController;
 
-public class Loop implements Runnable {
+public class MainHub {
 
 	private ViewAndInputController v;
 	private InputReceiver uir;
 	private FrameBuffer frameBuffer;
 	ScheduledExecutorService ses;
-	
+	ScheduledExecutorService ses2;
 	
 	
 	Object lock = new Object();
 	
 	
-	public Loop(World w, ViewAndInputController v) {
+	public MainHub(World w, ViewAndInputController v) {
 		this.v = v;//run() has to be in scope
 		
 		frameBuffer = FrameBuffer.getInstance();
@@ -31,17 +31,24 @@ public class Loop implements Runnable {
 		
 		// TODO: swing timers?
 		ses = Executors.newSingleThreadScheduledExecutor();
-		ses.scheduleAtFixedRate(this, 16666, 16666, TimeUnit.MICROSECONDS);
+		
+		//ses.scheduleAtFixedRate(this, 16666, 16666, TimeUnit.MICROSECONDS);
 		//ses.scheduleAtFixedRate(this, 4166, 4166, TimeUnit.MICROSECONDS);
-		new Thread(w).start();
+		
+		//ses.scheduleAtFixedRate(this, 16666666L, 16666666L, TimeUnit.NANOSECONDS);
+		ses.scheduleAtFixedRate(v, 16666666, 16666666L, TimeUnit.NANOSECONDS);
+		
+		ses2 = Executors.newSingleThreadScheduledExecutor();
+		ses2.scheduleAtFixedRate(w, 8333333, 4166666, TimeUnit.NANOSECONDS);
+									 
+		//new Thread(w).start();
 	}
 
-	// the gfx loop
-	@Override
-	public void run() {			
-//		if (frameBuffer.isEmpty()) 
-//			System.out.println("main loop: display buffer empty");
-		
-		v.update();
-	}
+//	// the gfx loop
+//	@Override
+//	public void run() {			
+////		if (frameBuffer.isEmpty()) 
+////			System.out.println("main loop: display buffer empty");
+//		v.update();
+//	}
 }

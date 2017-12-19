@@ -48,7 +48,7 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 		}
 
 		//Other settings buttons
-		JButton wrapB = new JButton("Wrap edges");
+		JButton wrapB = new JButton("Switch edges");
 		wrapB.addActionListener(new ActionListener() {
 			
 			@Override
@@ -58,7 +58,7 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 		});
 		add(wrapB);
 		
-		JButton gravityB = new JButton("Gravity");
+		JButton gravityB = new JButton("Switch gravity");
 		gravityB.addActionListener(new ActionListener() {
 			
 			@Override
@@ -68,6 +68,28 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 			}
 		});
 		add(gravityB);
+		
+		JButton switchChargesB = new JButton("Swich actions");
+		gravityB.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispatchChange("charges");
+				
+			}
+		});
+		add(switchChargesB);
+		
+		JButton switchColorsB = new JButton("Swich colors");
+		gravityB.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispatchChange("charges");
+				
+			}
+		});
+		add(switchColorsB);
 		
 		JButton collisionsB = new JButton("Interaction");
 		gravityB.addActionListener(new ActionListener() {

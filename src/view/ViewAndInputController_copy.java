@@ -36,8 +36,8 @@ import data.FrameBuffer;
 import data.World;
 
 //switch to MouseInputAdapter?
-public class ViewAndInputController implements InputProvider,
-MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runnable {
+public class ViewAndInputController_copy implements InputProvider,
+MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener {
 	
 	
 	private JFrame frame;
@@ -49,11 +49,13 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 	private InputReceiver inputReceiver;
 
 	volatile static boolean r,g,b,n, ctrl, shift;
+	
+	
 
 	ControlRGBButtonsJPanel rgbButtons;
 	ControlsJPanel controlsJPanel;
 	
-	public ViewAndInputController (FrameBuffer frameBuffer) {
+	public ViewAndInputController_copy (FrameBuffer frameBuffer) {
 		System.out.println("ViewAndDataController constr.");
 		this.frameBuffer = frameBuffer;
 //		this.stage = new Stage(w.getBlobs(), w.getListOfCollisionPoints(), w.getCharges(), w.getGround(),
@@ -188,8 +190,7 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 		stage.initFinished();
 	}
 	
-	public void run() {
-				
+	public void update() {
 		//TODO: updating here so Stage won't know anything about inputReceiver/World -a  makeshift solution...
 		
 //		inputReceiver.udateStageDimensions(

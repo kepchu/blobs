@@ -27,6 +27,10 @@ public class World implements Runnable{
 	private static double timeInterval = 1.0; //amount of "app world" time between updates
 	private double timeIntervalStep = 1.3;
 	
+	//at the moment this object's run() is called 240 times/s (4166666 nanoseconds)
+	private int VideoFrameCounter = 0;
+	private int VideoFrameLimit = 4;
+	
 	private List<Blob> newBlobs;//accessed from concurrent thread to avoid ConcurrentModificationE...
 	private List <Blob> blobs;
 	private List<ChargePoint> newCharges;
@@ -37,7 +41,6 @@ public class World implements Runnable{
 	private boolean repulseFromPointer;
 	
 	private FrameBuffer buffer;
-	
 	//TODO
 	private Vec stageCentre;
 	private boolean gravityInCentre;
@@ -45,6 +48,8 @@ public class World implements Runnable{
 	
 	ProcessorOfCollisions colDet;
 	private ColFlag colFlag;
+	private boolean mouseInside = true;
+	
 	
 	public World () {
 		System.out.println("World constr. thread - " + Thread.currentThread().getName());
@@ -75,14 +80,19 @@ public class World implements Runnable{
 		}
 	}
 	
-	public void run() {
-		System.out.println("World.run() thread - " + Thread.currentThread().getName());
-		while (true) {
-			updateLoop();
-		}
-	}
+//	public void run() {
+//		System.out.println("World.run() thread - " + Thread.currentThread().getName());
+//		while (true) {
+//			updateLoop();
+//		}
+//	}
 	
-	private void updateLoop() {
+	public void run() {
+		if(VideoFrameCounter < VideoFrameLimit) {
+			VideoFrameCounter++;
+			return;
+		}
+		VideoFrameCounter = 0;
 		
 		//0 - copy exposed data structures to create core data free of errors caused by mutations during computations; 
 		blobs.addAll(newBlobs);		
@@ -107,10 +117,14 @@ public class World implements Runnable{
 			for (ChargePoint c : charges) {				
 				c.charge(b);
 			}
+			
 			if (repulseFromPointer) {
-				//extra ChargePoint with position equal to mouse pointer position
-				pointer.charge(b);
-			}
+				// extra ChargePoint with position equal to mouse pointer position
+				if (mouseInside) {
+					pointer.charge(b);
+				}
+			}		
+			
 			
 			b.update(timeInterval, drag);
 		}
@@ -179,7 +193,10 @@ public class World implements Runnable{
 			timeInterval *= 1/timeIntervalStep;
 			System.out.println("timeInterval: " + timeInterval);
 		}
-		
+
+	public void setTemperature(double value) {
+		timeInterval = value;
+	}
 		public void gravityUp() {
 			gravity *= gravityDelta;
 			System.out.println("gravity: " + gravity);
@@ -188,7 +205,10 @@ public class World implements Runnable{
 			gravity /= gravityDelta;
 			System.out.println("gravity: " + gravity);
 		}
-	
+
+	public void setGravity(double value) {
+		gravity = value;
+	}
 	
 	public void addHugeBlob(double x, double y) {
 		newBlobs.add(new Blob (new Vec(x,y), 200));
@@ -286,5 +306,11 @@ public class World implements Runnable{
 	public void updateAlternativeGravityCentre(Vec v) {
 		newStageCentre = v;
 	}
-		
+
+	public void setMouseInside(boolean b) {
+		mouseInside = b;		
+	}
+
+	
+	
 }

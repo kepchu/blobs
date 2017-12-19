@@ -46,6 +46,7 @@ class ControlRGBButtonsJPanel extends JPanel implements InputProvider{
 		redTB.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED)
 				dispatchChange(ColourCategory.R);
 			}
 		});
@@ -54,7 +55,8 @@ class ControlRGBButtonsJPanel extends JPanel implements InputProvider{
 		greenTB.setForeground(ColourCategory.G.getDefaultCategoryColor());
 		greenTB.addItemListener(new ItemListener() {
 			@Override
-			public void itemStateChanged(ItemEvent e) {
+			public void itemStateChanged(ItemEvent e) {	
+				if(e.getStateChange() == ItemEvent.SELECTED)
 				dispatchChange(ColourCategory.G);
 			}
 		});
@@ -64,6 +66,7 @@ class ControlRGBButtonsJPanel extends JPanel implements InputProvider{
 		blueTB.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED)
 				dispatchChange(ColourCategory.B);
 			}
 		});
@@ -73,6 +76,7 @@ class ControlRGBButtonsJPanel extends JPanel implements InputProvider{
 		neutralTB.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED)
 				dispatchChange(ColourCategory.NEUTRAL);
 			}
 		});

@@ -31,7 +31,7 @@ public class Stage extends JPanel implements ComponentListener {
 	
 	private int panelCentreX;
 	private int panelCentreY;
-	private double scale = 0.1;// "scale" is a zoom factor
+	private double scale = 0.3;// "scale" is a zoom factor
 	private int currentElevation = 0;//ground level used for drawing, adjusted when scrolling the scene
 
 	private double deltaZoom = 1.5;
@@ -40,14 +40,15 @@ public class Stage extends JPanel implements ComponentListener {
 	private boolean drawColl;
 
 	private boolean initFinished;
+
+	private boolean mouseOudside;
 	
 	public Stage(int initialCameraPosition, BufferableFrames displayBuffer) {
 		System.out.println("Stage constr. thread - " + Thread.currentThread().getName());
 		this.displayBuffer = displayBuffer;
 		frame = displayBuffer.getFrame();
 		currentElevation = initialCameraPosition;
-		//IMPORTANT: line below is crucial to get proper dimensions & ground level (in "componentResized").
-		//This functionality could be done by a simple getHeight() call from paint(Graphics g)
+		
 //		SwingUtilities.invokeLater(new Runnable() {
 //		    public void run() {
 //		        this.addComponentListener(new ComponentAdapter() {
@@ -340,5 +341,6 @@ public class Stage extends JPanel implements ComponentListener {
 		panelHeight = currentElevation = getHeight();
 		componentResized(null);
 		this.addComponentListener(this);
-	}	
+	}
+
 }
