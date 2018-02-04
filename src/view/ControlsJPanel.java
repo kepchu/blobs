@@ -3,39 +3,45 @@ package view;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridLayout;
+import java.awt.LayoutManager;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import app.InputReceiver;
+import data.Colour.ColourCategory;
 
 class ControlsJPanel extends JPanel {
 	
-	JPanel[] children;
-	ControlsJPanel(JPanel... children) {
-		this.children = children;
-//		setLayout(new FlowLayout());
-//		add(a);
-//		add(b);
+	private ControlButtonsJPanel buttons;
+	ControlsJPanel() {
+		buttons = new ControlButtonsJPanel();
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		add(buttons);
+		add(new ControlSlidersJPanel());
 				
-//		setLayout(new BorderLayout());
-////		add(a, BorderLayout.WEST);
-////		add(b, BorderLayout.EAST);
-//		add(a, BorderLayout.NORTH);
-//		add(b, BorderLayout.SOUTH);
-		
-		setLayout(new GridLayout(2, 2));
-		for (JPanel jp : children) add(jp);
-		
 		makeAllChildrenUnfocusable(this);
 	}
 
 	void setInputReceiver (InputReceiver ir) {
-		for (JPanel jp : children) {
-			((InputProvider)jp).setInputReceiver(ir);
+		setAllInputReceivers(ir, this);
+	}
+	
+	//traverse recurrently all children and set received InputReceiver wherever possible
+	private void setAllInputReceivers (InputReceiver ir, Container in) {
+		for (Component c : in.getComponents()) {
+			if (c instanceof InputProvider) {
+				((InputProvider)c).setInputReceiver(ir);				
+			}
+			if (c instanceof Container) {
+				setAllInputReceivers(ir, (Container)c);
+			}
+
 		}
 	}
 	
-	void makeAllChildrenUnfocusable(Container c) {
+	//traverse recurrently all children and setFocusable(false) wherever possible
+	private void makeAllChildrenUnfocusable(Container c) {
 		for (Component child : c.getComponents()) {
 			if (child instanceof Container) {
 				child.setFocusable(false);
@@ -43,9 +49,14 @@ class ControlsJPanel extends JPanel {
 			} else if (child instanceof Component) {
 				System.out.println(
 				"In " + getClass().getSimpleName() +
-				" A component but not a container " + child.getClass());
+				" A component but not a container: " + child.getClass());
 				child.setFocusable(false);
 			}		
 		}
+	}
+
+	//this passes rgb selection to rgb buttons group
+	public void setRGBState(ColourCategory colourCategory) {
+		buttons.rgbButtons.setRGBState(colourCategory);		
 	}
 }

@@ -1,7 +1,5 @@
 package collisions;
 
-import static utils.VecMath.distanceBetween;
-
 import java.util.List;
 
 import data.Vec;
@@ -32,10 +30,10 @@ public class DetStandard implements Detection {
 			//vector pointing from subj to obj
 			subjToObj = obj.getPosition().sub(subj.getPosition());
 			//length of the vector
-			currentDistance = subjToObj.getMagnitude();
+			currentDistance = subjToObj.getSqrtMagnitude();//.getMagnitude();
 			
 			// if (sub and obj are overlapping)
-			if (currentDistance < subj.getRadius() + obj.getRadius()) {
+			if (currentDistance < Math.pow(subj.getRadius() + obj.getRadius(), 2)) {
 				
 				correctOverlapping(subj, obj);
 				
@@ -47,7 +45,7 @@ public class DetStandard implements Detection {
 				// 3. shrinking should be taken care of in "bounceOff
 				
 				//do not process collision if blobs already move away
-				double previousDistance = distanceBetween(
+				double previousDistance = Vec.sqrtDistanceBetween(//.distanceBetween(
 						subj.getPreviousPosition(),
 						obj.getPreviousPosition());
 								
@@ -65,7 +63,7 @@ public class DetStandard implements Detection {
 		//this method moves subject away from object in the direction of fromObjToSub
 		//for the length that make both collidees touch at the time the collision was detected (just now)
 		//(so pretty bad)
-		double overlap = (subj.getRadius() + obj.getRadius()) - currentDistance;
+		double overlap = (subj.getRadius() + obj.getRadius()) - Math.sqrt(currentDistance);
 		Vec displacement = subjToObj.withMagnitudeOf(overlap);
 		subj.getPosition().subAndSet(displacement);
 	}

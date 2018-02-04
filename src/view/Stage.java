@@ -202,7 +202,7 @@ public class Stage extends JPanel implements ComponentListener {
 		g.setColor(new Color(255,255,255,200));
 		
 		Vec sB = new Vec(blobX, blobY);
-		Vec blobToPointer = utils.VecMath.vecFromAtoB(sB, pointerPosition);
+		Vec blobToPointer = Vec.vecFromAtoB(sB, pointerPosition);
 		
 		blobToPointer.setMagnitude(displacement * (
 				blobToPointer.getMagnitude()/(panelCentreX+panelCentreY)));

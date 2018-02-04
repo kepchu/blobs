@@ -2,7 +2,9 @@ package view;
 
 import java.awt.FlowLayout;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -13,12 +15,26 @@ import app.InputReceiver;
 @SuppressWarnings("serial")
 class ControlSlidersJPanel extends JPanel implements InputProvider{
 
-	JSlider gravitySlider, heatSlider, zoomSlider, speedSlider;
+	JSlider gravitySlider, heatSlider, forceSlider, speedSlider;
 	InputReceiver ir;
 	
 	ControlSlidersJPanel() {
+		
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
+		Box labels = Box.createVerticalBox();
+		add(labels);
+		Box sliders = Box.createVerticalBox();
+		add(sliders);
+//		BoxLayout base = new BoxLayout(this, BoxLayout.X_AXIS);
+//		BoxLayout sliders = new BoxLayout(this, BoxLayout.Y_AXIS);
+		
+		//this.getLayout().addLayoutComponent(arg0, arg1);
+		
+		//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		
+		Box gravityBox = Box.createHorizontalBox();
 		gravitySlider = new JSlider(0, 1000000000, 40000000);
 		gravitySlider.addChangeListener(new ChangeListener() {
 			
@@ -31,8 +47,11 @@ class ControlSlidersJPanel extends JPanel implements InputProvider{
 				
 			}
 		});
-		add(gravitySlider);
+		gravityBox.add(new JLabel("Gravity: "));
+		gravityBox.add(gravitySlider);
+		add(gravityBox);
 		
+		Box heatBox = Box.createHorizontalBox();
 		heatSlider = new JSlider(0, 1000000000, 333333333);
 		heatSlider.addChangeListener(new ChangeListener() {
 			
@@ -44,10 +63,17 @@ class ControlSlidersJPanel extends JPanel implements InputProvider{
 				dispatchChange("temperature", result);
 			}
 		});
-		add(heatSlider);
+		heatBox.add(new JLabel("Temperature: "));
+		heatBox.add(heatSlider);	
+		add(heatBox);
 		
-		zoomSlider = new JSlider(0, 1000000000, 0);
-		add(zoomSlider);
+		Box forceBox = Box.createHorizontalBox();
+		forceSlider = new JSlider(0, 1000000000, 0);
+		forceBox.add(new JLabel("/Force:/ "));
+		forceBox.add(forceSlider);	
+		add(forceBox);
+		
+		Box speedBox = Box.createHorizontalBox();
 		speedSlider = new JSlider(1, 8, 1);
 		speedSlider.addChangeListener(new ChangeListener() {
 			
@@ -56,8 +82,9 @@ class ControlSlidersJPanel extends JPanel implements InputProvider{
 				dispatchChange("speed", ((JSlider)e.getSource()).getValue());				
 			}
 		});
-		add(speedSlider);
-
+		speedBox.add(new JLabel("Speed: "));
+		speedBox.add(speedSlider);
+		add(speedBox);
 	}
 	
 	private void dispatchChange(String type, double value) {

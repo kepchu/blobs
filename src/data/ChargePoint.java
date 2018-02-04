@@ -1,14 +1,14 @@
 package data;
 
 import data.Colour.ColourCategory;
-import utils.VecMath;
+
 //attraction/repulsion point
 public class ChargePoint {
 	public enum Charger {
 		COLOUR_CATEGORY_ABSOLUTE {
 			public void charge(Blob b, ChargePoint c) {
 				if (c.colourCategory == ColourCategory.NEUTRAL) {
-					Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.position);
+					Vec chargeInfluence = Vec.vecFromAtoB(b.getPosition(), c.position);
 					chargeInfluence.setMagnitude(c.power * World.getTimeInterval());
 					//chargeInfluence.setMagnitude(this.power).multiplyAndSet(World.getTimeInterval());
 					b.getVelocity().addAndSet(chargeInfluence);
@@ -18,7 +18,7 @@ public class ChargePoint {
 					
 					
 				if (c.colourCategory == b.getColourCategory()) {
-					Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.position);
+					Vec chargeInfluence = Vec.vecFromAtoB(b.getPosition(), c.position);
 					chargeInfluence.setMagnitude(c.power * World.getTimeInterval());
 					//chargeInfluence.setMagnitude(this.power).multiplyAndSet(World.getTimeInterval());
 					b.getVelocity().addAndSet(chargeInfluence);
@@ -32,7 +32,7 @@ public class ChargePoint {
 		},
 		COLOUR_COMPONENT {
 			public void charge(Blob b, ChargePoint c) {
-				Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.position);
+				Vec chargeInfluence = Vec.vecFromAtoB(b.getPosition(), c.position);
 				chargeInfluence.setMagnitude(c.power * World.getTimeInterval());
 
 				switch (c.colourCategory) {
@@ -66,7 +66,7 @@ public class ChargePoint {
 			public void charge(Blob b, ChargePoint c) {
 
 				if (c.colourCategory == b.getColourCategory()) {
-					Vec chargeInfluence = VecMath.vecFromAtoB(b.getPosition(), c.position);
+					Vec chargeInfluence = Vec.vecFromAtoB(b.getPosition(), c.position);
 					chargeInfluence.setMagnitude(c.power * World.getTimeInterval());
 					
 					b.getVelocity().addAndSet(chargeInfluence.multiply(
@@ -83,7 +83,7 @@ public class ChargePoint {
 				
 				double range = 1000;
 				
-				Vec chargeInfluence = VecMath.vecFromAtoB(c.position, b.getPosition());
+				Vec chargeInfluence = Vec.vecFromAtoB(c.position, b.getPosition());
 				double magnitude = chargeInfluence.getMagnitude();
 //				if (Double.isNaN(magnitude))
 //					System.out.println("Got NaN in REPULSE_ALL");
@@ -103,7 +103,7 @@ public class ChargePoint {
 			public void charge(Blob b, ChargePoint c) {
 				double range = 3000;
 				
-				Vec chargeInfluence = VecMath.vecFromAtoB(c.position, b.getPosition());
+				Vec chargeInfluence = Vec.vecFromAtoB(c.position, b.getPosition());
 				double magnitude = chargeInfluence.getMagnitude();
 				//System.out.println("magnitude: " + magnitude);
 				if (magnitude < range) {

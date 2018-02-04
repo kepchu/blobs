@@ -1,7 +1,7 @@
 package collisions;
 
-import static utils.VecMath.projectAonB;
-import static utils.VecMath.vecFromAtoB;
+import static data.Vec.projectAonB;
+import static data.Vec.vecFromAtoB;
 
 import data.Vec;
 

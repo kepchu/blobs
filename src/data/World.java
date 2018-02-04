@@ -9,7 +9,6 @@ import collisions.Collidable;
 import data.ChargePoint.Charger;
 import data.Colour.ColourCategory;
 import utils.U;
-import utils.VecMath;
 
 
 //TODO: make sure all mutations of core data happen only in "update" loop via buffering Lists to avoid concurrent access
@@ -103,7 +102,7 @@ public class World implements Runnable{
 			Vec drag; 
 			// account for gravity
 			if (gravityInCentre) {
-				drag = VecMath.vecFromAtoB(b.getPosition(), stageCentre).
+				drag = Vec.vecFromAtoB(b.getPosition(), stageCentre).
 						setMagnitude(gravity);
 			} else {
 				drag = new Vec(0, gravity);

@@ -1,7 +1,6 @@
 package collisions;
 
-import static utils.VecMath.add;
-import static utils.VecMath.distanceBetween;
+import static data.Vec.*;
 
 import java.util.List;
 

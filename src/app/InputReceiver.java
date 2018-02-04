@@ -102,12 +102,21 @@ public class InputReceiver {
 		System.out.println(getClass().getSimpleName() + "colourChanged(): " + charger);	
 	}
 
-	public void switchStageWrap() {
-		// TODO Auto-generated method stub
+	
+	
+	public void wrapEdges() {
+		System.out.println("wrapEdges");
+	}
+	public void unwrapEdges() {
+		System.out.println("unwrapEdges");
 	}
 	
-	public void switchGravity() {
-		w.switchGravity();	
+	
+	public void gravityDown() {
+		w.switchGravity();//TODO
+	}
+	public void gravityCentre() {
+		w.switchGravity();//TODO
 	}
 	
 	public void  switchCollisions() {

@@ -50,7 +50,7 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 
 	volatile static boolean r,g,b,n, ctrl, shift;
 
-	ControlRGBButtonsJPanel rgbButtons;
+	//ControlRGBButtonsJPanel rgbButtons;
 	ControlsJPanel controlsJPanel;
 	
 	public ViewAndInputController (FrameBuffer frameBuffer) {
@@ -71,24 +71,12 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 		frame = new JFrame("demko");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		frame.setSize(800, 800);
+		frame.setSize(1000, 800);
 		frame.setLocationRelativeTo(null);//window appears in screens centre
 		
-		//BorderLayot is default - stage in centre
 		frame.getContentPane().add(stage, BorderLayout.CENTER);
 		
-		
-		
-		rgbButtons = new ControlRGBButtonsJPanel();
-		ControlButtonsJPanel controlButtons = new ControlButtonsJPanel();
-		ControlSlidersJPanel controlSliders = new ControlSlidersJPanel();
-		
-		controlsJPanel = new ControlsJPanel(
-				rgbButtons, controlButtons,	controlSliders);
-		
-		//frame.getContentPane().add(new JButton("test"), BorderLayout.PAGE_END);
-		//frame.getContentPane().add(controlButtons, BorderLayout.PAGE_END);
-		//frame.getContentPane().add(rgbButtons, BorderLayout.PAGE_END);
+		controlsJPanel = new ControlsJPanel();
 		frame.getContentPane().add(controlsJPanel, BorderLayout.PAGE_END);
 		
 		frame.setVisible(true);	
@@ -114,19 +102,19 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 							switch(e.getKeyCode()) {
 							case KeyEvent.VK_R:
 								r = true;
-								rgbButtons.setState(ColourCategory.R);
+								controlsJPanel.setRGBState(ColourCategory.R);
 								break;
 							case KeyEvent.VK_G:
 								g = true;
-								rgbButtons.setState(ColourCategory.G);
+								controlsJPanel.setRGBState(ColourCategory.G);
 								break;
 							case KeyEvent.VK_B:
 								b = true;
-								rgbButtons.setState(ColourCategory.B);
+								controlsJPanel.setRGBState(ColourCategory.B);
 								break;
 							case KeyEvent.VK_N:
 								n = true;
-								rgbButtons.setState(ColourCategory.NEUTRAL);
+								controlsJPanel.setRGBState(ColourCategory.NEUTRAL);
 								break;
 								
 							case KeyEvent.VK_CONTROL:
@@ -171,7 +159,7 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 								}
 								break;
 							case KeyEvent.VK_Z:
-								inputReceiver.switchGravity();
+								inputReceiver.gravityDown();//TODO
 							}
 						}
 						

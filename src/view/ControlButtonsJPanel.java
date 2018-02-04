@@ -1,12 +1,16 @@
 package view;
 
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
@@ -16,47 +20,48 @@ import data.ChargePoint.Charger;
 @SuppressWarnings("serial")
 class ControlButtonsJPanel extends JPanel implements InputProvider {
 
-	final static int ROWS = 2, COLUMNS = 5, NO_OF_BUTTONS = ROWS * COLUMNS;
-	JToggleButton[] buttons = new JToggleButton[NO_OF_BUTTONS];
-
-	Charger ch;
-	InputReceiver ir;
+	
+	RGBButtonsBox rgbButtons;
+	private Charger ch;
+	private InputReceiver ir;
 
 	public ControlButtonsJPanel() {
-		super(new GridLayout(ROWS, COLUMNS));
-		setLayout(new FlowLayout());
+		//setLayout(new BoxLayout(this, BoxLayout.X_AXIS));	
 		createButtons();
+		
 	}
 
-	private void createButtons() {
-		ButtonGroup group = new ButtonGroup();
+	private void createButtons() {	
+		Box effectsCompositionBox  = createEffectsBox();
+		Box controlButtonsBox = createControlBox();
+		//Box controlsBox = Box.createHorizontalBox();
+		
+		add(effectsCompositionBox);		
+		add(controlButtonsBox);		
+	}
 
-		//Charger buttons
-		for (int i = 0; i < Charger.values().length; i++) {
-			final Charger fc = Charger.values()[i];
-
-			JToggleButton tb = new JToggleButton(fc.toString());
-			group.add(tb);
-			add(tb);
-
-			tb.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					dispatchChange(fc);
-				}
-			});
-		}
-
-		//Other settings buttons
-		JButton wrapB = new JButton("Switch edges");
+	private Box createControlBox() {
+		//create a box containing 2 horizontal boxes
+		// box 1
+		Box switchesBox = Box.createHorizontalBox();
+		
+		JButton wrapB = new JButton("Edges wrapped");
 		wrapB.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispatchChange("wrap");			
+				JButton b = (JButton)e.getSource();
+				if (b.getText() == "Edges: wrapped") {
+					b.setText("Edges: bouncy");
+					dispatchChange("unwrapEdges");
+				} else {
+					b.setText("Edges: wrapped");
+					dispatchChange("wrapEdges");
+				}
+							
 			}
 		});
-		add(wrapB);
+		switchesBox.add(wrapB);
 		
 		JButton gravityB = new JButton("Switch gravity");
 		gravityB.addActionListener(new ActionListener() {
@@ -67,10 +72,10 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 				
 			}
 		});
-		add(gravityB);
+		switchesBox.add(gravityB);
 		
 		JButton switchChargesB = new JButton("Swich actions");
-		gravityB.addActionListener(new ActionListener() {
+		switchChargesB.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -78,10 +83,10 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 				
 			}
 		});
-		add(switchChargesB);
+		switchesBox.add(switchChargesB);
 		
 		JButton switchColorsB = new JButton("Swich colors");
-		gravityB.addActionListener(new ActionListener() {
+		switchColorsB.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -89,10 +94,10 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 				
 			}
 		});
-		add(switchColorsB);
-		
+		switchesBox.add(switchColorsB);
+			
 		JButton collisionsB = new JButton("Interaction");
-		gravityB.addActionListener(new ActionListener() {
+		collisionsB.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -100,9 +105,34 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 				
 			}
 		});
-		add(collisionsB);
+		switchesBox.add(collisionsB);
+		add(switchesBox);
+			
+		//Second horizontal box ##########################################################
+		Box controlBox = Box.createHorizontalBox();
+		//controlBox.setAlignmentX(RIGHT_ALIGNMENT);
 		
-		JButton undoB = new JButton("UNDO");
+		JButton lockB = new JButton("Lock");
+		lockB.addActionListener(new ActionListener() {
+			//create confirmation dialog
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispatchChange("lock");
+			}
+		});
+		controlBox.add(lockB);
+		
+		JButton saveB = new JButton("Save");
+		saveB.addActionListener(new ActionListener() {
+			//create confirmation dialog
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispatchChange("save");
+			}
+		});
+		controlBox.add(saveB);
+		
+		JButton undoB = new JButton("Remove last");
 		undoB.addActionListener(new ActionListener() {
 			
 			@Override
@@ -110,18 +140,55 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 				dispatchChange("undo");				
 			}
 		});
-		add(undoB);
+		controlBox.add(undoB);
 		
 		JButton resetB = new JButton("RESET");
 		undoB.addActionListener(new ActionListener() {
 			//create confirmation dialog
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispatchChange("reset");				
+				dispatchChange("reset");
 			}
 		});
-		add(resetB);
+		controlBox.add(resetB);
 		
+		Box result = Box.createVerticalBox();
+		result.add(switchesBox);
+		result.add(controlBox);
+		return result;
+	}
+
+	private Box createEffectsBox() {
+		
+		//RGB box is a field so it may be accessed via setInputReceiver & for keyboard access
+		rgbButtons = new RGBButtonsBox();
+		add(rgbButtons);
+		
+		//Effects box
+		Box effectsBox = Box.createHorizontalBox();
+			
+		ButtonGroup group = new ButtonGroup();
+		//this loop will automatically reflect changes to enum that stores all effects
+		//this is why it is dependent directly on the enum
+		for (int i = 0; i < Charger.values().length; i++) {
+			//variable "fc" is final so it may be referenced in the anonymous listener class
+			final Charger fc = Charger.values()[i];
+
+			JToggleButton tb = new JToggleButton(fc.toString());
+			group.add(tb);//add to ButtonGroup
+			effectsBox.add(tb);//add to JPanel
+
+			tb.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					dispatchChange(fc);
+				}
+			});
+		}
+		
+		Box result = Box.createVerticalBox();
+		result.add(rgbButtons); result.add(effectsBox);
+		return result;
 	}
 
 	protected void dispatchChange(Charger charger) {
@@ -130,11 +197,16 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 
 	protected void dispatchChange(String in) {
 		switch (in) {
-		case "wrap":
-			ir.switchStageWrap();
+		case "wrapEdges":
+			ir.wrapEdges();
 			break;
-		case "gravity":
-			ir.switchGravity();
+		case "unwrapEdges":
+			ir.unwrapEdges();
+		case "gravityDown":
+			ir.gravityDown();
+			break;
+		case "gravityCentre":
+			ir.gravityCentre();
 			break;
 		case "collisions":
 			ir.switchCollisions();
@@ -153,5 +225,6 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 	@Override
 	public void setInputReceiver(InputReceiver ir) {
 		this.ir = ir;
+		rgbButtons.setInputReceiver(ir);
 	}
 }

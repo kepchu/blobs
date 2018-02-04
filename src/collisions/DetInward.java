@@ -1,9 +1,9 @@
 package collisions;
 
-import static utils.VecMath.add;
-import static utils.VecMath.distanceBetween;
 
 import java.util.List;
+
+import data.Vec;
 
 public class DetInward implements Detection {
 	//TODO:
@@ -22,15 +22,15 @@ public class DetInward implements Detection {
 			if (subj.isColDetDone() || obj == subj) {continue;}
 	
 			
-			double actualDistance = distanceBetween(
+			double actualDistance = Vec.distanceBetween(
 					subj.getPosition(),
 					obj.getPosition());
 			if (actualDistance <
 					subj.getRadius() + obj.getRadius()) {
 
-				double futureDistance = distanceBetween(
-						add(subj.getPosition(), subj.getVelocity()),
-						add(obj.getPosition(), obj.getVelocity()));
+				double futureDistance = Vec.distanceBetween(
+						Vec.add(subj.getPosition(), subj.getVelocity()),
+						Vec.add(obj.getPosition(), obj.getVelocity()));
 				//do not process collision if blobs already move in the right direction
 				if (actualDistance < futureDistance) {
 					return new Collidable[] {subj, obj};

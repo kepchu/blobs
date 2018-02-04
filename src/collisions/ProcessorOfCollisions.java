@@ -1,9 +1,5 @@
 package collisions;
 
-import static utils.VecMath.distanceBetween;
-import static utils.VecMath.projectAonB;
-import static utils.VecMath.vecFromAtoB;
-
 import java.util.List;
 
 import data.Vec;

@@ -1,7 +1,7 @@
 package collisions;
 
-import static utils.VecMath.projectAonB;
-import static utils.VecMath.vecFromAtoB;
+import static data.Vec.projectAonB;
+import static data.Vec.vecFromAtoB;
 
 import java.util.List;
 import java.util.Scanner;
@@ -20,7 +20,7 @@ public class ColliderCollidables {
 		return det.detectInteraction(subj, obj, radiusFactor);
 	}
 
-	void bounceCollidabless(Collidable subj, Collidable obj) {
+	void bounceCollidablesss(Collidable subj, Collidable obj) {
 		// TODO: tagging instead of simple removal from input list (can be used for
 		// visual cues and logic)
 		// Will switch later from boolean tags to location of collision.
@@ -61,22 +61,9 @@ public class ColliderCollidables {
 
 	}
 
-	void bounceCollidables(Collidable subj, Collidable obj) {
+	void bounceCollidabless(Collidable subj, Collidable obj) {
+				
 		
-		double bounceFactor = 1.0;
-		
-		//mark as already "collided"
-		subj.setColDetDone(true);
-		obj.setColDetDone(true);
-		
-		//A calculate
-		//Velocities involved at the angle of collision:
-		Vec fromSubToObj = vecFromAtoB(subj.getPosition(), obj.getPosition());
-		Vec invVelSubj = involovedVelocity(subj, fromSubToObj);
-		Vec invVelObj = involovedVelocity(obj, fromSubToObj.multiply(-1));//.multiply(-1) reverses fromSubToObj
-		
-		Vec kinSubj = invVelSubj.multiply(subj.getMass());
-		Vec kinObj = invVelObj.multiply(obj.getMass());
 		
 //		double kinSubj = invVelSubj.getMagnitude() * subj.getMass();
 //		double kinObj = invVelObj.getMagnitude() * obj.getMass();				
@@ -98,20 +85,73 @@ public class ColliderCollidables {
 //		subj.getVelocity().subAndSet(kinObj.multiply(div/subj.getMass()));
 //		obj.getVelocity().subAndSet(kinSubj.multiply(div/obj.getMass()));
 				
-		subj.getVelocity().subAndSet(invVelSubj);	
-		obj.getVelocity().subAndSet(invVelObj);
-		subj.getVelocity().addAndSet(kinObj.multiply(1/subj.getMass()));
-		obj.getVelocity().addAndSet(kinSubj.multiply(1/obj.getMass()));
-		
 //		subj.getVelocity().subAndSet(invVelSubj);	
 //		obj.getVelocity().subAndSet(invVelObj);
 //		subj.getVelocity().addAndSet(invVelObj);
 //		obj.getVelocity().addAndSet(invVelSubj);
+		
+		// mark as already "collided"
+		subj.setColDetDone(true);
+		obj.setColDetDone(true);
+
+		// A calculate
+		// Velocities involved at the angle of collision:
+		Vec fromSubToObj = vecFromAtoB(subj.getPosition(), obj.getPosition());
+		Vec fromObjToSubj = fromSubToObj.multiply(-1);// .multiply(-1) reverses fromSubToObj
+		Vec invVelSubj = involovedVelocity(subj, fromSubToObj);
+		Vec invVelObj = involovedVelocity(obj, fromObjToSubj);
+
+		Vec kinSubj = invVelSubj.multiply(subj.getMass());
+		Vec kinObj = invVelObj.multiply(obj.getMass());
+
+		subj.getVelocity().subAndSet(invVelSubj);
+		obj.getVelocity().subAndSet(invVelObj);
+		subj.getVelocity().addAndSet(kinObj.multiply(1 / subj.getMass()));
+		obj.getVelocity().addAndSet(kinSubj.multiply(1 / obj.getMass()));
 
 	}
 	
+	void bounceCollidables(Collidable subj, Collidable obj) {
+		
+		final double FORCE = 2;
+		
+		// mark as processed
+		subj.setColDetDone(true);
+		obj.setColDetDone(true);
+
+		// A calculate
+		// Velocities involved at the angle of collision:
+		Vec fromSubToObj = vecFromAtoB(subj.getPosition(), obj.getPosition());
+		Vec fromObjToSubj = fromSubToObj.multiply(-1);// .multiply(-1) reverses fromSubToObj
+		Vec invVelSubj = involovedVelocity(subj, fromSubToObj);
+		Vec invVelObj = involovedVelocity(obj, fromObjToSubj);
+
+		//relative velocity difference of subj & obj (head-on collision vs. collidables moving fast in similar direction)
+		Vec relativeVel = invVelSubj.sub(invVelObj);
+		//energy of the collision as speed
+		double reflectionSpeed = FORCE * relativeVel.getMagnitude();
+		
+		//divide the collision's energy between collidables according to masses
+		//TODO: 1) this is equation for collision points for x & y! 2) change .getMass() call to external method that would calculate kinetic energy?
+		double subjKin = calculateHitEnergy(subj.getVelocity().getMagnitude(), subj.getMass());
+		double objKin = calculateHitEnergy(obj.getVelocity().getMagnitude(), obj.getMass());
+		double reflectionSpeedSubj = (objKin * reflectionSpeed) / (subjKin + objKin);
+		double reflectionSpeedObj = reflectionSpeed - reflectionSpeedSubj;
+//		System.out.println("reflectionSpeed = " + reflectionSpeed + ", reflectionSpeedObj = " + reflectionSpeedObj
+//				+ ", reflectionSpeedSubj " + reflectionSpeedSubj);
+				
+		//add reflection forces, directed away from collision to velocities of collidees (using already created Vecs)
+		subj.getVelocity().addAndSet(fromObjToSubj.setMagnitude(reflectionSpeedSubj));
+		obj.getVelocity().addAndSet(fromSubToObj.setMagnitude(reflectionSpeedObj));
+
+	}
 	
-	
+	private double calculateHitEnergy(double velocity, double mass) {
+		//return 0.5 * mass * (velocity * velocity);
+		//return mass*mass;
+		return mass;
+	}
+
 	private Vec involovedVelocity(Collidable c, Vec angle) {
 		// get amount of collidable's kinetic energy transferred at the angle of collision
 		Vec involvement = projectAonB(c.getVelocity(), angle);

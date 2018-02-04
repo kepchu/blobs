@@ -9,7 +9,7 @@ import data.FrameBuffer;
 import data.World;
 import view.ViewAndInputController;
 
-public class BlobsD3 {
+public class BlobsD4 {
 
 	
 	
@@ -33,7 +33,7 @@ public class BlobsD3 {
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					new BlobsD3();
+					new BlobsD4();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -43,7 +43,7 @@ public class BlobsD3 {
 	
 	
 	
-	public BlobsD3 () {	
+	public BlobsD4 () {	
 		System.out.println("Blobs01 thread - " + Thread.currentThread().getName());
 		//MVC pattern variation
 		World dc = new World();

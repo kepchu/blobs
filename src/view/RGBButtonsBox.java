@@ -1,34 +1,29 @@
 package view;
 
-import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import javax.swing.AbstractButton;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-import javax.swing.JToggleButton.ToggleButtonModel;
 
 import app.InputReceiver;
 import data.Colour.ColourCategory;
 
 @SuppressWarnings("serial")
-class ControlRGBButtonsJPanel extends JPanel implements InputProvider{
-
-	final static int ROWS = 1, COLUMNS = 4, NO_OF_BUTTONS = ROWS * COLUMNS;
-	JToggleButton[] tbs = new JToggleButton[NO_OF_BUTTONS];
+class RGBButtonsBox extends Box implements InputProvider{
 	
 	//private static ColourCategory colourCategory;
 	private InputReceiver inputReceiver;
-	ButtonGroup group;
-	JToggleButton redTB;
-	JToggleButton greenTB;
-	JToggleButton blueTB;
-	JToggleButton neutralTB;
+	private ButtonGroup group;
+	private JToggleButton redTB;
+	private JToggleButton greenTB;
+	private JToggleButton blueTB;
+	private JToggleButton neutralTB;
 	
-	ControlRGBButtonsJPanel() {
-		super(new GridLayout(ROWS, COLUMNS));
+	RGBButtonsBox() {
+		super(BoxLayout.X_AXIS);
 		createButtons();
 	}
 
@@ -37,11 +32,11 @@ class ControlRGBButtonsJPanel extends JPanel implements InputProvider{
 	}
 	
 	private void createButtons() {
+		
 		group = new ButtonGroup();
 
 		redTB = new JToggleButton("<html><u>R</u>ED");
-		//redTB.setOpaque(true);
-		//redTB.setBackground(ColourCategory.R.getDefaultCategoryColor());
+		redTB.setMaximumSize(redTB.getPreferredSize());//a hack? - otherwise toggle buttons somehow resize despite being in a Box like all other buttons (all other buttons keep their size in their Boxes)
 		redTB.setForeground(ColourCategory.R.getDefaultCategoryColor());
 		redTB.addItemListener(new ItemListener() {
 			@Override
@@ -52,6 +47,7 @@ class ControlRGBButtonsJPanel extends JPanel implements InputProvider{
 		});
 
 		greenTB = new JToggleButton("<html><u>G</u>REEN");
+		greenTB.setMaximumSize(greenTB.getPreferredSize());
 		greenTB.setForeground(ColourCategory.G.getDefaultCategoryColor());
 		greenTB.addItemListener(new ItemListener() {
 			@Override
@@ -62,6 +58,7 @@ class ControlRGBButtonsJPanel extends JPanel implements InputProvider{
 		});
 
 		blueTB = new JToggleButton("<html><u>B</u>LUE");
+		blueTB.setMaximumSize(greenTB.getPreferredSize());
 		blueTB.setForeground(ColourCategory.B.getDefaultCategoryColor());
 		blueTB.addItemListener(new ItemListener() {
 			@Override
@@ -72,6 +69,7 @@ class ControlRGBButtonsJPanel extends JPanel implements InputProvider{
 		});
 
 		neutralTB = new JToggleButton("<html><u>N</u>EUTRAL");
+		neutralTB.setMaximumSize(neutralTB.getPreferredSize());
 		neutralTB.setForeground(ColourCategory.NEUTRAL.getDefaultCategoryColor());
 		neutralTB.addItemListener(new ItemListener() {
 			@Override
@@ -91,13 +89,14 @@ class ControlRGBButtonsJPanel extends JPanel implements InputProvider{
 		add(neutralTB);
 	}
 	
-	//propagate change of the group's state
+	//propagate change of ButtonGroup's state
 	private void dispatchChange (ColourCategory colourCategory) {
 		inputReceiver.colourChanged(colourCategory);
 	}
 	
-	//change state of button group from outside (buttons have to reflect keyboard input)
-	void setState (ColourCategory colourCategory) {
+	//change state of button group from outside
+	//(state of the ButtonGroup has to reflect keyboard input)
+	void setRGBState (ColourCategory colourCategory) {
 		//group.clearSelection();
 		
 		//setSelected() calls trigger itemListeners added to the buttons
