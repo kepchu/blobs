@@ -184,6 +184,8 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 //				stage.descaledStageCentreX(),
 //				stage.descaledStageCentreY()
 //				);
+		//TODO: 1 updating all this every frame is stupid - fix this. stage has appropriate listener already registered
+		//TODO 
 		Vec gravCentre = new Vec(stage.descaledStageCentreX(),
 				stage.descaledStageCentreY());
 		Vec minXY = stage.descaledMinXY();

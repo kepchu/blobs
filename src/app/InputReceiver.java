@@ -2,16 +2,20 @@ package app;
 
 import data.Colour;
 import data.Colour.ColourCategory;
+import data.Command.Com;
 import data.StageDescription;
 import data.Vec;
 import data.ChargePoint;
 import data.ChargePoint.Charger;
 import data.World;
 
+import data.Command;
+
 public class InputReceiver {
 	
 	World w;
 	MainHub l;
+	private boolean lockStageSidesToWindow = true;
 	
 	public InputReceiver(World dc, MainHub l) {
 		this.w = dc;
@@ -79,10 +83,17 @@ public class InputReceiver {
 		w.repulseFromPointer();
 	}
 
+	public void lockStageSidesToWindow(boolean b) {
+		lockStageSidesToWindow = b;
+	}
+	
 	public void udateStageDimensions (StageDescription sd) {
 		w.updateAlternativeGravityCentre(sd.getAlternativeGravityCentre());
-		w.setMinX((int)sd.getMinXY().getX());
-		w.setMaxX((int)sd.getMaxXY().getX());
+		if (lockStageSidesToWindow ) {
+			w.setMinX((int)sd.getMinXY().getX());
+			w.setMaxX((int)sd.getMaxXY().getX());
+		}
+		
 	}
 	
 	
@@ -104,43 +115,10 @@ public class InputReceiver {
 
 	
 	
-	public void wrapEdges() {
-		System.out.println("wrapEdges");
-	}
-	public void unwrapEdges() {
-		System.out.println("unwrapEdges");
-	}
+	
+
 	
 	
-	public void gravityDown() {
-		w.switchGravity();//TODO
-	}
-	public void gravityCentre() {
-		w.switchGravity();//TODO
-	}
-	
-	public void  switchCollisions() {
-		w.switchCollisonDetections();
-	}
-
-	public void switchChargeColourCategories() {
-		System.out.println("cShiftAction()");
-		w.switchChargeColourCategories();
-	}
-	public void switchChargeTypes() {
-		System.out.println("cShiftAction()");
-		w.switchChargeTypes();
-	}
-	public void undo() {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	public void reset() {
-		// TODO Auto-generated method stub
-		
-	}
 
 
 	public void setMouseInside(boolean b) {
@@ -162,5 +140,68 @@ public class InputReceiver {
 	public void videoFrameFactorChanged(int newLimit) {
 		System.out.println(newLimit);
 		w.setVideoFrameLimit(newLimit);
+	}
+
+	
+	
+	
+	
+	
+	public void switchChargeColourCategories() {
+		System.out.println("cShiftAction()");
+		//w.switchChargeColourCategories();
+		w.applyCommand(Com.SWITCH_CHARGE_COLOURS);
+	}
+	public void switchChargeTypes() {
+		System.out.println("cShiftAction()");
+		//w.switchChargeTypes();
+		w.applyCommand(Com.SWITCH_CHARGE_TYPES);
+	}
+	public void wrapEdges() {
+		//System.out.println("wrapEdges");
+		w.applyCommand(Com.SIDES_WRAPPED);
+	}
+	public void unwrapEdges() {
+		//System.out.println("unwrapEdges");
+		w.applyCommand(Com.SIDES_BOUNCY);
+	}
+	
+	public void gravityDown() {
+		//w.switchGravity();//TODO
+		w.applyCommand(Com.GRAVITY_DOWN);
+	}
+	public void gravityCentre() {
+		//w.switchGravity();//TODO
+		w.applyCommand(Com.GRAVITY_CENTRE);
+	}
+	
+	public void  switchCollisions() {
+		System.out.println("switchCollisions");
+		w.applyCommand(Com.SWITCH_COLLISION_DETECTION);
+	}
+	
+	public void multiplyVelocitiesBy(double d) {
+		System.out.println("multiplyVelocitiesBy " + d);
+		if (d == 0) {
+			w.applyCommand(Com.KILL_VELOCITIES);
+		}else {
+			w.applyCommand(Com.VELOCITIES_MULTIPLY_BY, d);
+		}
+	}
+	
+	public void removeLastCharge() {
+		System.out.println("removeLastCharge");
+		w.applyCommand(Com.KILL_LAST_CHARGE);
+	}
+	
+	public void removeAllCharges() {
+		System.out.println("removeAllCharges");
+		w.applyCommand(Com.KILL_CHARGES);
+	}
+	
+	public void reset() {
+		System.out.println("IR reset");
+		w.applyCommand(Com.KILL_BLOBS);
+		w.applyCommand(Com.KILL_CHARGES);
 	}
 }

@@ -8,11 +8,14 @@ import collisions.ColFlag;
 import collisions.Collidable;
 import data.ChargePoint.Charger;
 import data.Colour.ColourCategory;
+import data.Command.Com;
 import utils.U;
 
 
 //TODO: make sure all mutations of core data happen only in "update" loop via buffering Lists to avoid concurrent access
 public class World implements Runnable{
+	
+	private final Object LOCK = new Object();
 	//SETTINGS
 	private static volatile int maxX = 2000;
 	private static volatile int minX = -1000;
@@ -49,10 +52,13 @@ public class World implements Runnable{
 	private ColFlag colFlag;
 	private boolean mouseInside = true;
 	
+	private List <Command> commands;
 	
 	public World () {
 		System.out.println("World constr. thread - " + Thread.currentThread().getName());
 		buffer = FrameBuffer.getInstance();
+		commands = new ArrayList();
+		
 		
 		newBlobs = new ArrayList<Blob>();
 		blobs = new ArrayList<Blob> ();
@@ -123,7 +129,18 @@ public class World implements Runnable{
 			b.update(timeInterval, drag);
 		}
 		
-		// 1b - update world - collisions
+		//1b - execute commands
+		if (!commands.isEmpty()) {
+			//commands list is a normal list and it may be accessed from other thread
+			//commands are issued from gui
+			synchronized(LOCK) {
+				executeCommandList();
+				commands.clear();
+			}
+		
+		}
+		
+		// 1c - update world - collisions
 		colDet();
 
 		
@@ -134,7 +151,63 @@ public class World implements Runnable{
 		}
 		VideoFrameCounter = 0;
 		
-		buffer.addFrame(new FrameData(blobs, charges, listOfCollisionPoints, gravity, groundLevel, timeInterval));
+		buffer.addFrame(
+				new FrameData(blobs, charges, listOfCollisionPoints,
+						gravity, groundLevel, timeInterval));
+	}
+	
+	private void executeCommandList() {
+		for (Command c : commands) {
+			
+			switch (c.commandType) {
+			case GRAVITY_CENTRE:
+				gravityInCentre = true;
+				break;
+			case GRAVITY_DOWN:
+				gravityInCentre = false;
+				break;
+			case KILL_BLOBS:
+				blobs.clear();
+				break;
+			case KILL_CHARGES:
+				charges.clear();
+				break;
+			case KILL_LAST_CHARGE:
+				if (!charges.isEmpty()) {
+					charges.remove(charges.size() - 1);
+				}
+				break;
+			case KILL_VELOCITIES:
+				for (Blob b : blobs) {
+					b.setVelocity(b.getVelocity().setXY(0, 0));
+				}
+				break;
+			case SIDES_BOUNCY:
+				System.out.println("SIDES_BOUNCY to be done");
+				break;
+			case SIDES_WRAPPED:
+				System.out.println("SIDES_WRAPPED to be done");
+				break;
+			case SWITCH_COLLISION_DETECTION:
+				switchCollisonDetections();
+				break;
+			case SWITCH_CHARGE_COLOURS:
+				switchChargeColourCategories();
+				break;
+			case SWITCH_CHARGE_TYPES:
+				switchChargeTypes();
+				break;
+			case VELOCITIES_MULTIPLY_BY:
+				for (Blob b : blobs) {
+					b.setVelocity(b.getVelocity().multiply(c.doubleValue));
+				}
+				break;
+			case VERTICALLY_WRAPPED:
+				break;
+			
+			}
+			
+		}
 	}
 	
 	private void colDet() {
@@ -147,7 +220,7 @@ public class World implements Runnable{
 		
 	//Control interface
 	
-	public void switchCollisonDetections() {
+	private void switchCollisonDetections() {
 		
 		if (colFlag.ordinal() == ColFlag.values().length - 1) {
 			colFlag = ColFlag.values()[0];
@@ -157,7 +230,7 @@ public class World implements Runnable{
 		System.out.println("Col. det. set to " + colFlag.name());
 	}
 	
-	public void switchChargeTypes() {
+	private void switchChargeTypes() {
 		Charger ch;
 		for (ChargePoint c : charges) {
 			ch = c.getType();
@@ -169,7 +242,7 @@ public class World implements Runnable{
 		}
 	}
 	
-	public void switchChargeColourCategories() {
+	private void switchChargeColourCategories() {
 		ColourCategory cc;		
 		for (ChargePoint c : charges) {
 			cc = c.getColourCategory();
@@ -296,10 +369,10 @@ public class World implements Runnable{
 		repulseFromPointer = !repulseFromPointer;
 		System.out.println("repulseFromPointer(boolean b): " + repulseFromPointer);
 	}
-	public void switchGravity() {
-		gravityInCentre = !gravityInCentre;
-		System.out.println("gravity switched");
-	}
+//	private void switchGravity() {
+//		gravityInCentre = !gravityInCentre;
+//		System.out.println("gravity switched");
+//	}
 	public void updateAlternativeGravityCentre(Vec v) {
 		newStageCentre = v;
 	}
@@ -312,6 +385,18 @@ public class World implements Runnable{
 		VideoFrameLimit = videoFrameLimit;
 	}
 
-	
-	
+	//###########################################
+	//Commands	
+	public void applyCommand (Com commandType) {
+		if (commandType == Com.VELOCITIES_MULTIPLY_BY) {
+			throw new IllegalArgumentException(Com.VELOCITIES_MULTIPLY_BY + " requires argument of type \"double\"");
+		}
+		commands.add(new Command(commandType));
+	}
+	public void applyCommand (Com commandType, int value) {
+		commands.add(new Command(commandType, value));
+	}
+	public void applyCommand (Com commandType, double value) {
+		commands.add(new Command(commandType, value));
+	}
 }

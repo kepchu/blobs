@@ -2,8 +2,6 @@ package view;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.GridLayout;
-import java.awt.LayoutManager;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -11,6 +9,7 @@ import javax.swing.JPanel;
 import app.InputReceiver;
 import data.Colour.ColourCategory;
 
+@SuppressWarnings("serial")
 class ControlsJPanel extends JPanel {
 	
 	private ControlButtonsJPanel buttons;
@@ -27,7 +26,7 @@ class ControlsJPanel extends JPanel {
 		setAllInputReceivers(ir, this);
 	}
 	
-	//traverse recurrently all children and set received InputReceiver wherever possible
+	//traverse recurrently all children and set InputReceiver wherever possible
 	private void setAllInputReceivers (InputReceiver ir, Container in) {
 		for (Component c : in.getComponents()) {
 			if (c instanceof InputProvider) {

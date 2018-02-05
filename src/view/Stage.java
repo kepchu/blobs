@@ -74,18 +74,18 @@ public class Stage extends JPanel implements ComponentListener {
 	}
 	
 	
-	public double descaledStageCentreY() {
+	double descaledStageCentreY() {
 		return descaleY(panelCentreY);
 	}
 
-	public double descaledStageCentreX() {
+	double descaledStageCentreX() {
 		return descaleX(panelCentreX);
 	}
 	
-	public Vec descaledMinXY() {
+	Vec descaledMinXY() {
 		return new Vec (descaleX(0), descaleY(0));
 	}
-	public Vec descaledMaxXY() {
+	Vec descaledMaxXY() {
 		return new Vec (descaleX(panelWidth), descaleY(panelHeight));
 	}
 	

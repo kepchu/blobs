@@ -1,16 +1,11 @@
 package view;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
@@ -26,7 +21,8 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 	private InputReceiver ir;
 
 	public ControlButtonsJPanel() {
-		//setLayout(new BoxLayout(this, BoxLayout.X_AXIS));	
+		//WrapLayout: http://tips4java.wordpress.com/2008/11/06/wrap-layout/
+		setLayout(new WrapLayout());
 		createButtons();
 		
 	}
@@ -65,11 +61,16 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 		
 		JButton gravityB = new JButton("Switch gravity");
 		gravityB.addActionListener(new ActionListener() {
-			
+			final boolean [] flag = {true};
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispatchChange("gravity");
-				
+				if (flag[0]) {
+					dispatchChange("gravityCentre");
+					flag[0] = false;
+				} else {
+					dispatchChange("gravityDown");
+					flag[0] = true;
+				}			
 			}
 		});
 		switchesBox.add(gravityB);
@@ -79,22 +80,22 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispatchChange("charges");
+				dispatchChange("chargeTypes");
 				
 			}
 		});
 		switchesBox.add(switchChargesB);
 		
-		JButton switchColorsB = new JButton("Swich colors");
-		switchColorsB.addActionListener(new ActionListener() {
+		JButton switchColoursB = new JButton("Swich colors");
+		switchColoursB.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispatchChange("charges");
+				dispatchChange("chargeColours");
 				
 			}
 		});
-		switchesBox.add(switchColorsB);
+		switchesBox.add(switchColoursB);
 			
 		JButton collisionsB = new JButton("Interaction");
 		collisionsB.addActionListener(new ActionListener() {
@@ -112,22 +113,30 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 		Box controlBox = Box.createHorizontalBox();
 		//controlBox.setAlignmentX(RIGHT_ALIGNMENT);
 		
-		JButton lockB = new JButton("Lock");
-		lockB.addActionListener(new ActionListener() {
+		JButton lockSidesB = new JButton("Lock sides");
+		lockSidesB.addActionListener(new ActionListener() {
 			//create confirmation dialog
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispatchChange("lock");
+				if (lockSidesB.getText().equals("Lock sides")) {
+					dispatchChange("lockSides");
+					lockSidesB.setText("Sides locked");
+					lockSidesB.setToolTipText("Zooming or window resizing will not affect the action");
+				} else {
+					lockSidesB.setText("Lock sides");				
+					lockSidesB.setToolTipText("Window frame interacts with the content");
+					dispatchChange("unlockSides");
+				}
 			}
 		});
-		controlBox.add(lockB);
+		controlBox.add(lockSidesB);
 		
-		JButton saveB = new JButton("Save");
+		JButton saveB = new JButton("Kill momentum");
 		saveB.addActionListener(new ActionListener() {
 			//create confirmation dialog
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispatchChange("save");
+				dispatchChange("halt");
 			}
 		});
 		controlBox.add(saveB);
@@ -142,17 +151,28 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 		});
 		controlBox.add(undoB);
 		
+		JButton killAllChargesB = new JButton("Remove all");
+		killAllChargesB.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispatchChange("killCharges");				
+			}
+		});
+		controlBox.add(killAllChargesB);
+		
 		JButton resetB = new JButton("RESET");
-		undoB.addActionListener(new ActionListener() {
+		resetB.addActionListener(new ActionListener() {
 			//create confirmation dialog
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispatchChange("reset");
+				ir.reset();
 			}
 		});
 		controlBox.add(resetB);
 		
 		Box result = Box.createVerticalBox();
+		
 		result.add(switchesBox);
 		result.add(controlBox);
 		return result;
@@ -202,6 +222,7 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 			break;
 		case "unwrapEdges":
 			ir.unwrapEdges();
+			break;
 		case "gravityDown":
 			ir.gravityDown();
 			break;
@@ -210,14 +231,33 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 			break;
 		case "collisions":
 			ir.switchCollisions();
+			break;
+		case "unlockSides":
+			ir.lockStageSidesToWindow(true);
+			break;
+		case "lockSides":
+			ir.lockStageSidesToWindow(false);
+			break;
+		case "halt":
+			ir.multiplyVelocitiesBy(0);
+			break;
 		case "undo":
-			ir.undo();
+			ir.removeLastCharge();
+			break;
+		case "killCharges":
+			ir.removeAllCharges();
+			break;
+		case "chargeTypes":
+			ir.switchChargeTypes();
+			break;
+		case "chargeColours":
+			ir.switchChargeColourCategories();
 			break;
 		case "reset":
 			ir.reset();
 			break;
 		default:
-			throw new IllegalArgumentException(getClass().getSimpleName() + " - unrecognised action");
+			throw new IllegalArgumentException(getClass().getSimpleName() + " " + in);
 		}
 
 	}
