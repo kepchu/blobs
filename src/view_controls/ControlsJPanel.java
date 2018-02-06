@@ -1,4 +1,4 @@
-package view;
+package view_controls;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -10,10 +10,11 @@ import app.InputReceiver;
 import data.Colour.ColourCategory;
 
 @SuppressWarnings("serial")
+public
 class ControlsJPanel extends JPanel {
 	
 	private ControlButtonsJPanel buttons;
-	ControlsJPanel() {
+	public ControlsJPanel() {
 		buttons = new ControlButtonsJPanel();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(buttons);
@@ -22,7 +23,7 @@ class ControlsJPanel extends JPanel {
 		makeAllChildrenUnfocusable(this);
 	}
 
-	void setInputReceiver (InputReceiver ir) {
+	public void setInputReceiver (InputReceiver ir) {
 		setAllInputReceivers(ir, this);
 	}
 	

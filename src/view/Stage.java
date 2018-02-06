@@ -36,6 +36,8 @@ public class Stage extends JPanel implements ComponentListener {
 
 	private double deltaZoom = 1.5;
 	private int deltaY = 100;
+	private StageCamera camera;
+	
 
 	private boolean initFinished;
 
@@ -46,6 +48,8 @@ public class Stage extends JPanel implements ComponentListener {
 		this.displayBuffer = displayBuffer;
 		frame = displayBuffer.getFrame();
 		currentElevation = initialCameraPosition;
+		
+		camera = new StageCamera(scale, initialCameraPosition, 1000, 800);//TODO: magic numbers
 		
 //		SwingUtilities.invokeLater(new Runnable() {
 //		    public void run() {
@@ -92,12 +96,17 @@ public class Stage extends JPanel implements ComponentListener {
 	// DRAWING ROUTINE
 	//ISSUE: paint called by system before setData call - this produces NullPointer
 	public void paint(Graphics g) {
-		//super.paintComponent(g);
+		//retrieve frame data
 		frame = displayBuffer.getFrame();
 		if (frame  == null) {
 			System.out.println("Stage.paint: no frame data to draw. Returning.");
 			return;
 		}
+		
+		//validate/update camera position
+		camera.update();
+		currentElevation = camera.getEleveation();
+		scale = camera.getScale();
 		
 		Graphics2D g2d = (Graphics2D) g;
 		
@@ -254,24 +263,44 @@ public class Stage extends JPanel implements ComponentListener {
 		}
 	}
 	
+	private void drawInfo(Graphics2D g) {
+		int x = 20, y = 20;
+		g.setColor(Color.BLACK);
+		g.drawString("Blobs [left-click] or [Insert]: " + frame.getBlobs().size(), x, y);
+		g.drawString("Charges: [R]/[G]/[B] + [left click]: " + frame.getCharges().size(), x, y+12);
+		g.drawString("Collisions ([SPACE BAR] to toggle: " + frame.getCollisions().size(), x, y+24);
+		g.drawString("Buffered frames: " + displayBuffer.currentSize(), x, y+36);
+		g.drawString("Speed [PgUp] / [PgDown]:" + frame.getSpeed(), x, y+48);
+		g.drawString("Gravity [Home] / [End]:" + frame.getGravity(), x, y+60);
+		g.drawString("Scale [CTRL] + m. wheel): " + scale, x, y+72);
+		g.drawString("Scroll: mouse wheel", x, y+84);
+		g.drawString("Modify Charges: [C] & [SHIFT] + [C]", x, y+96);
+		g.drawString("(De)activate mouse pointer: [middle-click] (mouse wheel click)", x, y+108);
+	}
+
+	//CAMERA#############################################	
 	public void zoomOut() {
 		//System.out.println("zoomOut");
-		scale /= deltaZoom;
+		//scale /= deltaZoom;
+		camera.zoomOut();
 	}
 
 	public void zoomIn() {
 		//System.out.println("zoomIn");
-		scale *= deltaZoom;
+		//scale *= deltaZoom;
+		camera.zoomIn();
 	}
 
 	public void scrollUp() {
 		//System.out.println("Scroll up");
-		currentElevation -= deltaY;
+		//currentElevation -= deltaY;
+		camera.up();
 	}
 
 	public void scrollDown() {
 		//System.out.println("Scroll down");
-		currentElevation += deltaY;
+		//currentElevation += deltaY;
+		camera.down();
 	}
 
 	
@@ -301,6 +330,10 @@ public class Stage extends JPanel implements ComponentListener {
 		
 		panelWidth = newPanelWidth;
 		panelHeight = newPanelHeight;
+		
+//		camera.rescaleToWidth(newPanelWidth);
+//		camera.adjustElevation(newPanelHeight);
+		camera.stageResized(newPanelWidth, newPanelHeight);
 	}
 	@Override
 	public void componentShown(ComponentEvent e) {
@@ -311,21 +344,6 @@ public class Stage extends JPanel implements ComponentListener {
 	
 	public void updatePointerPosition (int x, int y) {
 		pointerPosition.setXY(x, y);
-	}
-
-	private void drawInfo(Graphics2D g) {
-		int x = 20, y = 20;
-		g.setColor(Color.BLACK);
-		g.drawString("Blobs [left-click] or [Insert]: " + frame.getBlobs().size(), x, y);
-		g.drawString("Charges: [R]/[G]/[B] + [left click]: " + frame.getCharges().size(), x, y+12);
-		g.drawString("Collisions ([SPACE BAR] to toggle: " + frame.getCollisions().size(), x, y+24);
-		g.drawString("Buffered frames: " + displayBuffer.currentSize(), x, y+36);
-		g.drawString("Speed [PgUp] / [PgDown]:" + frame.getSpeed(), x, y+48);
-		g.drawString("Gravity [Home] / [End]:" + frame.getGravity(), x, y+60);
-		g.drawString("Scale [CTRL] + m. wheel): " + scale, x, y+72);
-		g.drawString("Scroll: mouse wheel", x, y+84);
-		g.drawString("Modify Charges: [C] & [SHIFT] + [C]", x, y+96);
-		g.drawString("(De)activate mouse pointer: [middle-click] (mouse wheel click)", x, y+108);
 	}
 
 	//called from View controller

@@ -1,7 +1,6 @@
 package view;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
@@ -14,26 +13,23 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-import javax.management.DescriptorAccess;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import app.InputReceiver;
-import data.FrameData;
-import data.StageDescription;
-import data.Vec;
 import data.BufferableFrames;
 import data.Colour.ColourCategory;
 import data.FrameBuffer;
-import data.World;
+import data.StageDescription;
+import data.Vec;
+import view_controls.ControlsJPanel;
+import view_controls.InputProvider;
 
 //switch to MouseInputAdapter?
 public class ViewAndInputController implements InputProvider,

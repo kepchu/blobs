@@ -1,4 +1,4 @@
-package view;
+package view_controls;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,7 +17,6 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 
 	
 	RGBButtonsBox rgbButtons;
-	private Charger ch;
 	private InputReceiver ir;
 
 	public ControlButtonsJPanel() {
@@ -113,17 +112,17 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 		Box controlBox = Box.createHorizontalBox();
 		//controlBox.setAlignmentX(RIGHT_ALIGNMENT);
 		
-		JButton lockSidesB = new JButton("Lock sides");
+		JButton lockSidesB = new JButton("Auto-zoom to window size");
 		lockSidesB.addActionListener(new ActionListener() {
 			//create confirmation dialog
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (lockSidesB.getText().equals("Lock sides")) {
+				if (lockSidesB.getText().equals("Auto-zoom to window size")) {
 					dispatchChange("lockSides");
-					lockSidesB.setText("Sides locked");
-					lockSidesB.setToolTipText("Zooming or window resizing will not affect the action");
+					lockSidesB.setText("Interact with window edges");
+					lockSidesB.setToolTipText("Auto-zooming to match window.\nZooming or window resizing will not affect the action");
 				} else {
-					lockSidesB.setText("Lock sides");				
+					lockSidesB.setText("Auto-zoom to window size");				
 					lockSidesB.setToolTipText("Window frame interacts with the content");
 					dispatchChange("unlockSides");
 				}

@@ -1,4 +1,4 @@
-package view;
+package view_controls;
 
 import java.awt.FlowLayout;
 
@@ -63,7 +63,7 @@ class ControlSlidersJPanel extends JPanel implements InputProvider{
 				dispatchChange("temperature", result);
 			}
 		});
-		heatBox.add(new JLabel("Temperature: "));
+		heatBox.add(new JLabel("Energy: "));
 		heatBox.add(heatSlider);	
 		add(heatBox);
 		

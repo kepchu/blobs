@@ -1,4 +1,4 @@
-package view;
+package view_controls;
 
 import app.InputReceiver;
 
