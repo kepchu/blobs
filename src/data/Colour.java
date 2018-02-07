@@ -1,8 +1,14 @@
 package data;
 
 import java.awt.Color;
+import java.io.Serializable;
 
-public class Colour {
+public class Colour implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	public enum ColourCategory {
 		R(new Color(230,50,50,200)),

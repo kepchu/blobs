@@ -6,11 +6,11 @@ import java.util.concurrent.TimeUnit;
 
 import data.FrameBuffer;
 import data.World;
-import view.ViewAndInputController;
+import view.MAINViewAndInput;
 
 public class MainHub {
 
-	private ViewAndInputController v;
+	private MAINViewAndInput v;
 	private InputReceiver uir;
 	private FrameBuffer frameBuffer;
 	ScheduledExecutorService ses;
@@ -20,7 +20,7 @@ public class MainHub {
 	Object lock = new Object();
 	
 	
-	public MainHub(World w, ViewAndInputController v) {
+	public MainHub(World w, MAINViewAndInput v) {
 		this.v = v;//run() has to be in scope
 		
 		frameBuffer = FrameBuffer.getInstance();

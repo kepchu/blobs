@@ -1,9 +1,18 @@
 package data;
 
+import java.io.Serializable;
+
+import collisions.Collidable;
 import data.Colour.ColourCategory;
 
 //attraction/repulsion point
-public class ChargePoint {
+public class ChargePoint implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public enum Charger {
 		COLOUR_CATEGORY_ABSOLUTE {
 			public void charge(Blob b, ChargePoint c) {

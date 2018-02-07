@@ -5,7 +5,7 @@ public class StageCamera {
 	
 	private final static double
 		ZOOM_STEP = 0.02, ZOOM_DECAY = 0.96, ZOOM_MIN = 0.009, SCALE_MIN = 0.02, SCALE_MAX = 10,
-		SCROLL_STEP = 20, SCROLL_DECAY = 0.93, SCROLL_MIN = 0.3, GROUND_LEVEL = 0;
+		SCROLL_STEP = 20, SCROLL_DECAY = 0.93, SCROLL_MIN = 0.3, GROUND_LEVEL = -10;
 	private double scrollDelta, zoomDelta, scale, elevation;
 	private int width, height;
 	

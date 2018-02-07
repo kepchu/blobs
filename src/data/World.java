@@ -25,7 +25,6 @@ public class World implements Runnable{
 	private double defaultRadiusMultiplier = 1.0;
 	private static double gravity =  0.2;
 	private static double gravityDelta = 1.02;
-	private int groundLevel = maxY;	
 	private static double timeInterval = 1.0; //amount of "app world" time between updates
 	private double timeIntervalStep = 1.3;
 	
@@ -153,7 +152,7 @@ public class World implements Runnable{
 		
 		buffer.addFrame(
 				new FrameData(blobs, charges, listOfCollisionPoints,
-						gravity, groundLevel, timeInterval));
+						gravity, timeInterval, minX, minY, maxX, maxY));
 	}
 	
 	private void executeCommandList() {
@@ -311,12 +310,7 @@ public class World implements Runnable{
 	public void setBlobs(List<Blob> blobs) {
 		this.blobs = blobs;
 	}
-	public int getGround() {
-		return groundLevel;
-	}
-	public void setGround(int ground) {
-		this.groundLevel = ground;
-	}
+	
 	public List<Vec> getListOfCollisionPoints() {
 		return listOfCollisionPoints;
 	}	

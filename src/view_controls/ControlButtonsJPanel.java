@@ -11,28 +11,32 @@ import javax.swing.JToggleButton;
 
 import app.InputReceiver;
 import data.ChargePoint.Charger;
+import view.Stage;
 
 @SuppressWarnings("serial")
-class ControlButtonsJPanel extends JPanel implements InputProvider {
+class ControlButtonsJPanel extends JPanel implements InputProvider, StageAccesser {
 
 	
 	RGBButtonsBox rgbButtons;
 	private InputReceiver ir;
+	private Stage stage;//used by only one button
+	private ThirdBox thirdBox;
 
 	public ControlButtonsJPanel() {
+		//this.stage = stage;
 		//WrapLayout: http://tips4java.wordpress.com/2008/11/06/wrap-layout/
 		setLayout(new WrapLayout());
-		createButtons();
-		
+		createButtons();		
 	}
 
 	private void createButtons() {	
 		Box effectsCompositionBox  = createEffectsBox();
 		Box controlButtonsBox = createControlBox();
-		//Box controlsBox = Box.createHorizontalBox();
+		thirdBox = new ThirdBox();
 		
 		add(effectsCompositionBox);		
-		add(controlButtonsBox);		
+		add(controlButtonsBox);
+		add(thirdBox);
 	}
 
 	private Box createControlBox() {
@@ -233,9 +237,11 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 			break;
 		case "unlockSides":
 			ir.lockStageSidesToWindow(true);
+			stage.setAutoZoom(false);//########################################stage
 			break;
 		case "lockSides":
 			ir.lockStageSidesToWindow(false);
+			stage.setAutoZoom(true);//#########################################stage
 			break;
 		case "halt":
 			ir.multiplyVelocitiesBy(0);
@@ -264,6 +270,15 @@ class ControlButtonsJPanel extends JPanel implements InputProvider {
 	@Override
 	public void setInputReceiver(InputReceiver ir) {
 		this.ir = ir;
-		rgbButtons.setInputReceiver(ir);
+		//rgbButtons.setInputReceiver(ir);
+		MAINControlsJPanel.setAllInputReceivers(ir, this);
 	}
+
+	@Override
+	public void setStage(Stage stage) {
+		this.stage = stage;
+		//thirdBox.setStage(stage);
+		MAINControlsJPanel.setAllStageAccessers(stage, this);
+	}
+	
 }

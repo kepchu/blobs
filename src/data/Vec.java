@@ -1,10 +1,18 @@
 package data;
 
+import java.io.Serializable;
+
 //All instance methods except ...AndSet() are just convenience methods
 // that call static Vec class methods.
-//...AndSet() methods duplicate static code so values of fields can be changed without creation of new object
-public class Vec {
-
+//...AndSet() methods duplicate static code - to allow for changing values of fields
+// without creation of new object
+public class Vec  implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	//used in magnitudeOf() to bail out of calculations that generate NaNs
 	private static final double MARGIN = 0.0000001;
 	private double x, y = 0;// coordinates

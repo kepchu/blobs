@@ -1,9 +1,15 @@
 package data;
 
+import java.io.Serializable;
+
 import collisions.Collidable;
 import data.Colour.ColourCategory;
 
-public class Blob implements Collidable {
+public class Blob implements Collidable, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static int staticID;
 	public final int ID;
 	private Vec position;

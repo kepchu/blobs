@@ -20,7 +20,7 @@ import data.Vec;
 @SuppressWarnings("serial")
 public class Stage extends JPanel implements ComponentListener {
 	
-	Object lock = new Object();
+	private final static Object LOCK = new Object();
 	
 	private FrameData frame;
 	private BufferableFrames displayBuffer;
@@ -34,14 +34,14 @@ public class Stage extends JPanel implements ComponentListener {
 	private double scale = 0.3;// "scale" is a zoom factor
 	private int currentElevation = 0;//ground level used for drawing, adjusted when scrolling the scene
 
-	private double deltaZoom = 1.5;
-	private int deltaY = 100;
 	private StageCamera camera;
 	
 
 	private boolean initFinished;
 
 	private boolean mouseOudside;
+
+	private boolean autoZoom;
 	
 	public Stage(int initialCameraPosition, BufferableFrames displayBuffer) {
 		System.out.println("Stage constr. thread - " + Thread.currentThread().getName());
@@ -99,7 +99,7 @@ public class Stage extends JPanel implements ComponentListener {
 		//retrieve frame data
 		frame = displayBuffer.getFrame();
 		if (frame  == null) {
-			System.out.println("Stage.paint: no frame data to draw. Returning.");
+			System.out.println("Stage.paint(): no frame data to draw. Returning.");
 			return;
 		}
 		
@@ -120,19 +120,33 @@ public class Stage extends JPanel implements ComponentListener {
 		drawBackground(g2d);//TODO: generate some background to be scrolled when window is moved
 		drawRuler(g2d);
 		//the below methods use data object
-		drawBorders(g2d);
+		
 		drawBlobs(g2d);
+		
+		
+		if(autoZoom) {
+			drawBorders(g2d);
+		}
+		
 		drawCharges(g2d);
+		
 		drawInfo(g2d);
 		displayBuffer.advanceFrame();
 	}
 	
 	// methods used by the drawing routine in paint (Graphics g)
 	private void drawBackground(Graphics2D g) {
-		g.setColor(new Color(227, 227, 226, 255));
-		g.fillRect(0, 0, panelWidth, panelHeight);
-		g.setColor(new Color(243, 243, 243, 255));
-		g.fillOval(20, 20, panelWidth - 40, panelHeight - 40);
+		if (false) {
+			g.setColor(new Color(227, 227, 226, 255));
+			g.fillRect(0, 0, panelWidth, panelHeight);
+			g.setColor(new Color(243, 243, 243, 255));
+			g.fillOval(20, 20, panelWidth - 40, panelHeight - 40);
+		} else {
+			g.setColor(new Color(255-227, 255-227, 255-226, 255));
+			g.fillRect(0, 0, panelWidth, panelHeight);
+			g.setColor(new Color(255-243, 255-243, 255-243, 255));
+			g.fillOval(20, 20, panelWidth - 40, panelHeight - 40);
+		}	
 	}
 
 	private void drawRuler(Graphics2D g) {
@@ -152,10 +166,15 @@ public class Stage extends JPanel implements ComponentListener {
 	}
 
 	private void drawBorders(Graphics2D g) {
-		g.setColor(Color.RED);
+//		g.setColor(Color.RED);
 		//draw ground level
-		g.drawLine(0, currentElevation, panelWidth, currentElevation);
-		//TODO: draw "word dimensions" - minX, maxY, etc. (stored in "World")
+//		g.drawLine(0, currentElevation, panelWidth, currentElevation);				
+//		g.drawLine(scaleX(frame.minX), scaleY(frame.minY), scaleX(frame.minX), scaleY(frame.maxY));		
+//		g.drawLine(scaleX(frame.maxX), scaleY(frame.minY), scaleX(frame.maxX), scaleY(frame.maxY));		
+		g.setColor(Color.BLACK);
+		
+		g.fillRect(0, 0, scaleX(frame.minX), panelHeight);
+		g.fillRect(scaleX(frame.maxX), 0, panelWidth, panelHeight);
 	}
 	
 	private void drawBlobs(Graphics2D g) {
@@ -165,7 +184,7 @@ public class Stage extends JPanel implements ComponentListener {
 		int minTaggingSize = 50;
 		
 		
-		for (Blob b : frame.getBlobs()) {
+		for (Blob b : frame.blobs) {
 			int radius = (int)(b.getRadius() * scale);
 			
 			//Subtracting radius to accommodate to drawOval method
@@ -229,7 +248,7 @@ public class Stage extends JPanel implements ComponentListener {
 	private void drawCharges (Graphics2D g) {
 		
 		int x,y;
-		for (ChargePoint c : frame.getCharges()) {
+		for (ChargePoint c : frame.charges) {
 			g.setColor(c.getColourCategory().getDefaultCategoryColor());
 			x = scaleX(c.getPosition().getX()); 
 			y = scaleY(c.getPosition().getY());
@@ -254,7 +273,7 @@ public class Stage extends JPanel implements ComponentListener {
 		
 		//draw last maxNumberOfDrawnCollisions from listOfCollisionPoints
 		int i = 0;
-		for (Vec c: frame.getCollisions()) {
+		for (Vec c: frame.collisions) {
 			int offsetX = scaleX(c.getX()) - circumference/2;
 			int offsetY = scaleY(c.getY()) - circumference/2;			
 			g.fillOval(offsetX, offsetY, circumference, circumference);
@@ -262,23 +281,29 @@ public class Stage extends JPanel implements ComponentListener {
 			if(++i > maxNumberOfDrawnCollisions) {break;}
 		}
 	}
+
 	
 	private void drawInfo(Graphics2D g) {
 		int x = 20, y = 20;
-		g.setColor(Color.BLACK);
-		g.drawString("Blobs [left-click] or [Insert]: " + frame.getBlobs().size(), x, y);
-		g.drawString("Charges: [R]/[G]/[B] + [left click]: " + frame.getCharges().size(), x, y+12);
-		g.drawString("Collisions ([SPACE BAR] to toggle: " + frame.getCollisions().size(), x, y+24);
+		g.setColor(Color.DARK_GRAY);
+		g.drawString("Blobs [left-click] or [Insert]: " + frame.blobs.size(), x, y);
+		g.drawString("Charges: [R]/[G]/[B] + [left click]: " + frame.charges.size(), x, y+12);
+		g.drawString("Collisions ([SPACE BAR] to toggle: " + frame.collisions.size(), x, y+24);
 		g.drawString("Buffered frames: " + displayBuffer.currentSize(), x, y+36);
-		g.drawString("Speed [PgUp] / [PgDown]:" + frame.getSpeed(), x, y+48);
-		g.drawString("Gravity [Home] / [End]:" + frame.getGravity(), x, y+60);
+		g.drawString("Speed [PgUp] / [PgDown]:" + frame.speed, x, y+48);
+		g.drawString("Gravity [Home] / [End]:" + frame.gravity, x, y+60);
 		g.drawString("Scale [CTRL] + m. wheel): " + scale, x, y+72);
 		g.drawString("Scroll: mouse wheel", x, y+84);
 		g.drawString("Modify Charges: [C] & [SHIFT] + [C]", x, y+96);
 		g.drawString("(De)activate mouse pointer: [middle-click] (mouse wheel click)", x, y+108);
 	}
 
-	//CAMERA#############################################	
+	//CAMERA#############################################
+	public void setAutoZoom(boolean autoZoom) {
+		this.autoZoom = autoZoom;
+		camera.setAutoRescalingToWidth(autoZoom);
+	}
+		
 	public void zoomOut() {
 		//System.out.println("zoomOut");
 		//scale /= deltaZoom;
@@ -346,9 +371,11 @@ public class Stage extends JPanel implements ComponentListener {
 		pointerPosition.setXY(x, y);
 	}
 
+	public FrameData getFrame () {
+		return frame;
+	}
 	//called from View controller
-	public void initFinished() {
-		
+	public void initFinished() {		
 		panelHeight = currentElevation = getHeight();
 		componentResized(null);
 		this.addComponentListener(this);

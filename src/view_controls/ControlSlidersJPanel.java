@@ -53,6 +53,7 @@ class ControlSlidersJPanel extends JPanel implements InputProvider{
 		
 		Box heatBox = Box.createHorizontalBox();
 		heatSlider = new JSlider(0, 1000000000, 333333333);
+		//heatSlider = new JSlider(-500000000, 500000000, 333333333);
 		heatSlider.addChangeListener(new ChangeListener() {
 			
 			@Override

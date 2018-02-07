@@ -3,6 +3,7 @@ package app;
 import data.Colour;
 import data.Colour.ColourCategory;
 import data.Command.Com;
+import data.FrameData;
 import data.StageDescription;
 import data.Vec;
 import data.ChargePoint;
@@ -64,8 +65,6 @@ public class InputReceiver {
 //		System.out.println("rightClickAt " + x + ", " + y + ". Adding a charge.");
 		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.NEUTRAL, Charger.COLOUR_CATEGORY_ABSOLUTE));	
 	}
-
-
 	public void rLeftClick(double x, double y) {
 		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.R, Charger.COLOUR_COMPONENT));
 	}
@@ -87,13 +86,12 @@ public class InputReceiver {
 		lockStageSidesToWindow = b;
 	}
 	
-	public void udateStageDimensions (StageDescription sd) {
-		w.updateAlternativeGravityCentre(sd.getAlternativeGravityCentre());
+	public void udateStageDimensions (StageDescription sd) {		
 		if (lockStageSidesToWindow ) {
+			w.updateAlternativeGravityCentre(sd.getAlternativeGravityCentre());
 			w.setMinX((int)sd.getMinXY().getX());
 			w.setMaxX((int)sd.getMaxXY().getX());
 		}
-		
 	}
 	
 	
@@ -204,4 +202,16 @@ public class InputReceiver {
 		w.applyCommand(Com.KILL_BLOBS);
 		w.applyCommand(Com.KILL_CHARGES);
 	}
+	
+	
+	//disc
+	public void loadFrame() {
+		System.out.println("ir.loadFrame()");
+		DiscAccess.loadFrame();
+	}
+	public void saveFrame(FrameData f) {
+		System.out.println("ir.save(frame)");
+		DiscAccess.saveFrame(f);
+	}
+	
 }

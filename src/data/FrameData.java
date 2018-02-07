@@ -1,26 +1,35 @@
 package data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 //Purpose of this class: provide easy duplication/separation of data for asynchronous processing
-public class FrameData {
-	public List<Blob> blobs;
-	public List<ChargePoint> charges;
-	public List<Vec> collisions;
-	public double gravity;
-	public double ground;
-	public double speed;
+public class FrameData implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 0L;
+	
+	public final List<Blob> blobs;
+	public final List<ChargePoint> charges;
+	public final List<Vec> collisions;
+	public final double gravity;
+	public final double speed;
+	public final int minX, minY, maxX, maxY;
 	
 	//DEEP COPY during instantiation
 	public FrameData(List<Blob> blobs, List<ChargePoint> charges, List<Vec> collisions,
-			double gravity,	double ground, double speed) {
+			double gravity, double speed, int minX, int minY, int maxX, int maxY) {
 		super();
 		this.blobs = cloneBlobs(blobs);
 		this.charges = cloneCharges(charges);
 		this.collisions = cloneCollisions(collisions);
 		this.gravity = gravity;
-		this.ground = ground;
 		this.speed = speed;
+		this.minX = minX;
+		this.minY = minY;
+		this.maxX = maxX;
+		this.maxY = maxY;
 	}
 	
 	//Cloning methods
@@ -44,31 +53,5 @@ public class FrameData {
 			result.add(new Vec(c));
 		}
 		return result;
-	}
-
-	public List<Blob> getBlobs() {
-		return blobs;
-	}
-
-	public List<ChargePoint> getCharges() {
-		return charges;
-	}
-
-	public List<Vec> getCollisions() {
-		return collisions;
-	}
-
-	public double getGravity() {
-		return gravity;
-	}
-
-	public double getGround() {
-		return ground;
-	}
-
-	public double getSpeed() {
-		return speed;
-	}
-	
-	
+	}	
 }

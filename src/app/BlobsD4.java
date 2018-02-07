@@ -7,7 +7,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import data.FrameBuffer;
 import data.World;
-import view.ViewAndInputController;
+import view.MAINViewAndInput;
 
 public class BlobsD4 {
 
@@ -47,7 +47,7 @@ public class BlobsD4 {
 		System.out.println("Blobs01 thread - " + Thread.currentThread().getName());
 		//MVC pattern variation
 		World dc = new World();
-		ViewAndInputController v = new ViewAndInputController(FrameBuffer.getInstance());
+		MAINViewAndInput v = new MAINViewAndInput(FrameBuffer.getInstance());
 		new MainHub(dc, v);		
 	}
 }

@@ -28,11 +28,11 @@ import data.Colour.ColourCategory;
 import data.FrameBuffer;
 import data.StageDescription;
 import data.Vec;
-import view_controls.ControlsJPanel;
+import view_controls.MAINControlsJPanel;
 import view_controls.InputProvider;
 
 //switch to MouseInputAdapter?
-public class ViewAndInputController implements InputProvider,
+public class MAINViewAndInput implements InputProvider,
 MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runnable {
 	
 	
@@ -41,17 +41,15 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 	private InputMap inputMap;
 	private ActionMap actionMap;
 
-	private BufferableFrames frameBuffer;
 	private InputReceiver inputReceiver;
 
 	volatile static boolean r,g,b,n, ctrl, shift;
 
 	//ControlRGBButtonsJPanel rgbButtons;
-	ControlsJPanel controlsJPanel;
+	MAINControlsJPanel controlsJPanel;
 	
-	public ViewAndInputController (FrameBuffer frameBuffer) {
+	public MAINViewAndInput (FrameBuffer frameBuffer) {
 		System.out.println("ViewAndDataController constr.");
-		this.frameBuffer = frameBuffer;
 //		this.stage = new Stage(w.getBlobs(), w.getListOfCollisionPoints(), w.getCharges(), w.getGround(),
 //				750);
 		int initialCameraPosition = 700;
@@ -72,7 +70,8 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 		
 		frame.getContentPane().add(stage, BorderLayout.CENTER);
 		
-		controlsJPanel = new ControlsJPanel();
+		(controlsJPanel = new MAINControlsJPanel()).setStage(stage);
+		
 		frame.getContentPane().add(controlsJPanel, BorderLayout.PAGE_END);
 		
 		frame.setVisible(true);	
@@ -170,6 +169,7 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 		controlsJPanel.setInputReceiver(uir);
 		
 		stage.initFinished();
+		
 	}
 	
 	public void run() {

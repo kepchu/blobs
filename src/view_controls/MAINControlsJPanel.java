@@ -2,41 +2,64 @@ package view_controls;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.im.InputMethodRequests;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import app.InputReceiver;
 import data.Colour.ColourCategory;
+import view.Stage;
 
 @SuppressWarnings("serial")
 public
-class ControlsJPanel extends JPanel {
+class MAINControlsJPanel extends JPanel implements InputProvider, StageAccesser{
 	
 	private ControlButtonsJPanel buttons;
-	public ControlsJPanel() {
-		buttons = new ControlButtonsJPanel();
+	
+	public MAINControlsJPanel() {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		buttons = new ControlButtonsJPanel();
 		add(buttons);
 		add(new ControlSlidersJPanel());
 				
 		makeAllChildrenUnfocusable(this);
 	}
 
+	@Override
+	public void setStage(Stage stage) {
+		setAllStageAccessers(stage, this);
+	}
+	//traverse recurrently all children and set Stage wherever possible
+		public static void setAllStageAccessers (Stage s, Container in) {
+						
+			for (Component c : in.getComponents()) {
+				System.out.println(c.getClass().getName() + " - stage");
+				if (c instanceof StageAccesser) {
+					((StageAccesser)c).setStage(s);				
+				}
+				if (c instanceof Container) {
+					setAllStageAccessers(s, (Container)c);
+				}
+			}
+		}
+	
 	public void setInputReceiver (InputReceiver ir) {
 		setAllInputReceivers(ir, this);
 	}
 	
 	//traverse recurrently all children and set InputReceiver wherever possible
-	private void setAllInputReceivers (InputReceiver ir, Container in) {
+	public static void setAllInputReceivers (InputReceiver ir, Container in) {
+				
 		for (Component c : in.getComponents()) {
+			System.out.println(c.getClass().getName() + " - ir");
 			if (c instanceof InputProvider) {
 				((InputProvider)c).setInputReceiver(ir);				
 			}
 			if (c instanceof Container) {
 				setAllInputReceivers(ir, (Container)c);
 			}
-
 		}
 	}
 	
@@ -59,4 +82,5 @@ class ControlsJPanel extends JPanel {
 	public void setRGBState(ColourCategory colourCategory) {
 		buttons.rgbButtons.setRGBState(colourCategory);		
 	}
+
 }
