@@ -1,4 +1,4 @@
-package view_controls;
+package view.controls;
 
 import java.awt.Component;
 import java.awt.Container;

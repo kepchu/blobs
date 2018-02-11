@@ -33,12 +33,11 @@ public class Stage extends JPanel{
 
 	StageCamera camera;
 	
-
-	private boolean initFinished;
-
-	private boolean mouseOudside;
-
-	private boolean drawSideWalls;
+	//SETTINGS //TODO - A HASH-MAP
+	private boolean setDrawSideWalls;
+	private boolean setDarkMode;
+	private boolean setDrawingMode;//TODO: draw from previous positions to new & don't erase
+	
 	
 	public Stage(BufferableFrames displayBuffer) {
 		System.out.println("Stage constr. thread - " + Thread.currentThread().getName());
@@ -80,9 +79,9 @@ public class Stage extends JPanel{
 		drawBlobs(g2d);
 		
 		
-		if(drawSideWalls) {
-			drawBorders(g2d);
-		}
+		
+		drawBorders(g2d);
+		
 		
 		drawCharges(g2d);
 		
@@ -124,21 +123,26 @@ public class Stage extends JPanel{
 	}
 
 	private void drawBorders(Graphics2D g) {
-//		g.setColor(Color.RED);
-		//draw ground level
-//		g.drawLine(0, camera.elevation, camera.width, camera.elevation);				
-//		g.drawLine(scaleX(frame.minX), scaleY(frame.minY), scaleX(frame.minX), scaleY(frame.maxY));		
-//		g.drawLine(scaleX(frame.maxX), scaleY(frame.minY), scaleX(frame.maxX), scaleY(frame.maxY));		
+
+		int ground = camera.scaleY(frame.maxY);
+		int leftEdge = camera.scaleX(frame.minX);
+		int rightEdge = camera.scaleX(frame.maxX);
+		
+		
+		
 		g.setColor(Color.BLACK);
 		
-		g.fillRect(0, 0, camera.scaleX(frame.minX), camera.height);
-		g.fillRect(camera.scaleX(frame.maxX), 0, camera.width, camera.height);
+		g.fillRect(0, ground, camera.width, camera.height - ground);
 		
-		//debug
+		if(true) {//drawSideWalls) {
+			g.fillRect(0, 0, leftEdge, camera.height);
+			g.fillRect(rightEdge, 0, camera.width, camera.height);
+		}
+		
 		g.setColor(Color.RED);
-		g.fillRect((int)camera.middlePoint.getX() - 5, (int)camera.middlePoint.getY()-5, 10, 10);
-		g.drawLine((int)camera.middlePoint.getX(), 0, (int)camera.middlePoint.getX(), camera.height);
-		g.drawLine(camera.width/2, (int)camera.middlePoint.getY(), camera.width/2, (int)camera.middlePoint.getY());
+		//draw ground level
+		g.drawLine(0, ground, camera.width, ground);
+		
 	}
 	
 	private void drawBlobs(Graphics2D g) {
@@ -268,7 +272,7 @@ public class Stage extends JPanel{
 
 	//CAMERA#############################################
 	public void setAutoZoom(boolean autoZoom) {
-		this.drawSideWalls = autoZoom;
+		this.setDrawSideWalls = autoZoom;
 		camera.setAutoRescalingToWidth(autoZoom);
 	}
 		

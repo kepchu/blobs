@@ -1,4 +1,4 @@
-package view_controls;
+package view.controls;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;

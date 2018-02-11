@@ -1,4 +1,4 @@
-package view_controls;
+package view.controls;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

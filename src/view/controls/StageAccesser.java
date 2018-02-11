@@ -1,4 +1,4 @@
-package view_controls;
+package view.controls;
 
 import view.Stage;
 

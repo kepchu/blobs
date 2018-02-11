@@ -25,11 +25,11 @@ import javax.swing.SwingUtilities;
 import app.InputReceiver;
 import data.BufferableFrames;
 import data.Colour.ColourCategory;
+import view.controls.InputProvider;
+import view.controls.MAINControlsJPanel;
 import data.FrameBuffer;
 import data.StageDescription;
 import data.Vec;
-import view_controls.MAINControlsJPanel;
-import view_controls.InputProvider;
 
 //switch to MouseInputAdapter?
 public class MAINViewAndInput implements InputProvider,
