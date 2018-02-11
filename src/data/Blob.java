@@ -9,7 +9,7 @@ public class Blob implements Collidable, Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 	private static int staticID;
 	public final int ID;
 	private Vec position;
@@ -25,12 +25,12 @@ public class Blob implements Collidable, Serializable {
 	private ColliderType colliderType;
 	private boolean colDetDone;
 	// Settings:
-	private double maxVelocity = 50;
-	private double maxInflationSpeed = 5.0;
 	private double newbornInflationSpeed;// = 15.0;
-	private int startingRadius = 1;
-	private double bounceDampeningFactor = 0.9;
-	private double stageFriction = 1;
+	private final double maxVelocity = 50;
+	private final double maxInflationSpeed = 5.0;
+	private final int startingRadius = 1;
+	private final double bounceDampeningFactor = 0.9;
+	private final double stageFriction = 1;
 	
 	//things adjusted on per-frame basis by timeInterval received in update() call:
 	//velocity -> position, inflationSpeed & newbornInflationSpeed
@@ -44,12 +44,13 @@ public class Blob implements Collidable, Serializable {
 		this.energy = b.energy;
 		this.radius =b.radius;
 		this.previousRadius= b.previousRadius;
-		//this.mass = b.mass;
+		
 		this.colour = new Colour(b.getColour());
 		this.type = b.type;	
+		this.phase = b.phase;
+		this.colliderType = b.colliderType;	
 		this.colDetDone = b.colDetDone;
-		this.colliderType = b.colliderType;
-				
+		
 		this.newbornInflationSpeed = b.newbornInflationSpeed;
 	}
 	
@@ -98,19 +99,19 @@ public class Blob implements Collidable, Serializable {
 		}
 	
 	public void update(double timeInterval, Vec drag) {
-		
+	
 		velocity.addAndSet(drag.multiply(timeInterval));
-
+		
 		switch (phase) {
 		case NEWBORN_PRE_APEX:
 		case NEWBORN_POST_APEX:
 			updateNEWBORN(timeInterval);
 			break;
-		default:
+		default:	
 			updateOUT(timeInterval);
 			break;
 		}
-
+		
 		updateAllStates(timeInterval);
 	}
 
@@ -265,7 +266,8 @@ public class Blob implements Collidable, Serializable {
 	public String toString() {
 //		return "Blob # " + ID + ", y: " + (int)getY() + ", x: " + (int)getX() +
 //				", energy: " + energy + ", Y + radius = " + (getY() + radius);
-		return ID + ", " + colour.getCategory() + " inf: " + inflationDelta();
+		return ID + ", " + colour.getCategory() + "vel: " + velocity.getMagnitude() +
+				"phase: " + phase + "; type: " + type + "prev. pos: " + previousPosition;// inf: " + inflationDelta();
 	}
 
 	@Override

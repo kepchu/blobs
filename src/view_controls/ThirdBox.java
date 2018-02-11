@@ -36,6 +36,7 @@ public class ThirdBox extends Box implements InputProvider, StageAccesser{
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("stage " + stage.toString() );
 				ir.saveFrame(stage.getFrame());
+				//ir.saveCurrentFrame();
 			}
 		});
 		add(saveB);

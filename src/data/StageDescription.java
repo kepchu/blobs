@@ -1,6 +1,9 @@
 package data;
 
 public class StageDescription {
+	//TODO: no Vecs needed, settings (from GUI) have to be sent and included
+	//in FrameData for saving (null when frameData is sent to GUI).
+	//ALTERNATIVE: pack  FrameData & settings in save-file
 
 	Vec alternativeGravityCentre, minXY, maxXY;
 

@@ -16,82 +16,39 @@ import data.ChargePoint;
 import data.FrameData;
 import data.Vec;
 
-//TODO:/ISSUE: paint called by system before setData call - this produces NullPointer
+//ISSUE: paint called by system before setData call - this produces NullPointer
+//This class draws view of data. Area that is drawn and magnification determined by camera field.
 @SuppressWarnings("serial")
-public class Stage extends JPanel implements ComponentListener {
+public class Stage extends JPanel{
 	
 	private final static Object LOCK = new Object();
 	
 	private FrameData frame;
 	private BufferableFrames displayBuffer;
-	private int panelHeight;
-	private int panelWidth;
+	
 
 	private Vec pointerPosition = new Vec(0,0);
 	
-	private int panelCentreX;
-	private int panelCentreY;
-	private double scale = 0.3;// "scale" is a zoom factor
-	private int currentElevation = 0;//ground level used for drawing, adjusted when scrolling the scene
+	
 
-	private StageCamera camera;
+	StageCamera camera;
 	
 
 	private boolean initFinished;
 
 	private boolean mouseOudside;
 
-	private boolean autoZoom;
+	private boolean drawSideWalls;
 	
-	public Stage(int initialCameraPosition, BufferableFrames displayBuffer) {
+	public Stage(BufferableFrames displayBuffer) {
 		System.out.println("Stage constr. thread - " + Thread.currentThread().getName());
 		this.displayBuffer = displayBuffer;
 		frame = displayBuffer.getFrame();
-		currentElevation = initialCameraPosition;
-		
-		camera = new StageCamera(scale, initialCameraPosition, 1000, 800);//TODO: magic numbers
-		
-//		SwingUtilities.invokeLater(new Runnable() {
-//		    public void run() {
-//		        this.addComponentListener(new ComponentAdapter() {
-//		            public void componentResized(ComponentEvent e) {
-//		                System.out.println("Component Listener 1");
-//		            }
-//		        });
-//		    }
-//		});
+				
+		camera = new StageCamera(0,0);//1000, 800);//TODO: magic numbers
+
 	}
 
-	
-	//SCALING METHODS - adjust for scale & camera's position
-	public double descaleX(int x) {
-		return (x + (panelCentreX*(scale - 1)))/scale;
-	}
-	public double descaleY(int y) {
-		return (y - currentElevation) / scale;
-	}
-	private int scaleX(double x) {
-		return (int)(x * scale - (panelCentreX * (scale -1)));
-	}
-	private int scaleY(double y) {
-		return (int)(y * scale + currentElevation);
-	}
-	
-	
-	double descaledStageCentreY() {
-		return descaleY(panelCentreY);
-	}
-
-	double descaledStageCentreX() {
-		return descaleX(panelCentreX);
-	}
-	
-	Vec descaledMinXY() {
-		return new Vec (descaleX(0), descaleY(0));
-	}
-	Vec descaledMaxXY() {
-		return new Vec (descaleX(panelWidth), descaleY(panelHeight));
-	}
 	
 	// DRAWING ROUTINE
 	//ISSUE: paint called by system before setData call - this produces NullPointer
@@ -105,8 +62,7 @@ public class Stage extends JPanel implements ComponentListener {
 		
 		//validate/update camera position
 		camera.update();
-		currentElevation = camera.getEleveation();
-		scale = camera.getScale();
+		
 		
 		Graphics2D g2d = (Graphics2D) g;
 		
@@ -124,7 +80,7 @@ public class Stage extends JPanel implements ComponentListener {
 		drawBlobs(g2d);
 		
 		
-		if(autoZoom) {
+		if(drawSideWalls) {
 			drawBorders(g2d);
 		}
 		
@@ -136,16 +92,18 @@ public class Stage extends JPanel implements ComponentListener {
 	
 	// methods used by the drawing routine in paint (Graphics g)
 	private void drawBackground(Graphics2D g) {
-		if (false) {
+		if (true) {
 			g.setColor(new Color(227, 227, 226, 255));
-			g.fillRect(0, 0, panelWidth, panelHeight);
+			g.fillRect(0, 0, camera.width, camera.height);
 			g.setColor(new Color(243, 243, 243, 255));
-			g.fillOval(20, 20, panelWidth - 40, panelHeight - 40);
+			//g.fillOval(20, 20, camera.width - 40, camera.height - 40);
+			g.fillOval(0, 0, camera.width, camera.height);
 		} else {
-			g.setColor(new Color(255-227, 255-227, 255-226, 255));
-			g.fillRect(0, 0, panelWidth, panelHeight);
+			
 			g.setColor(new Color(255-243, 255-243, 255-243, 255));
-			g.fillOval(20, 20, panelWidth - 40, panelHeight - 40);
+			g.fillRect(0, 0, camera.width, camera.height);
+			g.setColor(new Color(255-227, 255-227, 255-226, 255));
+			g.fillOval(20, 20, camera.width - 40, camera.height - 40);
 		}	
 	}
 
@@ -153,55 +111,67 @@ public class Stage extends JPanel implements ComponentListener {
 
 		int spacing = 200;
 		
-		spacing = (int)(spacing * scale);
+		spacing = (int)(spacing * camera.scale);
 		
-		for (int i = 0; i < currentElevation; i = i + spacing) {
+		for (int i = 0; i < camera.elevation; i = i + spacing) {
 			g.setColor(Color.BLACK);
-			g.drawLine(panelWidth / 4, currentElevation - i,
-						(panelWidth / 4) * 3, currentElevation - i);
-			g.drawString(i + " pix", panelWidth / 4, currentElevation - i - 4);
+			g.drawLine(camera.width / 4, (int)camera.elevation - i,
+						(camera.width / 4) * 3, (int)camera.elevation - i);
+			g.drawString(i + " pix", camera.width / 4, (int)camera.elevation - i - 4);
 			g.setColor(Color.GRAY);
-			g.drawLine(panelWidth / 3, currentElevation - i - spacing / 2, (panelWidth / 3) * 2, currentElevation - i - spacing / 2);
+			g.drawLine(camera.width / 3, (int)camera.elevation - i - spacing / 2, (camera.width / 3) * 2, (int)camera.elevation - i - spacing / 2);
 		}	
 	}
 
 	private void drawBorders(Graphics2D g) {
 //		g.setColor(Color.RED);
 		//draw ground level
-//		g.drawLine(0, currentElevation, panelWidth, currentElevation);				
+//		g.drawLine(0, camera.elevation, camera.width, camera.elevation);				
 //		g.drawLine(scaleX(frame.minX), scaleY(frame.minY), scaleX(frame.minX), scaleY(frame.maxY));		
 //		g.drawLine(scaleX(frame.maxX), scaleY(frame.minY), scaleX(frame.maxX), scaleY(frame.maxY));		
 		g.setColor(Color.BLACK);
 		
-		g.fillRect(0, 0, scaleX(frame.minX), panelHeight);
-		g.fillRect(scaleX(frame.maxX), 0, panelWidth, panelHeight);
+		g.fillRect(0, 0, camera.scaleX(frame.minX), camera.height);
+		g.fillRect(camera.scaleX(frame.maxX), 0, camera.width, camera.height);
+		
+		//debug
+		g.setColor(Color.RED);
+		g.fillRect((int)camera.middlePoint.getX() - 5, (int)camera.middlePoint.getY()-5, 10, 10);
+		g.drawLine((int)camera.middlePoint.getX(), 0, (int)camera.middlePoint.getX(), camera.height);
+		g.drawLine(camera.width/2, (int)camera.middlePoint.getY(), camera.width/2, (int)camera.middlePoint.getY());
 	}
 	
 	private void drawBlobs(Graphics2D g) {
 		
-		int medDrawingSize = 1;
-		int fullDrawingSize = 30;
-		int minTaggingSize = 50;
-		
+		int medDrawingSize = 2;
+		int fullDrawingSize = 50000;//30;
+		int minTaggingSize = 50000;//50;		
 		
 		for (Blob b : frame.blobs) {
-			int radius = (int)(b.getRadius() * scale);
+			int radius = (int)(b.getRadius() * camera.scale);
 			
 			//Subtracting radius to accommodate to drawOval method
 			//(where position denotes top left corner rather than centre)
 			g.setColor(b.getColour().getColor());
 			
-			int offsetX = scaleX(b.getPosition().getX());
-			int offsetY = scaleY(b.getPosition().getY());
+			int offsetX = camera.scaleX(b.getPosition().getX());
+			int offsetY = camera.scaleY(b.getPosition().getY());
 			
 			
-			if(radius <= medDrawingSize) {
-				//drawing just a point
-				g.drawLine(offsetX, offsetY, offsetX, offsetY);
-				continue;
-			}
+//			if(radius <= medDrawingSize) {
+//				//draw just a point
+//				g.drawLine(offsetX, offsetY, offsetX, offsetY);
+//				continue;
+//			}
+			
 			
 			int circumference = radius + radius;
+			if(radius <= medDrawingSize) {
+				//draw something bigger
+				g.fillOval(offsetX - circumference, offsetY - circumference, circumference *2, circumference*2);
+				continue;
+			}
+					
 			//Subtracting radius to accommodate to drawOval method
 			//(where position denotes top left corner rather than centre)
 			g.fillOval(offsetX - radius, offsetY - radius, circumference, circumference);
@@ -233,7 +203,7 @@ public class Stage extends JPanel implements ComponentListener {
 		Vec blobToPointer = Vec.vecFromAtoB(sB, pointerPosition);
 		
 		blobToPointer.setMagnitude(displacement * (
-				blobToPointer.getMagnitude()/(panelCentreX+panelCentreY)));
+				blobToPointer.getMagnitude()/(camera.getStageCentreX()+camera.getStageCentreY())));
 		
 		int x1 = (int)sB.getX();
 		int y1 = (int)sB.getY();
@@ -250,8 +220,8 @@ public class Stage extends JPanel implements ComponentListener {
 		int x,y;
 		for (ChargePoint c : frame.charges) {
 			g.setColor(c.getColourCategory().getDefaultCategoryColor());
-			x = scaleX(c.getPosition().getX()); 
-			y = scaleY(c.getPosition().getY());
+			x = camera.scaleX(c.getPosition().getX()); 
+			y = camera.scaleY(c.getPosition().getY());
 			g.drawString(c.toString(), x, y);
 		}
 //		g.setColor(Color.BLACK);
@@ -268,14 +238,12 @@ public class Stage extends JPanel implements ComponentListener {
 		g.setColor(new Color(0,255,255,100));
 		int circumference = 6;
 		int maxNumberOfDrawnCollisions = 300;
-		//this the horizontal centre of zooming
-		panelCentreX = panelWidth / 2;
-		
+				
 		//draw last maxNumberOfDrawnCollisions from listOfCollisionPoints
 		int i = 0;
 		for (Vec c: frame.collisions) {
-			int offsetX = scaleX(c.getX()) - circumference/2;
-			int offsetY = scaleY(c.getY()) - circumference/2;			
+			int offsetX = camera.scaleX(c.getX()) - circumference/2;
+			int offsetY = camera.scaleY(c.getY()) - circumference/2;			
 			g.fillOval(offsetX, offsetY, circumference, circumference);
 			
 			if(++i > maxNumberOfDrawnCollisions) {break;}
@@ -292,7 +260,7 @@ public class Stage extends JPanel implements ComponentListener {
 		g.drawString("Buffered frames: " + displayBuffer.currentSize(), x, y+36);
 		g.drawString("Speed [PgUp] / [PgDown]:" + frame.speed, x, y+48);
 		g.drawString("Gravity [Home] / [End]:" + frame.gravity, x, y+60);
-		g.drawString("Scale [CTRL] + m. wheel): " + scale, x, y+72);
+		g.drawString("Scale [CTRL] + m. wheel): " + camera.scale, x, y+72);
 		g.drawString("Scroll: mouse wheel", x, y+84);
 		g.drawString("Modify Charges: [C] & [SHIFT] + [C]", x, y+96);
 		g.drawString("(De)activate mouse pointer: [middle-click] (mouse wheel click)", x, y+108);
@@ -300,7 +268,7 @@ public class Stage extends JPanel implements ComponentListener {
 
 	//CAMERA#############################################
 	public void setAutoZoom(boolean autoZoom) {
-		this.autoZoom = autoZoom;
+		this.drawSideWalls = autoZoom;
 		camera.setAutoRescalingToWidth(autoZoom);
 	}
 		
@@ -318,67 +286,32 @@ public class Stage extends JPanel implements ComponentListener {
 
 	public void scrollUp() {
 		//System.out.println("Scroll up");
-		//currentElevation -= deltaY;
+		//camera.elevation -= deltaY;
 		camera.up();
 	}
 
 	public void scrollDown() {
 		//System.out.println("Scroll down");
-		//currentElevation += deltaY;
+		//camera.elevation += deltaY;
 		camera.down();
 	}
 
-	
-	//ComponentListener methods
-	@Override
-	public void componentHidden(ComponentEvent e) {
-		// TODO Auto-generated method stub
-		//System.out.println("componentHidden");
-	}
-	@Override
-	public void componentMoved(ComponentEvent e) {
-		// TODO Auto-generated method stub
-		//System.out.println("componentMoved");
-	}
-	@Override
-	public void componentResized(ComponentEvent e) {
-		System.out.println("componentResized");
-		
-		int newPanelWidth = getWidth();
-		int newPanelHeight = getHeight();
-		
-		panelCentreX = newPanelWidth / 2;
-		panelCentreY = newPanelHeight / 2;
-		
-		currentElevation = currentElevation -
-				(panelHeight - newPanelHeight);
-		
-		panelWidth = newPanelWidth;
-		panelHeight = newPanelHeight;
-		
-//		camera.rescaleToWidth(newPanelWidth);
-//		camera.adjustElevation(newPanelHeight);
-		camera.stageResized(newPanelWidth, newPanelHeight);
-	}
-	@Override
-	public void componentShown(ComponentEvent e) {
-		// TODO Auto-generated method stub
-		//System.out.println("componentShown");
-	}
-	
-	
 	public void updatePointerPosition (int x, int y) {
 		pointerPosition.setXY(x, y);
+		camera.pp.setXY(x,y);
 	}
-
+//CAMERA end
+	
 	public FrameData getFrame () {
 		return frame;
 	}
 	//called from View controller
 	public void initFinished() {		
-		panelHeight = currentElevation = getHeight();
-		componentResized(null);
-		this.addComponentListener(this);
+		//camera.height = camera.elevation = getHeight();
+		this.addComponentListener(camera);//TODO - move to constr.
+		//camera.componentResized(null);//??
+		camera.resetDimentions(getWidth(), getHeight());
+		//camera.update();
 	}
 
 }

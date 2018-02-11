@@ -1,8 +1,11 @@
 package app;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import javax.naming.Context;
@@ -15,8 +18,7 @@ public class DiscAccess {
 	private static final String PATH = "frame.ser";
 	
 	public static void saveFrame(FrameData f) {
-		Context c;
-		
+				
 		//ObjectOutputStream oos;
 		try (ObjectOutputStream oos = new ObjectOutputStream(
 				new FileOutputStream(PATH))) {
@@ -29,13 +31,30 @@ public class DiscAccess {
 			
 	}
 	
-	public static void loadFrame() {
-		loadFrame(PATH);
+	public static FrameData loadFrame() {
+		return(loadFrame(PATH));
 	}
 	
-	public static void loadFrame (String path) {
+	public static FrameData loadFrame (String path) {
 		File f = new File(path);
-		System.out.println("file " + path + (f.exists()? " is being loaded" : " do not exists"));
+		if (!f.exists()) {
+			System.out.println("file " + path + " do not exists");
+			return null;
+		}
 		
+		System.out.println("file " + path + " is being loaded");
+		
+		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));	
+		ObjectInputStream ois = new ObjectInputStream(bis)){
+			
+			return (FrameData)ois.readObject();
+			
+		} catch (IOException e){
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		return null;		
 	}
 }

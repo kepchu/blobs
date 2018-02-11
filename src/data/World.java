@@ -15,10 +15,12 @@ import utils.U;
 //TODO: make sure all mutations of core data happen only in "update" loop via buffering Lists to avoid concurrent access
 public class World implements Runnable{
 	
+	public static boolean debug = false;
+	
 	private final Object LOCK = new Object();
 	//SETTINGS
-	private static volatile int maxX = 2000;
-	private static volatile int minX = -1000;
+	private static volatile int maxX = 200;
+	private static volatile int minX = 0;//-1000;
 	private static volatile int maxY = 0;	
 	private static volatile int minY = -2000;
 	
@@ -26,7 +28,7 @@ public class World implements Runnable{
 	private static double gravity =  0.2;
 	private static double gravityDelta = 1.02;
 	private static double timeInterval = 1.0; //amount of "app world" time between updates
-	private double timeIntervalStep = 1.3;
+	private double timeIntervalStep = 1.0;
 	
 	//at the moment this object's run() is called 240 times/s (4166666 nanoseconds)
 	private int VideoFrameCounter = 0;
@@ -52,6 +54,7 @@ public class World implements Runnable{
 	private boolean mouseInside = true;
 	
 	private List <Command> commands;
+	private FrameData newDataSet;
 	
 	public World () {
 		System.out.println("World constr. thread - " + Thread.currentThread().getName());
@@ -84,13 +87,6 @@ public class World implements Runnable{
 		}
 	}
 	
-//	public void run() {
-//		System.out.println("World.run() thread - " + Thread.currentThread().getName());
-//		while (true) {
-//			updateLoop();
-//		}
-//	}
-	
 	public void run() {
 		
 		//0 - copy exposed data structures to create core data free of errors caused by mutations during computations; 
@@ -101,6 +97,17 @@ public class World implements Runnable{
 		newCharges.clear();
 		
 		stageCentre = new Vec(newStageCentre);
+		
+		//1b - execute commands
+				if (!commands.isEmpty()) {
+					//commands list is a normal list and it may be accessed from other thread
+					//commands are issued from gui
+					//synchronized(LOCK) {
+						executeCommandList();
+						commands.clear();
+					//}
+						System.out.println("commands cleared");
+				}
 		
 		// 1 a - update data in data structures
 		for (Blob b : blobs) {
@@ -128,16 +135,6 @@ public class World implements Runnable{
 			b.update(timeInterval, drag);
 		}
 		
-		//1b - execute commands
-		if (!commands.isEmpty()) {
-			//commands list is a normal list and it may be accessed from other thread
-			//commands are issued from gui
-			synchronized(LOCK) {
-				executeCommandList();
-				commands.clear();
-			}
-		
-		}
 		
 		// 1c - update world - collisions
 		colDet();
@@ -150,15 +147,24 @@ public class World implements Runnable{
 		}
 		VideoFrameCounter = 0;
 		
-		buffer.addFrame(
-				new FrameData(blobs, charges, listOfCollisionPoints,
-						gravity, timeInterval, minX, minY, maxX, maxY));
+		buffer.addFrame(makeSnapshot());
+				
+	}
+	
+	public FrameData makeSnapshot() {
+		return new FrameData(blobs, charges, listOfCollisionPoints,
+				gravity, timeInterval, minX, minY, maxX, maxY);
 	}
 	
 	private void executeCommandList() {
 		for (Command c : commands) {
-			
+			System.out.println(c.commandType + ", "+ c);
 			switch (c.commandType) {
+			case SWITCH_TO_ALTERNATIVE_DATA:
+				applyAlternativeData();
+				
+				return;//running new data set - it's a "new beginning"
+				
 			case GRAVITY_CENTRE:
 				gravityInCentre = true;
 				break;
@@ -288,7 +294,7 @@ public class World implements Runnable{
 	}
 	
 	public void addBlobAt(double x, double y) {
-			newBlobs.add(new Blob (new Vec(x,y), U.rndInt(5, 70)));
+			newBlobs.add(new Blob (new Vec(x,y), U.rndInt(20, 70)));
 	}
 	
 	public void addBlob(int i) {
@@ -392,5 +398,45 @@ public class World implements Runnable{
 	}
 	public void applyCommand (Com commandType, double value) {
 		commands.add(new Command(commandType, value));
+	}
+
+	public void setData(FrameData f) {
+		this.newDataSet = f;
+		applyCommand(Com.SWITCH_TO_ALTERNATIVE_DATA);
+		System.out.println("loaded blobs: " + f.blobs.size());
+//		//this.blobs.clear();
+//		this.blobs.addAll(f.blobs);
+//		this.charges = f.charges;
+////		//this.collisions = f.collisions;
+//		this.gravity = f.gravity;
+//		this.timeInterval = f.speed;
+//		this.minX = f.minX;
+//		this.minY = f.minY;
+//		this.maxX = f.maxX;
+//		this.maxY = f.maxY;
+//		System.out.println("all set");
+	}
+	
+	private void applyAlternativeData() {
+//		debug = true;
+//		System.out.println(this.blobs.get(0));
+		this.blobs = new ArrayList<Blob>(newDataSet.blobs);
+//		System.out.println(newDataSet.blobs.size());
+//		System.out.println(newDataSet.blobs.get(0));
+//		System.out.println(newDataSet.blobs.size());
+		
+		//this.blobs.add(newDataSet.blobs.get(0));
+		//initData(1);
+		this.charges = new ArrayList<ChargePoint>(newDataSet.charges);
+		//this.collisions = 
+		this.gravity = newDataSet.gravity;
+		this.timeInterval = newDataSet.speed;
+		this.minX = newDataSet.minX;
+		this.minY = newDataSet.minY;
+		this.maxX = newDataSet.maxX;
+		this.maxY = newDataSet.maxY;
+		
+		
+		System.out.println("applyAlternativeData - all set");
 	}
 }

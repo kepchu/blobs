@@ -52,8 +52,7 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 		System.out.println("ViewAndDataController constr.");
 //		this.stage = new Stage(w.getBlobs(), w.getListOfCollisionPoints(), w.getCharges(), w.getGround(),
 //				750);
-		int initialCameraPosition = 700;
-		this.stage = new Stage(initialCameraPosition, frameBuffer);
+		this.stage = new Stage(frameBuffer);
 		initGraphics();
 		initInput();	
 	}
@@ -182,10 +181,10 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 //				);
 		//TODO: 1 updating all this every frame is stupid - fix this. stage has appropriate listener already registered
 		//TODO 
-		Vec gravCentre = new Vec(stage.descaledStageCentreX(),
-				stage.descaledStageCentreY());
-		Vec minXY = stage.descaledMinXY();
-		Vec maxXY = stage.descaledMaxXY();
+		Vec gravCentre = new Vec(stage.camera.descaledStageCentreX(),
+				stage.camera.descaledStageCentreY());
+		Vec minXY = stage.camera.descaledMinXY();
+		Vec maxXY = stage.camera.descaledMaxXY();
 		StageDescription sd = new StageDescription(gravCentre, minXY, maxXY);
 		inputReceiver.udateStageDimensions(sd);
 		stage.repaint();
@@ -202,35 +201,35 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 			if (r) {
 				System.out.println("click while r pressed");			
 				inputReceiver.rLeftClick(
-						stage.descaleX(arg0.getX()),
-						stage.descaleY(arg0.getY()));
+						stage.camera.descaleX(arg0.getX()),
+						stage.camera.descaleY(arg0.getY()));
 				return;
 			}
 			
 			if (g) {
 				System.out.println("click while g pressed");
 				inputReceiver.gLeftClick(
-						stage.descaleX(arg0.getX()),
-						stage.descaleY(arg0.getY()));
+						stage.camera.descaleX(arg0.getX()),
+						stage.camera.descaleY(arg0.getY()));
 				return;
 			}
 			if (b) {
 				System.out.println("click while b pressed");
 				inputReceiver.bLeftClick(
-						stage.descaleX(arg0.getX()),
-						stage.descaleY(arg0.getY()));
+						stage.camera.descaleX(arg0.getX()),
+						stage.camera.descaleY(arg0.getY()));
 				return;
 			}
 			
 			inputReceiver.leftClickAt(
-					stage.descaleX(arg0.getX()),
-					stage.descaleY(arg0.getY()));
+					stage.camera.descaleX(arg0.getX()),
+					stage.camera.descaleY(arg0.getY()));
 			
 		} else if (SwingUtilities.isRightMouseButton(arg0)) {
 			//System.out.println("mouseClicked, rightClick X: " + arg0.getX() + ", Y: " + arg0.getY());
 			inputReceiver.rightClickAt(
-					stage.descaleX(arg0.getX()),
-					stage.descaleY(arg0.getY()));
+					stage.camera.descaleX(arg0.getX()),
+					stage.camera.descaleY(arg0.getY()));
 			
 		} else if (SwingUtilities.isMiddleMouseButton(arg0)){
 			
@@ -275,8 +274,8 @@ MouseListener, MouseMotionListener, MouseWheelListener, ComponentListener, Runna
 		stage.updatePointerPosition(arg0.getX(), arg0.getY());
 		
 		inputReceiver.updateMousePointerPosition(
-				stage.descaleX(arg0.getX()),
-				stage.descaleY(arg0.getY()));
+				stage.camera.descaleX(arg0.getX()),
+				stage.camera.descaleY(arg0.getY()));
 	}
 	
 	// MouseWheelListener

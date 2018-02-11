@@ -15,12 +15,12 @@ import data.Command;
 public class InputReceiver {
 	
 	World w;
-	MainHub l;
+	
 	private boolean lockStageSidesToWindow = true;
 	
-	public InputReceiver(World dc, MainHub l) {
-		this.w = dc;
-		this.l = l;
+	public InputReceiver(World w, MainHub l) {
+		this.w = w;
+		
 	}
 	
 	
@@ -47,18 +47,18 @@ public class InputReceiver {
 		//System.out.println("UserInput.stageMoved deltaX: " + deltaX + ", y: " + deltaY);
 	}
 
-	//add blob
-	public void leftClickAt(double x, double y) {
-		System.out.println("leftClickAt " + x + ", " + y + ". Adding a blob.");
-		w.addBlobAt(x, y);
-		//w.addHugeBlob(x, y);
-	}
-
 	//add blob at random position
 	public void insertAction() {
 		w.addBlob(5);		
 	}
 
+	//add blob
+		public void leftClickAt(double x, double y) {
+			System.out.println("leftClickAt " + x + ", " + y + ". Adding a blob.");
+			//w.addBlobAt(x, y);
+			w.addHugeBlob(x, y);
+		}
+	
 	//add charge point
 	public void rightClickAt(double x, double y) {
 		//w.addSmallBlob(x, y);
@@ -207,11 +207,20 @@ public class InputReceiver {
 	//disc
 	public void loadFrame() {
 		System.out.println("ir.loadFrame()");
-		DiscAccess.loadFrame();
+		w.setData(DiscAccess.loadFrame());
+		
+//		if(w.setFrame(DiscAccess.loadFrame())) {
+//			System.out.println("new frame started");
+//		}else {
+//			System.out.println("sorry vinnetou - frame insertion failed");
+//		}
 	}
 	public void saveFrame(FrameData f) {
 		System.out.println("ir.save(frame)");
 		DiscAccess.saveFrame(f);
 	}
-	
+	public void saveCurrentFrame() {
+		System.out.println("ir.saveCurrent()");
+		DiscAccess.saveFrame(w.makeSnapshot());
+	}
 }
