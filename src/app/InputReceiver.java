@@ -6,8 +6,11 @@ import data.Command.Com;
 import data.FrameData;
 import data.StageDescription;
 import data.Vec;
-import data.ChargePoint;
-import data.ChargePoint.Charger;
+
+import java.util.Map;
+
+import data.Mod;
+import data.Mod.Charger;
 import data.World;
 
 import data.Command;
@@ -15,12 +18,12 @@ import data.Command;
 public class InputReceiver {
 	
 	World w;
-	
+	DiscAccess da; 
 	private boolean lockStageSidesToWindow = true;
 	
-	public InputReceiver(World w, MainHub l) {
+	public InputReceiver(World w, DiscAccess da, MainHub l) {
 		this.w = w;
-		
+		this.da = da;
 	}
 	
 	
@@ -59,20 +62,20 @@ public class InputReceiver {
 			w.addHugeBlob(x, y);
 		}
 	
-	//add charge point
+	//add a mod
 	public void rightClickAt(double x, double y) {
 		//w.addSmallBlob(x, y);
 //		System.out.println("rightClickAt " + x + ", " + y + ". Adding a charge.");
-		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.NEUTRAL, Charger.COLOUR_CATEGORY_ABSOLUTE));	
+		w.addCharge(new Mod(new Vec (x,y), ColourCategory.NEUTRAL, Charger.VELOCITY_C_CATEGORY_ABSOLUTE));	
 	}
 	public void rLeftClick(double x, double y) {
-		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.R, Charger.COLOUR_COMPONENT));
+		w.addCharge(new Mod(new Vec (x,y), ColourCategory.R, Charger.VELOCITY_C_COMPONENT));
 	}
 	public void gLeftClick(double x, double y) {
-		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.G, Charger.COLOUR_COMPONENT));
+		w.addCharge(new Mod(new Vec (x,y), ColourCategory.G, Charger.VELOCITY_C_COMPONENT));
 	}
 	public void bLeftClick(double x, double y) {
-		w.addCharge(new ChargePoint(new Vec (x,y), 1, ColourCategory.B, Charger.COLOUR_COMPONENT));
+		w.addCharge(new Mod(new Vec (x,y), ColourCategory.B, Charger.VELOCITY_C_COMPONENT));
 	}
 
 
@@ -132,7 +135,7 @@ public class InputReceiver {
 
 	public void setTemperature(double value) {
 		// TODO Auto-generated method stub
-		w.setTemperature(value);
+		w.setStep(value);
 	}
 	
 	public void videoFrameFactorChanged(int newLimit) {
@@ -148,12 +151,12 @@ public class InputReceiver {
 	public void switchChargeColourCategories() {
 		System.out.println("cShiftAction()");
 		//w.switchChargeColourCategories();
-		w.applyCommand(Com.SWITCH_CHARGE_COLOURS);
+		w.applyCommand(Com.SWITCH_MOD_COLOURS);
 	}
 	public void switchChargeTypes() {
 		System.out.println("cShiftAction()");
 		//w.switchChargeTypes();
-		w.applyCommand(Com.SWITCH_CHARGE_TYPES);
+		w.applyCommand(Com.SWITCH_MOD_TYPES);
 	}
 	public void wrapEdges() {
 		//System.out.println("wrapEdges");
@@ -207,7 +210,7 @@ public class InputReceiver {
 	//disc
 	public void loadFrame() {
 		System.out.println("ir.loadFrame()");
-		w.setData(DiscAccess.loadFrame());
+		w.setData(da.load().getData());
 		
 //		if(w.setFrame(DiscAccess.loadFrame())) {
 //			System.out.println("new frame started");
@@ -215,12 +218,8 @@ public class InputReceiver {
 //			System.out.println("sorry vinnetou - frame insertion failed");
 //		}
 	}
-	public void saveFrame(FrameData f) {
+	public void save(Map<String, Object> guiState) {
 		System.out.println("ir.save(frame)");
-		DiscAccess.saveFrame(f);
-	}
-	public void saveCurrentFrame() {
-		System.out.println("ir.saveCurrent()");
-		DiscAccess.saveFrame(w.makeSnapshot());
-	}
+		da.save(w.makeSnapshot(), guiState);
+	} 
 }

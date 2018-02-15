@@ -1,6 +1,5 @@
 /app/
-/collisions/
-/data/
-/utils/
 /view/
-/view_controls/
+/data/
+/collisions/
+/utils/

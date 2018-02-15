@@ -6,16 +6,27 @@ public class U {
 	//https://stackoverflow.com/questions/738629/math-random-versus-random-nextintint
 	private static Random r = new Random();
 	
+	
+	public static double wrapRGB(double value) {
+		return wrap(value, 0, 255);
+	}
+	public static double wrap(double value, double min, double max) {
+		//maxY - minY == "span" or range; value transgressing the range at "max"
+		//side is be positioned at min + its transgression. The same other way around
+		//result: looping the value; example: screen edges in Asteroids
+		if (value < min) return max - ((min - value) % (max - min));
+		if (value > max) return min + ((value - max) % (max - min));
+		return value;
+	}
+	
 	// generates random integer in range from min inclusive to max exclusive
 	public static int rndInt(int min, int max) {
 		int range = max - min;
-		//return (int) (Math.random() * range) + min;
 		return r.nextInt(range) + min;
 	}
 
 	// generates random int in range between 0 (inclusive) and received argument (exclusive)
 	public static int rndInt(int max) {
-		//return (int) (Math.random() * max);
 		return r.nextInt(max);
 	}
 	
@@ -24,7 +35,7 @@ public class U {
 	public static int rndIntUneven (int min, int max, double steepness) {	
 		//pow (x, 1/n) == Nth square of x.
 		double base = Math.pow(max - min, 1.0d/steepness);
-		return (int) (Math.pow(r.nextDouble() * base, steepness) + min);		
+		return (int) (Math.pow(r.nextDouble() * base, steepness) + min) - 1;//-1 to keep it consistent with Java API	
 	}
 	
 	/**

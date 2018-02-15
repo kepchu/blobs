@@ -30,7 +30,7 @@ public class DetStandard implements Detection {
 			//vector pointing from subj to obj
 			subjToObj = obj.getPosition().sub(subj.getPosition());
 			//length of the vector
-			currentDistance = subjToObj.getSqrtMagnitude();//.getMagnitude();
+			currentDistance = subjToObj.getMagnitudePOW();//.getMagnitude();
 			
 			// if (sub and obj are overlapping)
 			if (currentDistance < Math.pow(subj.getRadius() + obj.getRadius(), 2)) {
@@ -45,7 +45,7 @@ public class DetStandard implements Detection {
 				// 3. shrinking should be taken care of in "bounceOff
 				
 				//do not process collision if blobs already move away
-				double previousDistance = Vec.sqrtDistanceBetween(//.distanceBetween(
+				double previousDistance = Vec.distanceBetweenPOW(//.distanceBetween(
 						subj.getPreviousPosition(),
 						obj.getPreviousPosition());
 								

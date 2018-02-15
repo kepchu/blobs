@@ -105,8 +105,8 @@ public class Vec  implements Serializable{
 		return Vec.magnitudeOf(this);
 	}
 
-	public double getSqrtMagnitude() {
-		return Vec.sqrtMagnitudeOf(this);
+	public double getMagnitudePOW() {
+		return Vec.magnitudeOfPOW(this);
 	}
 	
 	public Vec setXY(double x, double y) {
@@ -144,9 +144,9 @@ public class Vec  implements Serializable{
 		return magnitudeOf(vecFromAtoB(a, b));		
 	}
 	
-	//optimisation: work on squared distances to avoid square root calculations
-	public static double sqrtDistanceBetween (Vec a, Vec b) {
-		return sqrtMagnitudeOf(vecFromAtoB(a, b));
+	//optimisation: work on squared distances to avoid square root calculation
+	public static double distanceBetweenPOW (Vec a, Vec b) {
+		return magnitudeOfPOW(vecFromAtoB(a, b));
 	}
 
 	public static Vec multiply (Vec v, double d) {
@@ -191,7 +191,7 @@ public class Vec  implements Serializable{
 	}
 	
 	//optimisation: work on squared distances to avoid square root calculations
-	public static double sqrtMagnitudeOf(Vec v) {
+	public static double magnitudeOfPOW(Vec v) {
 		return Math.pow(v.getX(), 2) + 
 				Math.pow(v.getY(), 2);
 	}

@@ -11,7 +11,7 @@ import view.MAINViewAndInput;
 public class BlobsD5 {
 
 	private static void test() {
-		System.out.println("test in main:");
+		
 		int reps = 500000;
 		int max = 21, min = 1;
 
@@ -22,6 +22,7 @@ public class BlobsD5 {
 
 			bb[min + b]++;
 		}
+		System.out.println("test in main:");
 		for (int j = 0; j < bb.length; j++) {
 			
 			StringBuilder sb = new StringBuilder();// j+": ");
@@ -34,6 +35,12 @@ public class BlobsD5 {
 			System.out.println(j + " - " + sb.toString());
 		}
 
+		
+		int t = 0;
+		while (t++ < 500) {
+			System.out.println(U.wrapRGB(t));
+		}
+		
 	}
 
 	public static void main (String[] args) {
@@ -80,7 +87,8 @@ public class BlobsD5 {
 		//MVC pattern variation
 		World dc = new World();
 		MAINViewAndInput v = new MAINViewAndInput(FrameBuffer.getInstance());
-		new MainHub(dc, v);		
+		DiscAccess da = new DiscAccess();
+		new MainHub(dc, da, v);		
 	}
 }
 

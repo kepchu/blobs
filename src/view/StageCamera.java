@@ -12,7 +12,7 @@ public class StageCamera implements ComponentListener{
 	
 	private final static double
 		ZOOM_STEP = 0.02, ZOOM_DECAY = 0.96, ZOOM_MIN = 0.009, SCALE_MIN = 0.02, SCALE_MAX = 10,
-		SCROLL_STEP = 20, SCROLL_DECAY = 0.93, SCROLL_MIN = 0.3, GROUND_LEVEL = 0,
+		SCROLL_STEP = 14, SCROLL_DECAY = 0.93, SCROLL_MIN = 0.3, GROUND_LEVEL = 0,
 		
 		INIT_SCALE = 1, INIT_ELEVATION = 700.0;
 	private double scrollDelta, zoomDelta;//scrolling & zooming step(=distance)
@@ -22,7 +22,6 @@ public class StageCamera implements ComponentListener{
 	int height;//height of Stage JPanel. Y of blobs is NEGATIVE. Y=0 = bottom of the panel - ground
 	
 	Vec middlePoint = new Vec(0,0);
-	Vec pp = new Vec(0,0);
 	
 	private boolean autoRescaleToWidth;
 		
@@ -40,10 +39,11 @@ public class StageCamera implements ComponentListener{
 		this(GROUND_LEVEL + height, width, height);
 	}
 
+	
+	//SCALING SECTION
 	//GENERAL FORMULA (finally, brawo ja!!):
 	//scale: x * scale + (scaling centre - scaled scaling* scale) + shift
 	//descale: (x - ((scaling centre - scaled scaling* scale) - shift)/scale
-	
 	public double descaleX(int x) {
 		double scale = this.scale;
 		return (x-((width/2.0) - ((width/2.0) * scale)))/scale;
@@ -54,20 +54,12 @@ public class StageCamera implements ComponentListener{
 	}
 	
 	int scaleX(double x) {
-		//((x * scale) + ((width/2.0) - ((width/2.0) * scale)));- PERFECT
-		double scale = this.scale;
-		double result =
-				((x * scale) + ((width/2.0) - ((width/2.0) * scale)));
-		//return (int)(x * scale - ((width/2.0) * (scale -1.0)));//working alternative
-		middlePoint.setX(result);
-		return (int)result;
+		//return (int)(x * scale - ((width/2.0) * (scale -1.0)));//alternative		
+		return (int)((x * scale) + ((width/2.0) - ((width/2.0) * scale)));
 	}
 	int scaleY(double y) {
-		//(y * scale) + ((-elevation+ height/2) - ((-elevation+ height/2) * scale)) + elevation;-YESSSSS
-		double result = 
-		(y * scale) + ((-elevation + height/2.0) - ((-elevation + height/2.0) * scale)) + elevation;		
-		return (int)(result);
-		
+		//(y * scale) + ((-elevation+ height/2) - ((-elevation+ height/2) * scale)) + elevation;-YESSSSS	
+		return (int)((y * scale) + ((-elevation + height/2.0) - ((-elevation + height/2.0) * scale)) + elevation);
 	}
 	
 	double descaledStageCentreY() {
@@ -104,15 +96,11 @@ public class StageCamera implements ComponentListener{
 	}
 	
 	
-	private double rescaleToWidth (int previousWidth, int newWidth) {		
-//		//check for 0 because ComponentListener onSizeChanged is fired during initialisation
-//		if (newWidth != previousWidth && previousWidth != 0) {
-//			//rescale so the new window width covers the same "game space" as previous width
-//			return (newWidth * scale) / previousWidth;
-//		}
-//		return scale;
-		
-		//rescale so the new window width covers the same "game space" as previous width
+	private double rescaleToWidth (int previousWidth, int newWidth) {
+		if(previousWidth <= 0) {
+			throw new IllegalStateException("Previous width is not a positive integer."
+					+ "(Re)initialize properly with resetDimentions()");
+		}
 		return (newWidth * scale) / previousWidth;
 	}
 	
@@ -136,6 +124,7 @@ public class StageCamera implements ComponentListener{
 	}	
 	
 	void up() {
+		//System.out.println("scrollDelta: " + scrollDelta);
 		scrollDelta = SCROLL_STEP * -1;
 	}
 	
@@ -144,7 +133,7 @@ public class StageCamera implements ComponentListener{
 	}
 	
 	
-	//Update section START
+	//UPDATE SECTION "MAIN LOOP" - START
 	void update() {
 		//Scrolling
 		updateScroll();
@@ -156,16 +145,16 @@ public class StageCamera implements ComponentListener{
 		
 		if (Math.abs(scrollDelta) > SCROLL_MIN) {
 			scrollDelta *= SCROLL_DECAY;//reduce scrollDelta (make it closer to 0)
-			double newElevation = elevation + scrollDelta;
+			double newElevation = elevation + scrollDelta / scale;//dividing by scale to counteract zooming effects
 			//set elevation to newly calculated value or panel's bottom, whichever is higher
-			//elevation = (newElevation < height + GROUND_LEVEL ? height + GROUND_LEVEL : newElevation);
-			elevation = newElevation;
+			elevation = (newElevation < height + GROUND_LEVEL ? height + GROUND_LEVEL : newElevation);
+			//elevation = newElevation;//debugging
 		}
 	}
 	
 	private void updateZoom() {
 		if (Math.abs(zoomDelta) > ZOOM_MIN) {//scale > SCALE_MIN &&
-			//when zooming ovwr limit make sure that zooming direction is always right
+			//when zooming over limit make sure that zooming direction is always right
 			//(bounce-off effect)
 			if (scale < SCALE_MIN) zoomDelta = Math.abs(zoomDelta);//always positive/in
 			if (scale > SCALE_MAX) zoomDelta = Math.abs(zoomDelta) * -1;//always negative/out
@@ -176,7 +165,7 @@ public class StageCamera implements ComponentListener{
 		}
 	}
 	
-	//update section END
+	//UPDATE SECTION "MAIN LOOP" - END
 	
 	void resetDimentions(int width, int height) {
 		this.width = width;

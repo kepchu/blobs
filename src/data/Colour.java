@@ -2,6 +2,7 @@ package data;
 
 import java.awt.Color;
 import java.io.Serializable;
+import utils.U;
 
 public class Colour implements Serializable{
 	
@@ -28,6 +29,7 @@ public class Colour implements Serializable{
 		
 	}
 	
+	private Colour kolor;
 	private Color c;
 	private ColourCategory cat;
 	//red, green, blue, alpha (transparency)
@@ -35,11 +37,18 @@ public class Colour implements Serializable{
 
 	public Colour () {
 		cat = ColourCategory.NEUTRAL;
-		setColor (new Color(rndInt(0, 256),rndInt(0, 256),rndInt(0, 256), rndInt(100, 256)));
+		setColor (new Color(U.rndInt(0, 256),U.rndInt(0, 256),U.rndInt(0, 256), U.rndInt(100, 256)));
+		kolor = new Colour(false, this);
 	}
 	
 	//cloning constructor
 	public Colour (Colour c) {
+		this(false, c);
+		this.kolor = new Colour(false, c.getKolor());
+	}
+	
+	//Private int constructor for Colour initialised as field of Colour - to prevent infinite initialisation regress
+	private Colour (boolean b, Colour c) {
 		this.c = new Color(c.c.getRed(), c.c.getGreen(), c.c.getBlue(),c.c.getAlpha());
 		this.cat = c.cat;
 		this.r = c.r;
@@ -47,16 +56,8 @@ public class Colour implements Serializable{
 		this.b = c.b;
 		this.a = c.a;
 	}
-
-	private int rndInt(int min, int max) {
-		int range = max - min;
-		return (int) (Math.random() * range) + min;
-	}
 	
-	
-	
-
-	private void updateColourCategory() {		
+	private void validate() {		
 		if (r > Math.max(g, b)) {
 			cat = ColourCategory.R;
 		} else if (g > b) {
@@ -64,26 +65,84 @@ public class Colour implements Serializable{
 		} else if (b > g){//no change of category if b == g
 			cat = ColourCategory.B;
 		}
+		
+		this.c = new Color((int)r,(int)g,(int)b, (int)a);
 	}
 	
 	public void setColor(Color c) {
-		this.c = c;
+		//this.c = c;
 		r = c.getRed();
 		g = c.getGreen();
 		b = c.getBlue();
 		a = c.getAlpha();
-		updateColourCategory();
+		validate();
+	}
+	
+	public void setComponent(ColourCategory component, double value) {
+		
+		switch (component) {
+		case R:
+			r = U.wrapRGB(value);
+			break;
+		case G:
+			g = U.wrapRGB(value);
+			break;
+		case B:
+			b = U.wrapRGB(value);
+			break;
+		case NEUTRAL:
+			a = U.wrapRGB(value);
+			break;
+		default:
+			throw new IllegalArgumentException("Unknown colour category: " + component);
+		}
+		validate();
+	}
+	
+	//multiply a component by value
+	public void multiplyComponentBy(ColourCategory component, double value) {
+		switch (component) {
+		case R:
+			r = U.wrapRGB(r*value);
+			break;
+		case G:
+			g = U.wrapRGB(g*value);
+			break;
+		case B:
+			b = U.wrapRGB(b*value);
+			break;
+		case NEUTRAL:
+			a = U.wrapRGB(a*value);
+			break;
+		default:
+			throw new IllegalArgumentException("Unknown colour category: " + component);
+		}
+		validate();
+	}
+	
+	//multiplies components except alpha
+	public void multiplyBy(double value) {
+		System.out.println("colour multiply by " + value);
+		r = U.wrapRGB(r * value);
+		g = U.wrapRGB(g * value);
+		b = U.wrapRGB(b * value);
+		//a = U.wrapRGB(a * value);
+		
+		validate();
+	}
+	
+	//getters
+	public ColourCategory getCategory() {
+		return cat;
 	}
 	
 	public Color getColor() {
 		return c;
 	}
 	
-	public ColourCategory getCategory() {
-		return cat;
+	public Colour getKolor() {
+		return this.kolor;
 	}
-
-	
 	
 	public double getComponent(ColourCategory component) {
 		switch(component) {

@@ -6,7 +6,7 @@ import java.util.List;
 import collisions.ProcessorOfCollisions;
 import collisions.ColFlag;
 import collisions.Collidable;
-import data.ChargePoint.Charger;
+import data.Mod.Charger;
 import data.Colour.ColourCategory;
 import data.Command.Com;
 import utils.U;
@@ -27,8 +27,8 @@ public class World implements Runnable{
 	private double defaultRadiusMultiplier = 1.0;
 	private static double gravity =  0.2;
 	private static double gravityDelta = 1.02;
-	private static double timeInterval = 1.0; //amount of "app world" time between updates
-	private double timeIntervalStep = 1.0;
+	private static double timeStep = 1.0; //amount of "app world" time between updates
+	private double timeStepDelta = 1.0;
 	
 	//at the moment this object's run() is called 240 times/s (4166666 nanoseconds)
 	private int VideoFrameCounter = 0;
@@ -36,11 +36,12 @@ public class World implements Runnable{
 	
 	private List<Blob> newBlobs;//accessed from concurrent thread to avoid ConcurrentModificationE...
 	private List <Blob> blobs;
-	private List<ChargePoint> newCharges;
-	private List<ChargePoint> charges;
+	private List<Mod> newCharges;
+	private List<Mod> mods;
+	
 	private List <Vec> listOfCollisionPoints;
 	
-	private ChargePoint pointer;
+	private Mod pointer;
 	private boolean repulseFromPointer;
 	
 	private FrameBuffer buffer;
@@ -64,12 +65,12 @@ public class World implements Runnable{
 		
 		newBlobs = new ArrayList<Blob>();
 		blobs = new ArrayList<Blob> ();
-		newCharges = new ArrayList<ChargePoint>();
-		charges = new ArrayList<ChargePoint>();
+		newCharges = new ArrayList<Mod>();
+		mods = new ArrayList<Mod>();
 		newStageCentre = new Vec(400,400);
 		stageCentre = new Vec(400, 400);
 		
-		pointer = new ChargePoint(new Vec(0,0), 1.0, ColourCategory.NEUTRAL, Charger.REPULSE_ALL);
+		pointer = new Mod(new Vec(0,0), 1.0, ColourCategory.NEUTRAL, Charger.REPULSE_ALL);
 		
 		listOfCollisionPoints = new ArrayList<Vec>();
 		
@@ -93,7 +94,7 @@ public class World implements Runnable{
 		blobs.addAll(newBlobs);		
 		newBlobs.clear();
 		
-		charges.addAll(newCharges);
+		mods.addAll(newCharges);
 		newCharges.clear();
 		
 		stageCentre = new Vec(newStageCentre);
@@ -119,11 +120,13 @@ public class World implements Runnable{
 			} else {
 				drag = new Vec(0, gravity);
 			}
-			// account for charges
-			for (ChargePoint c : charges) {				
+			
+			// add influence of mods
+			for (Mod c : mods) {				
 				c.charge(b);
 			}
 			
+			//TODO: pointer
 			if (repulseFromPointer) {
 				// extra ChargePoint with position equal to mouse pointer position
 				if (mouseInside) {
@@ -132,7 +135,7 @@ public class World implements Runnable{
 			}		
 			
 			
-			b.update(timeInterval, drag);
+			b.update(timeStep, drag);
 		}
 		
 		
@@ -152,8 +155,8 @@ public class World implements Runnable{
 	}
 	
 	public FrameData makeSnapshot() {
-		return new FrameData(blobs, charges, listOfCollisionPoints,
-				gravity, timeInterval, minX, minY, maxX, maxY);
+		return new FrameData(blobs, mods, listOfCollisionPoints,
+				gravity, timeStep, minX, minY, maxX, maxY);
 	}
 	
 	private void executeCommandList() {
@@ -175,11 +178,11 @@ public class World implements Runnable{
 				blobs.clear();
 				break;
 			case KILL_CHARGES:
-				charges.clear();
+				mods.clear();
 				break;
 			case KILL_LAST_CHARGE:
-				if (!charges.isEmpty()) {
-					charges.remove(charges.size() - 1);
+				if (!mods.isEmpty()) {
+					mods.remove(mods.size() - 1);
 				}
 				break;
 			case KILL_VELOCITIES:
@@ -196,11 +199,11 @@ public class World implements Runnable{
 			case SWITCH_COLLISION_DETECTION:
 				switchCollisonDetections();
 				break;
-			case SWITCH_CHARGE_COLOURS:
-				switchChargeColourCategories();
+			case SWITCH_MOD_COLOURS:
+				switchModColourCategories();
 				break;
-			case SWITCH_CHARGE_TYPES:
-				switchChargeTypes();
+			case SWITCH_MOD_TYPES:
+				switchModTypes();
 				break;
 			case VELOCITIES_MULTIPLY_BY:
 				for (Blob b : blobs) {
@@ -235,9 +238,9 @@ public class World implements Runnable{
 		System.out.println("Col. det. set to " + colFlag.name());
 	}
 	
-	private void switchChargeTypes() {
+	private void switchModTypes() {
 		Charger ch;
-		for (ChargePoint c : charges) {
+		for (Mod c : mods) {
 			ch = c.getType();
 			
 			if (ch.ordinal() == Charger.values().length-1)
@@ -245,11 +248,12 @@ public class World implements Runnable{
 			else
 				c.setType(Charger.values()[ch.ordinal()+1]);
 		}
+		
 	}
 	
-	private void switchChargeColourCategories() {
+	private void switchModColourCategories() {
 		ColourCategory cc;		
-		for (ChargePoint c : charges) {
+		for (Mod c : mods) {
 			cc = c.getColourCategory();
 			
 			if (cc.ordinal() >= ColourCategory.values().length-2)// "-2" - eliminating NEUTRAL
@@ -261,16 +265,16 @@ public class World implements Runnable{
 
 	
 		public void speedUp() {
-			timeInterval *= timeIntervalStep;
-			System.out.println("timeInterval: " + timeInterval);
+			timeStep *= timeStepDelta;
+			System.out.println("timeInterval: " + timeStep);
 		}
 		public void speedDown() {
-			timeInterval *= 1/timeIntervalStep;
-			System.out.println("timeInterval: " + timeInterval);
+			timeStep *= 1/timeStepDelta;
+			System.out.println("timeInterval: " + timeStep);
 		}
 
-	public void setTemperature(double value) {
-		timeInterval = value;
+	public void setStep(double value) {
+		timeStep = value;
 	}
 		public void gravityUp() {
 			gravity *= gravityDelta;
@@ -304,7 +308,7 @@ public class World implements Runnable{
 		}
 	}
 	
-	public void addCharge(ChargePoint ch) {
+	public void addCharge(Mod ch) {
 		newCharges.add(ch);
 	}
 	
@@ -354,13 +358,13 @@ public class World implements Runnable{
 	}
 	
 	public static double getTimeInterval() {
-		return timeInterval;
+		return timeStep;
 	}
 	public void setTimeInterval(double timeInterval) {
-		this.timeInterval = timeInterval;
+		this.timeStep = timeInterval;
 	}
-	public List<ChargePoint> getCharges() {
-		return this.charges;
+	public List<Mod> getCharges() {
+		return this.mods;
 	}
 	public void updatePointer(double x, double y) {
 		pointer.getPosition().setXY(x, y);		
@@ -427,10 +431,10 @@ public class World implements Runnable{
 		
 		//this.blobs.add(newDataSet.blobs.get(0));
 		//initData(1);
-		this.charges = new ArrayList<ChargePoint>(newDataSet.charges);
+		this.mods = new ArrayList<Mod>(newDataSet.charges);
 		//this.collisions = 
 		this.gravity = newDataSet.gravity;
-		this.timeInterval = newDataSet.speed;
+		this.timeStep = newDataSet.speed;
 		this.minX = newDataSet.minX;
 		this.minY = newDataSet.minY;
 		this.maxX = newDataSet.maxX;

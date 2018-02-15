@@ -10,8 +10,9 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import app.InputReceiver;
-import data.ChargePoint.Charger;
+import data.Mod.Charger;
 import view.Stage;
+import view.State;
 
 @SuppressWarnings("serial")
 class ControlButtonsJPanel extends JPanel implements InputProvider, StageAccesser {
@@ -50,12 +51,16 @@ class ControlButtonsJPanel extends JPanel implements InputProvider, StageAccesse
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JButton b = (JButton)e.getSource();
-				if (b.getText() == "Edges: wrapped") {
+				
+				//if (b.getText() == "Edges: wrapped") {
+				if ((boolean)State.get("edgesBouncy")) {
 					b.setText("Edges: bouncy");
 					dispatchChange("unwrapEdges");
+					State.put("edgesBouncy", true);
 				} else {
 					b.setText("Edges: wrapped");
 					dispatchChange("wrapEdges");
+					State.put("edgesBouncy", false);
 				}
 							
 			}
@@ -64,15 +69,25 @@ class ControlButtonsJPanel extends JPanel implements InputProvider, StageAccesse
 		
 		JButton gravityB = new JButton("Switch gravity");
 		gravityB.addActionListener(new ActionListener() {
-			final boolean [] flag = {true};
+//			final boolean [] flag = {true};
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				if (flag[0]) {
+//					dispatchChange("gravityCentre");
+//					flag[0] = false;
+//				} else {
+//					dispatchChange("gravityDown");
+//					flag[0] = true;
+//				}			
+//			}
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (flag[0]) {
+				if ((boolean)State.get("gravityInCentre")) {
 					dispatchChange("gravityCentre");
-					flag[0] = false;
+					State.put("gravityInCentre", false);
 				} else {
 					dispatchChange("gravityDown");
-					flag[0] = true;
+					State.put("gravityInCentre", true);
 				}			
 			}
 		});
@@ -121,11 +136,16 @@ class ControlButtonsJPanel extends JPanel implements InputProvider, StageAccesse
 			//create confirmation dialog
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (lockSidesB.getText().equals("Auto-zoom to window size")) {
+				//if (lockSidesB.getText().equals("Auto-zoom to window size")) {
+				if((boolean)State.get("zoomToWindow")) {
+					State.put("zoomToWindow", false);
+					State.put("drawSideWalls", true);
 					dispatchChange("lockSides");
 					lockSidesB.setText("Interact with window edges");
 					lockSidesB.setToolTipText("Auto-zooming to match window.\nZooming or window resizing will not affect the action");
 				} else {
+					State.put("zoomToWindow", true);
+					State.put("drawSideWalls", false);
 					lockSidesB.setText("Auto-zoom to window size");				
 					lockSidesB.setToolTipText("Window frame interacts with the content");
 					dispatchChange("unlockSides");
@@ -222,15 +242,19 @@ class ControlButtonsJPanel extends JPanel implements InputProvider, StageAccesse
 		switch (in) {
 		case "wrapEdges":
 			ir.wrapEdges();
+			State.put("edgesBouncy", false);
 			break;
 		case "unwrapEdges":
 			ir.unwrapEdges();
+			State.put("edgesBouncy", true);
 			break;
 		case "gravityDown":
 			ir.gravityDown();
+			State.put("gravityInCentre", false);
 			break;
 		case "gravityCentre":
 			ir.gravityCentre();
+			State.put("gravityInCentre", true);
 			break;
 		case "collisions":
 			ir.switchCollisions();
@@ -238,10 +262,12 @@ class ControlButtonsJPanel extends JPanel implements InputProvider, StageAccesse
 		case "unlockSides":
 			ir.lockStageSidesToWindow(true);
 			stage.setAutoZoom(false);//########################################stage
+			//State.put("zoomToWindow", false);
 			break;
 		case "lockSides":
 			ir.lockStageSidesToWindow(false);
 			stage.setAutoZoom(true);//#########################################stage
+			//State.put("zoomToWindow", true);
 			break;
 		case "halt":
 			ir.multiplyVelocitiesBy(0);

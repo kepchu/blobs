@@ -11,14 +11,14 @@ public class FrameData implements Serializable {
 	private static final long serialVersionUID = 0L;
 	
 	public final List<Blob> blobs;
-	public final List<ChargePoint> charges;
+	public final List<Mod> charges;
 	public final List<Vec> collisions;
 	public final double gravity;
 	public final double speed;
 	public final int minX, minY, maxX, maxY;
 	
 	//DEEP COPY during instantiation
-	public FrameData(List<Blob> blobs, List<ChargePoint> charges, List<Vec> collisions,
+	public FrameData(List<Blob> blobs, List<Mod> charges, List<Vec> collisions,
 			double gravity, double speed, int minX, int minY, int maxX, int maxY) {
 		super();
 		this.blobs = cloneBlobs(blobs);
@@ -40,10 +40,10 @@ public class FrameData implements Serializable {
 		}
 		return result;
 	}
-	private List<ChargePoint> cloneCharges(List<ChargePoint> charges) {
-		List<ChargePoint> result = new ArrayList<ChargePoint>(charges.size());
-		for (ChargePoint c : charges) {
-			result.add(new ChargePoint(c));
+	private List<Mod> cloneCharges(List<Mod> charges) {
+		List<Mod> result = new ArrayList<Mod>(charges.size());
+		for (Mod c : charges) {
+			result.add(new Mod(c));
 		}
 		return result;
 	}

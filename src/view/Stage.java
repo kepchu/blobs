@@ -12,7 +12,7 @@ import javax.swing.SwingUtilities;
 
 import data.Blob;
 import data.BufferableFrames;
-import data.ChargePoint;
+import data.Mod;
 import data.FrameData;
 import data.Vec;
 
@@ -29,14 +29,14 @@ public class Stage extends JPanel{
 
 	private Vec pointerPosition = new Vec(0,0);
 	
+	private final int MAX_ANIMATED_RADIUS = 100;
+	int contractingRadius = MAX_ANIMATED_RADIUS;
 	
-
 	StageCamera camera;
 	
 	//SETTINGS //TODO - A HASH-MAP
-	private boolean setDrawSideWalls;
-	private boolean setDarkMode;
-	private boolean setDrawingMode;//TODO: draw from previous positions to new & don't erase
+	private final boolean DRAW_CIRCUMFERENCE = false, TAG_BLOBS = false;
+	private boolean setDrawingMode;//TODO: draw from previous positions to new & gradually like coll. points
 	
 	
 	public Stage(BufferableFrames displayBuffer) {
@@ -48,9 +48,15 @@ public class Stage extends JPanel{
 
 	}
 
+	//called from View controller
+	public void initFinished() {				
+		this.addComponentListener(camera);//TODO - move to constr.
+		camera.resetDimentions(getWidth(), getHeight());		
+	}
 	
 	// DRAWING ROUTINE
-	//ISSUE: paint called by system before setData call - this produces NullPointer
+	// paint method used as the "main loop".
+	// Synchronisation by "getFrame()" and "andvanceFrame()" calls;
 	public void paint(Graphics g) {
 		//retrieve frame data
 		frame = displayBuffer.getFrame();
@@ -62,63 +68,43 @@ public class Stage extends JPanel{
 		//validate/update camera position
 		camera.update();
 		
-		
+		//draw things
 		Graphics2D g2d = (Graphics2D) g;
-		
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		
-		//TODO: proper enum enumerating drawing complexity with appropriate drawing methods
-		
-		
+			
 		// calls to methods that draw specific elements
 		drawBackground(g2d);//TODO: generate some background to be scrolled when window is moved
-		drawRuler(g2d);
+		//drawRuler(g2d);
 		//the below methods use data object
 		
 		drawBlobs(g2d);
-		
-		
-		
+	
 		drawBorders(g2d);
-		
-		
+				
 		drawCharges(g2d);
 		
 		drawInfo(g2d);
+		
+		//ready for next frame
 		displayBuffer.advanceFrame();
 	}
 	
-	// methods used by the drawing routine in paint (Graphics g)
+	// methods used by the drawing routine in paint(Graphics g)
 	private void drawBackground(Graphics2D g) {
-		if (true) {
-			g.setColor(new Color(227, 227, 226, 255));
-			g.fillRect(0, 0, camera.width, camera.height);
-			g.setColor(new Color(243, 243, 243, 255));
-			//g.fillOval(20, 20, camera.width - 40, camera.height - 40);
-			g.fillOval(0, 0, camera.width, camera.height);
-		} else {
-			
-			g.setColor(new Color(255-243, 255-243, 255-243, 255));
+		if((boolean)State.get("drawingMode")) return;		
+		if ((boolean)State.get("darkMode")) {
+			//g.setColor(new Color(255-243, 255-243, 255-243, 255));
+			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, camera.width, camera.height);
 			g.setColor(new Color(255-227, 255-227, 255-226, 255));
 			g.fillOval(20, 20, camera.width - 40, camera.height - 40);
-		}	
-	}
-
-	private void drawRuler(Graphics2D g) {
-
-		int spacing = 200;
-		
-		spacing = (int)(spacing * camera.scale);
-		
-		for (int i = 0; i < camera.elevation; i = i + spacing) {
-			g.setColor(Color.BLACK);
-			g.drawLine(camera.width / 4, (int)camera.elevation - i,
-						(camera.width / 4) * 3, (int)camera.elevation - i);
-			g.drawString(i + " pix", camera.width / 4, (int)camera.elevation - i - 4);
-			g.setColor(Color.GRAY);
-			g.drawLine(camera.width / 3, (int)camera.elevation - i - spacing / 2, (camera.width / 3) * 2, (int)camera.elevation - i - spacing / 2);
+		} else {
+			g.setColor(new Color(227, 227, 226, 255));
+			g.fillRect(0, 0, camera.width, camera.height);
+			g.setColor(new Color(243, 243, 243, 255));
+			g.fillOval(20, 20, camera.width - 40, camera.height - 40);
+			//g.fillOval(0, 0, camera.width, camera.height);			
 		}	
 	}
 
@@ -134,7 +120,7 @@ public class Stage extends JPanel{
 		
 		g.fillRect(0, ground, camera.width, camera.height - ground);
 		
-		if(true) {//drawSideWalls) {
+		if((boolean)State.get("drawSideWalls")) {//drawSideWalls) {
 			g.fillRect(0, 0, leftEdge, camera.height);
 			g.fillRect(rightEdge, 0, camera.width, camera.height);
 		}
@@ -147,53 +133,29 @@ public class Stage extends JPanel{
 	
 	private void drawBlobs(Graphics2D g) {
 		
-		int medDrawingSize = 2;
-		int fullDrawingSize = 50000;//30;
-		int minTaggingSize = 50000;//50;		
+		int minRadius = 1;//radius scaled to smaller length it will be drawn with length of minRadius
+		int halfFontHeight = 4;//used to align tag's centre with blob's centre (vertically);
 		
 		for (Blob b : frame.blobs) {
-			int radius = (int)(b.getRadius() * camera.scale);
-			
-			//Subtracting radius to accommodate to drawOval method
-			//(where position denotes top left corner rather than centre)
-			g.setColor(b.getColour().getColor());
-			
-			int offsetX = camera.scaleX(b.getPosition().getX());
-			int offsetY = camera.scaleY(b.getPosition().getY());
-			
-			
-//			if(radius <= medDrawingSize) {
-//				//draw just a point
-//				g.drawLine(offsetX, offsetY, offsetX, offsetY);
-//				continue;
-//			}
-			
-			
-			int circumference = radius + radius;
-			if(radius <= medDrawingSize) {
-				//draw something bigger
-				g.fillOval(offsetX - circumference, offsetY - circumference, circumference *2, circumference*2);
-				continue;
-			}
-					
-			//Subtracting radius to accommodate to drawOval method
-			//(where position denotes top left corner rather than centre)
-			g.fillOval(offsetX - radius, offsetY - radius, circumference, circumference);
-			
-			if(radius < fullDrawingSize) {//bailout
-				continue;
-			}	
-	
-			//drawReflectionOnBlob(g, offsetX, offsetY, radius);
-			
 				
-			g.setColor(Color.BLACK);
-			g.drawOval(offsetX - radius, offsetY - radius, circumference, circumference);
+			g.setColor(b.getColour().getColor());
+			int x = camera.scaleX(b.getPosition().getX());
+			int y = camera.scaleY(b.getPosition().getY());
+			//apply minimal drawing size
+			int radius = Math.max((int)(b.getRadius() * camera.scale), minRadius);
+			int circumference = radius + radius;
+			//Subtracting radius to accommodate to drawOval method
+			//(where position denotes top left corner rather than centre)
+			g.fillOval(x - radius, y - radius, circumference, circumference);
 			
-			//TODO:
-			if (radius > minTaggingSize) {
-				//g.drawString(b.getID() + ", " + b.getColour().getCategory(), offsetX + radius, (int)(offsetY + radius * 1.5));
-				g.drawString(b.toString(),offsetX, (int)(offsetY + radius/2));
+			if (DRAW_CIRCUMFERENCE) {				
+				g.setColor(Color.BLACK);
+				g.drawOval(x - radius, y - radius, circumference, circumference);
+			}
+			
+			if(TAG_BLOBS) {
+				g.setColor(Color.BLACK);
+				g.drawString(Integer.toString(b.ID),x, y+halfFontHeight);
 			}
 		}
 	}
@@ -221,39 +183,40 @@ public class Stage extends JPanel{
 	
 	private void drawCharges (Graphics2D g) {
 		
-		int x,y;
-		for (ChargePoint c : frame.charges) {
-			g.setColor(c.getColourCategory().getDefaultCategoryColor());
-			x = camera.scaleX(c.getPosition().getX()); 
-			y = camera.scaleY(c.getPosition().getY());
-			g.drawString(c.toString(), x, y);
-		}
-//		g.setColor(Color.BLACK);
-//		int width = 10, height = 10;
-//		int x,y;
-//		for (ChargePoint c : frame.getCharges()) {
-//			x = scaleX(c.getPosition().getX() - width/2); 
-//			y = scaleY(c.getPosition().getY() - height/2);
-//			g.fillRect(x, y, (int)(width * scale),(int)(height * scale));
+		int step = 5;
+		int pauseTime = -240 * step;
+		
+//		boolean animate = false;		
+//		if (radiusPauseCounter < 0) {
+//			if (expandingRadius < MAX_ANIMATED_RADIUS) {
+//				expandingRadius += step;
+//				contractingRadius = MAX_ANIMATED_RADIUS - expandingRadius;
+//				animate = true;
+//			} else {
+//				expandingRadius = 0;
+//				radiusPauseCounter = pauseTime;			
+//			}
+//		}else {
+//			radiusPauseCounter--;
 //		}
-	}
-	
-	private void drawCollisions(Graphics2D g) {
-		g.setColor(new Color(0,255,255,100));
-		int circumference = 6;
-		int maxNumberOfDrawnCollisions = 300;
-				
-		//draw last maxNumberOfDrawnCollisions from listOfCollisionPoints
-		int i = 0;
-		for (Vec c: frame.collisions) {
-			int offsetX = camera.scaleX(c.getX()) - circumference/2;
-			int offsetY = camera.scaleY(c.getY()) - circumference/2;			
-			g.fillOval(offsetX, offsetY, circumference, circumference);
+		
+		if (contractingRadius < pauseTime) contractingRadius = MAX_ANIMATED_RADIUS;
+		contractingRadius-= step;	
+		int expandingRadius = MAX_ANIMATED_RADIUS - contractingRadius;
+		
+		for (Mod c : frame.charges) {
+			g.setColor(c.getColourCategory().getDefaultCategoryColor());
+			int x = camera.scaleX(c.getPosition().getX()); 
+			int y = camera.scaleY(c.getPosition().getY());
+			g.drawString(c.toString(), x, y);
 			
-			if(++i > maxNumberOfDrawnCollisions) {break;}
+			
+			if (contractingRadius > 0) {
+				g.drawOval(x-contractingRadius, y-contractingRadius,contractingRadius*2, contractingRadius*2);
+				g.drawOval(x-expandingRadius, y-expandingRadius,expandingRadius*2, expandingRadius*2);
+			}
 		}
 	}
-
 	
 	private void drawInfo(Graphics2D g) {
 		int x = 20, y = 20;
@@ -269,10 +232,10 @@ public class Stage extends JPanel{
 		g.drawString("Modify Charges: [C] & [SHIFT] + [C]", x, y+96);
 		g.drawString("(De)activate mouse pointer: [middle-click] (mouse wheel click)", x, y+108);
 	}
-
+	//Drawing methods - END
+	
 	//CAMERA#############################################
 	public void setAutoZoom(boolean autoZoom) {
-		this.setDrawSideWalls = autoZoom;
 		camera.setAutoRescalingToWidth(autoZoom);
 	}
 		
@@ -301,21 +264,12 @@ public class Stage extends JPanel{
 	}
 
 	public void updatePointerPosition (int x, int y) {
-		pointerPosition.setXY(x, y);
-		camera.pp.setXY(x,y);
+		pointerPosition.setXY(x, y);//TODO: pointer to camera?
 	}
 //CAMERA end
 	
 	public FrameData getFrame () {
 		return frame;
 	}
-	//called from View controller
-	public void initFinished() {		
-		//camera.height = camera.elevation = getHeight();
-		this.addComponentListener(camera);//TODO - move to constr.
-		//camera.componentResized(null);//??
-		camera.resetDimentions(getWidth(), getHeight());
-		//camera.update();
-	}
-
+	
 }

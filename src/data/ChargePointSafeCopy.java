@@ -6,7 +6,7 @@ import collisions.Collidable;
 import data.Colour.ColourCategory;
 
 //attraction/repulsion point
-public class ChargePoint implements Serializable{
+public class ChargePointSafeCopy implements Serializable{
 	
 	/**
 	 * 
@@ -15,7 +15,7 @@ public class ChargePoint implements Serializable{
 
 	public enum Charger {
 		COLOUR_CATEGORY_ABSOLUTE {
-			public void charge(Blob b, ChargePoint c) {
+			public void charge(Blob b, ChargePointSafeCopy c) {
 				if (c.colourCategory == ColourCategory.NEUTRAL) {
 					Vec chargeInfluence = Vec.vecFromAtoB(b.getPosition(), c.position);
 					chargeInfluence.setMagnitude(c.power * World.getTimeInterval());
@@ -40,7 +40,7 @@ public class ChargePoint implements Serializable{
 			
 		},
 		COLOUR_COMPONENT {
-			public void charge(Blob b, ChargePoint c) {
+			public void charge(Blob b, ChargePointSafeCopy c) {
 				Vec chargeInfluence = Vec.vecFromAtoB(b.getPosition(), c.position);
 				chargeInfluence.setMagnitude(c.power * World.getTimeInterval());
 
@@ -72,7 +72,7 @@ public class ChargePoint implements Serializable{
 			}
 		},
 		COLOUR_CATEGORY_COMPONENT_WEIGHTED {
-			public void charge(Blob b, ChargePoint c) {
+			public void charge(Blob b, ChargePointSafeCopy c) {
 
 				if (c.colourCategory == b.getColourCategory()) {
 					Vec chargeInfluence = Vec.vecFromAtoB(b.getPosition(), c.position);
@@ -88,7 +88,7 @@ public class ChargePoint implements Serializable{
 		},
 		
 		REPULSE_ALL {
-			public void charge(Blob b, ChargePoint c) {
+			public void charge(Blob b, ChargePointSafeCopy c) {
 				
 				double range = 1000;
 				
@@ -109,7 +109,7 @@ public class ChargePoint implements Serializable{
 			}
 		},
 		RING {
-			public void charge(Blob b, ChargePoint c) {
+			public void charge(Blob b, ChargePointSafeCopy c) {
 				double range = 3000;
 				
 				Vec chargeInfluence = Vec.vecFromAtoB(c.position, b.getPosition());
@@ -129,7 +129,7 @@ public class ChargePoint implements Serializable{
 		};
 		
 		
-		public void charge(Blob b, ChargePoint c) {
+		public void charge(Blob b, ChargePointSafeCopy c) {
 			System.out.println("Charger: root charge method");
 		}
 		
@@ -142,7 +142,7 @@ public class ChargePoint implements Serializable{
 	private ColourCategory colourCategory;
 	private Charger charger;
 	//cloning constructor
-	public ChargePoint(ChargePoint c) {
+	public ChargePointSafeCopy(ChargePointSafeCopy c) {
 		this.position = c.position;
 		this.power = c.power;
 		this.ID = c.ID;
@@ -150,7 +150,7 @@ public class ChargePoint implements Serializable{
 		this.charger = c.charger;
 	}
 	
-	public ChargePoint(Vec position, double power, ColourCategory colourCategory, Charger ch) {
+	public ChargePointSafeCopy(Vec position, double power, ColourCategory colourCategory, Charger ch) {
 		this.ID = ++staticID;
 		this.position = position;
 		this.power = power;

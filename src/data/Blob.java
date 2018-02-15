@@ -14,19 +14,23 @@ public class Blob implements Collidable, Serializable {
 	public final int ID;
 	private Vec position;
 	private Vec previousPosition;
-	private Vec velocity;
+	private Vec velocity;//affected by gravity and all the bouncing
+	private Vec redirection;//affected by mods, added to velocity every frame
 	private double energy;
-	private double radius = 0;
-	private double previousRadius = 0;
-	
+	private double radius;
+	private double previousRadius;
+	//private double radiusDisplay;//Not in use now
 	private Colour colour;
 	private BlobType type;
 	private BlobPhase phase;
 	private ColliderType colliderType;
 	private boolean colDetDone;
 	// Settings:
-	private double newbornInflationSpeed;// = 15.0;
+	private final double newbornInflationSpeed;// = 15.0;
 	private final double maxVelocity = 50;
+	private final double maxVelocityPOW = maxVelocity*maxVelocity;
+	private final double maxRedirection = 5;//MAx gravity, but settings in the slider values... TODO!
+	private final double maxRedirectionPOW = maxRedirection * maxRedirection;
 	private final double maxInflationSpeed = 5.0;
 	private final int startingRadius = 1;
 	private final double bounceDampeningFactor = 0.9;
@@ -41,9 +45,11 @@ public class Blob implements Collidable, Serializable {
 		this.position = new Vec(b.position);
 		this.previousPosition = new Vec(b.previousPosition);
 		this.velocity = b.velocity;
+		this.redirection = b.redirection;
 		this.energy = b.energy;
 		this.radius =b.radius;
 		this.previousRadius= b.previousRadius;
+		//this.radiusDisplay = b.radiusDisplay;
 		
 		this.colour = new Colour(b.getColour());
 		this.type = b.type;	
@@ -59,6 +65,7 @@ public class Blob implements Collidable, Serializable {
 		this.position = position;
 		this.previousPosition = new Vec (position);
 		this.velocity = velocity;
+		this.redirection = new Vec(0,0);
 		this.energy = energy;
 		this.colour = new Colour();
 		// settings
@@ -117,15 +124,24 @@ public class Blob implements Collidable, Serializable {
 
 	//@SuppressWarnings("unused")
 	private void updateAllStates(double timeInterval) {
-		//reset collision state
+		//reset
 		setColDetDone(false);
+			
+		//cap sum of redirection forces for this frame and add to velocity
+		if (redirection.getMagnitudePOW() > maxRedirectionPOW) {		
+			redirection.setMagnitude(maxRedirection);				
+			System.out.println("red. capped at " + maxRedirection);
+		}
+		//System.out.println("red. f. " + redirection.getMagnitude());
+		velocity.addAndSet(redirection);
+		redirection.setXY(0,0);
 		
-		// cap speed and update position
-		if (velocity.getMagnitude() > maxVelocity) {
-			//System.out.println(this + " MAXED");
+		// cap speed 
+		if (velocity.getMagnitudePOW() > maxVelocityPOW) {		
 			velocity.setMagnitude(maxVelocity);
 		}
 		
+		//update position
 		//TIME INTERVAL APPLIED TODO: change position via mutator method that would update previousPosition...
 		previousPosition.setXY(position);
 		position.addAndSet(velocity.multiply(stageFriction * timeInterval));		
@@ -154,14 +170,18 @@ public class Blob implements Collidable, Serializable {
 	}
 
 	private void updateOUT(double timeIntrval) {
-		// update radius	
-		if (Math.abs(radius - energy) > maxInflationSpeed) {
+		// update radius
+		if (radius == previousRadius) return;//nothing to do
+		
+		//animate radius (== actually change its length)
+		if (Math.abs(radius - energy) > maxInflationSpeed) {//TODO: spaghetti code
 			if (energy > radius) {
 				setRadius (radius + Math.min(maxInflationSpeed * timeIntrval, maxInflationSpeed));
 			} else if (energy < radius){
 				setRadius (radius - Math.min(maxInflationSpeed * timeIntrval, maxInflationSpeed));
 			}
-		} else {
+		}
+		else {
 			setRadius(energy);
 		}
 	}
@@ -174,7 +194,7 @@ public class Blob implements Collidable, Serializable {
 		return ID;
 	}
 	public double getMass() {
-		return energy*2;
+		return Math.pow(energy, 1.5);
 	}
 	
 	public Vec getVelocity() {
@@ -182,10 +202,17 @@ public class Blob implements Collidable, Serializable {
 	}
 
 	public void setVelocity(Vec velocity) {
-		//this.velocity = velocity.multiply(1.0/energy);
 		this.velocity = velocity;
 	}
 
+	public Vec getRedirection() {
+		return redirection;
+	}
+
+	public void setRedirection(Vec redirection) {
+		this.redirection = redirection;
+	}
+	
 	public Vec getPreviousPosition() {
 		return previousPosition;
 	}
@@ -225,14 +252,23 @@ public class Blob implements Collidable, Serializable {
 	public double getRadius() {
 		return radius;
 	}
-
-	public double getBounceDampeningFactor() {
-		return bounceDampeningFactor;
-	}
-
+	
 	public void setRadius(double radius) {
 		previousRadius = this.radius;
 		this.radius = radius;
+//		this.radiusDisplay = radius;
+	}
+	
+//	public double getDisplayRadius() {
+//		return this.radiusDisplay;//radius * velocity.getMagnitude();
+//	}
+//	
+//	public void setDisplayRadius(double radiusDisplay) {
+//		this.radiusDisplay = radiusDisplay;
+//	}
+	
+	public double getBounceDampeningFactor() {
+		return bounceDampeningFactor;
 	}
 
 	public BlobType getType() {
