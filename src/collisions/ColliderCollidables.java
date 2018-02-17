@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import data.Vec;
-import view.Stage;
 
-public class ColliderCollidables {
+class ColliderCollidables {
 
 	Scanner s;
 	public ColliderCollidables() {
@@ -21,12 +20,11 @@ public class ColliderCollidables {
 	}
 
 	void bounceCollidablesss(Collidable subj, Collidable obj) {
-		// TODO: tagging instead of simple removal from input list (can be used for
-		// visual cues and logic)
-		// Will switch later from boolean tags to location of collision.
 		subj.setColDetDone(true);
 		obj.setColDetDone(true);
-
+		// TODO: tagging instead of simple removal from input list (can be used for
+		// visual cues and logic)
+		// Will switch later from boolean tags to location of collision
 		
 		// TODO: velocity will be changed to force (generally speed * mass but maybe
 		// some per/colour variations of "mass")

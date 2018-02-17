@@ -5,14 +5,38 @@ import java.util.Random;
 public class U {
 	//https://stackoverflow.com/questions/738629/math-random-versus-random-nextintint
 	private static Random r = new Random();
+		
+	private static int minX, maxX, minY, maxY;
+	//min & max for all wrap methods are IN the range (inclusive)
+	public static void setLimitsWrapX(int min, int max) {
+		if (max < min) throw new IllegalArgumentException("max is lower than min");
+		minX = min; maxX = max;
+	}
+	public static void setLimitsWrapY(int min, int max) {
+		if (max < min) throw new IllegalArgumentException("min is greater than max");
+		minY = min; maxY = max;
+	}
 	
+	static public int x(int value) {
+		if (minX == maxX) return minX;
+		if (value < minX) return maxX - ((minX - value) % (maxX - minX));
+		if (value > maxX) return minX + ((value - maxX) % (maxX - minX));
+		return value;
+	}
+	
+	static public int y(int value) {
+		if (minY == maxY) return minY;
+		if (value < minY) return maxY - ((minY - value) % (maxY - minY));
+		if (value > maxY) return minY + ((value - maxY) % (maxY - minY));
+		return value;
+	}
 	
 	public static double wrapRGB(double value) {
 		return wrap(value, 0, 255);
 	}
 	public static double wrap(double value, double min, double max) {
 		//maxY - minY == "span" or range; value transgressing the range at "max"
-		//side is be positioned at min + its transgression. The same other way around
+		//side is positioned at min + its transgression. The same other way around
 		//result: looping the value; example: screen edges in Asteroids
 		if (value < min) return max - ((min - value) % (max - min));
 		if (value > max) return min + ((value - max) % (max - min));

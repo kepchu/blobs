@@ -4,9 +4,9 @@ import java.util.List;
 
 import data.Vec;
 
-public class DetStandard implements Detection {
+class DetStandard implements Detection {
 	
-	double currentDistance;
+	double currentDistancePOW;
 	Vec subjToObj;
 	
 	public DetStandard () {
@@ -30,10 +30,10 @@ public class DetStandard implements Detection {
 			//vector pointing from subj to obj
 			subjToObj = obj.getPosition().sub(subj.getPosition());
 			//length of the vector
-			currentDistance = subjToObj.getMagnitudePOW();//.getMagnitude();
+			currentDistancePOW = subjToObj.getMagnitudePOW();
 			
 			// if (sub and obj are overlapping)
-			if (currentDistance < Math.pow(subj.getRadius() + obj.getRadius(), 2)) {
+			if (currentDistancePOW < Math.pow(subj.getRadius() + obj.getRadius(), 2)) {
 				
 				correctOverlapping(subj, obj);
 				
@@ -49,7 +49,7 @@ public class DetStandard implements Detection {
 						subj.getPreviousPosition(),
 						obj.getPreviousPosition());
 								
-				if (currentDistance < previousDistance) {
+				if (currentDistancePOW < previousDistance) {
 				//if (futureDistance < actualDistance) {
 					return new Collidable[] {subj, obj};
 				}
@@ -63,9 +63,16 @@ public class DetStandard implements Detection {
 		//this method moves subject away from object in the direction of fromObjToSub
 		//for the length that make both collidees touch at the time the collision was detected (just now)
 		//(so pretty bad)
-		double overlap = (subj.getRadius() + obj.getRadius()) - Math.sqrt(currentDistance);
+		double overlap = (subj.getRadius() + obj.getRadius()) - Math.sqrt(currentDistancePOW);
 		Vec displacement = subjToObj.withMagnitudeOf(overlap);
-		subj.getPosition().subAndSet(displacement);
+		if (subj.getRadius() <= obj.getRadius()) {
+			subj.getPosition().subAndSet(displacement);
+			//obj.getVelocity().addAndSet(displacement);//!
+			
+		} else {
+			obj.getPosition().addAndSet(displacement);
+			//subj.getVelocity().subAndSet(displacement);//!
+		}
 	}
 	
 }

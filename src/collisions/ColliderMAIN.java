@@ -4,24 +4,18 @@ import java.util.List;
 
 import data.Vec;
 
-public class ProcessorOfCollisions {
+public class ColliderMAIN {
 	
-	private List<Vec> listOfCollisionPoints;
-	@SuppressWarnings("unused")
-	private double timeInterval;
 	private ColliderStageLimits colBorders;
 	private ColliderCollidables colBlobs;
-	private Collide collider;
 	private Detection detStandard;
 	private Detection detDebris;
 	private Detection detInward;
 
-	public ProcessorOfCollisions(List<Vec> listOfCollisionPoints, double timeInterval) {
-		this.listOfCollisionPoints = listOfCollisionPoints;
-		this.timeInterval = timeInterval;
+	public ColliderMAIN() {
+		
 		this.colBorders = new ColliderStageLimits();
 		this.colBlobs = new ColliderCollidables();
-		this.collider = new Collide();
 		this.detStandard = new DetStandard();
 		this.detDebris = new DetDebris();
 		this.detInward = new DetInward();
@@ -29,8 +23,10 @@ public class ProcessorOfCollisions {
 		System.out.println(this.getClass().getSimpleName());
 	}
 
-	public void doCollisions(List<Collidable> blobs, int minX, int maxX, int minY, int maxY,
+	public void doCollisions(List<Collidable> collidables, int minX, int maxX, int minY, int maxY,
 			double radiusFactor, ColFlag flag) {
+		
+		//System.out.println(collidables.size());
 		
 		Detection d = null;
 		switch(flag) {
@@ -50,18 +46,18 @@ public class ProcessorOfCollisions {
 			case FORCE_BOUNDED:
 				break;//to be implemented
 		}
+	
 		
-		
-		for (int i = 0; i < blobs.size(); i++) {
-			Collidable c = blobs.get(i);
-
+		for (int i = 0; i < collidables.size(); i++) {
+			Collidable c = collidables.get(i);
+			if (c.isColDetDone()) continue;
+						
 			//A. Interaction with scene/stage
 			colBorders.bounceOffGround(c, maxY, radiusFactor);
 			colBorders.wrapX(c, minX, maxX, radiusFactor);
 			// borders.wrapY(c, minY, maxY, radiusFactor);
 			// borders.wrapXY(c, minX, maxX, minY, maxY, radiusFactor);
-			
-			
+						
 			//B. Interaction with collidable objects
 			if(flag == ColFlag.DISABLE) {
 				continue;
@@ -70,17 +66,17 @@ public class ProcessorOfCollisions {
 			//detect collisions using selected logic
 			Collidable[] col = null;
 			if (d != null) {
-				col = colBlobs.detect(c, blobs, 1, d);
+				col = colBlobs.detect(c, collidables, 1, d);
 			} else {
 				switch(c.getColliderType()) {
 				case STANDARD:
-					col = colBlobs.detect(c, blobs, 1, detStandard);
+					col = colBlobs.detect(c, collidables, 1, detStandard);
 					break;
 				case DEBRIS:
-					col = colBlobs.detect(c, blobs, 1, detDebris);
+					col = colBlobs.detect(c, collidables, 1, detDebris);
 					break;
 				case INWARD:
-					col = colBlobs.detect(c, blobs, 1, detInward);
+					col = colBlobs.detect(c, collidables, 1, detInward);
 				case BOUNDED:
 				case DECORATION:
 					default:
@@ -88,11 +84,11 @@ public class ProcessorOfCollisions {
 				}			
 			}
 			
+			c.setColDetDone(true);
+			
+			
 			if (col == null)
 				continue;
-			
-			//newest collisions first in order to clarify display code
-			//listOfCollisionPoints.add(0, colBlobs.computeCollisionPoint(col[0], col [1]));
 			
 			//change direction
 			colBlobs.bounceCollidables(col[0], col [1]);

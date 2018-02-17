@@ -8,7 +8,7 @@ import data.World;
 import utils.U;
 import view.MAINViewAndInput;
 
-public class BlobsD5 {
+public class BlobsD6 {
 
 	private static void test() {
 		
@@ -36,10 +36,10 @@ public class BlobsD5 {
 		}
 
 		
-		int t = 0;
-		while (t++ < 500) {
-			System.out.println(U.wrapRGB(t));
-		}
+//		int t = 0;
+//		while (t++ < 500) {
+//			System.out.println(U.wrapRGB(t));
+//		}
 		
 	}
 
@@ -63,7 +63,7 @@ public class BlobsD5 {
 	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					new BlobsD5();
+					new BlobsD6();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -82,7 +82,7 @@ public class BlobsD5 {
 	
 	
 	
-	public BlobsD5 () {	
+	public BlobsD6 () {	
 		System.out.println("Blobs01 thread - " + Thread.currentThread().getName());
 		//MVC pattern variation
 		World dc = new World();

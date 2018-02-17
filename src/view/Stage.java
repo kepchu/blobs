@@ -61,7 +61,7 @@ public class Stage extends JPanel{
 		//retrieve frame data
 		frame = displayBuffer.getFrame();
 		if (frame  == null) {
-			System.out.println("Stage.paint(): no frame data to draw. Returning.");
+			//System.out.println("Stage.paint(): no frame data to draw. Returning.");
 			return;
 		}
 		

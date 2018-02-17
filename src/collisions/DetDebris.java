@@ -4,7 +4,7 @@ import static data.Vec.*;
 
 import java.util.List;
 
-public class DetDebris implements Detection{
+class DetDebris implements Detection{
 
 	@Override
 	public Collidable[] detectInteraction(Collidable subj, List<Collidable> objects, double radiusFactor) {

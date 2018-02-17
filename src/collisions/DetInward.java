@@ -5,7 +5,7 @@ import java.util.List;
 
 import data.Vec;
 
-public class DetInward implements Detection {
+class DetInward implements Detection {
 	//TODO:
 	//Note that eliminated bug was causing the last blobs velocity to be unaffected by collisions
 	//while the blob was influencing other blobs normally. This irregularity caused instability

@@ -5,7 +5,7 @@ import static data.Vec.vecFromAtoB;
 
 import data.Vec;
 
-public class Collide {
+class Collide {
 
 	Vec fromSubToObj;
 	Vec invVelSubj;

@@ -3,9 +3,10 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
-import collisions.ProcessorOfCollisions;
+import collisions.ColliderMAIN;
 import collisions.ColFlag;
 import collisions.Collidable;
+import collisions.MAINCollDetDispatcher;
 import data.Mod.Charger;
 import data.Colour.ColourCategory;
 import data.Command.Com;
@@ -50,12 +51,15 @@ public class World implements Runnable{
 	private boolean gravityInCentre;
 	private Vec newStageCentre;
 	
-	ProcessorOfCollisions colDet;
+	ColliderMAIN colDet;
 	private ColFlag colFlag;
 	private boolean mouseInside = true;
 	
 	private List <Command> commands;
 	private FrameData newDataSet;
+	
+	
+	MAINCollDetDispatcher dispatcher = new MAINCollDetDispatcher();
 	
 	public World () {
 		System.out.println("World constr. thread - " + Thread.currentThread().getName());
@@ -70,11 +74,12 @@ public class World implements Runnable{
 		newStageCentre = new Vec(400,400);
 		stageCentre = new Vec(400, 400);
 		
+		//TODO: build mechanism for moving & pasting mods.
 		pointer = new Mod(new Vec(0,0), 1.0, ColourCategory.NEUTRAL, Charger.REPULSE_ALL);
 		
 		listOfCollisionPoints = new ArrayList<Vec>();
 		
-		colDet = new ProcessorOfCollisions(getListOfCollisionPoints(), getTimeInterval());
+		colDet = new ColliderMAIN();
 		colFlag = ColFlag.DO_NOT_FORCE;
 	}
 	
@@ -100,15 +105,14 @@ public class World implements Runnable{
 		stageCentre = new Vec(newStageCentre);
 		
 		//1b - execute commands
-				if (!commands.isEmpty()) {
-					//commands list is a normal list and it may be accessed from other thread
-					//commands are issued from gui
-					//synchronized(LOCK) {
-						executeCommandList();
-						commands.clear();
-					//}
-						System.out.println("commands cleared");
-				}
+		if (!commands.isEmpty()) {
+			//commands list is a normal list and it may be accessed from other thread
+			//commands are issued from gui
+			synchronized(LOCK) {
+				executeCommandList();
+				commands.clear();
+			}
+		}
 		
 		// 1 a - update data in data structures
 		for (Blob b : blobs) {
@@ -141,7 +145,6 @@ public class World implements Runnable{
 		
 		// 1c - update world - collisions
 		colDet();
-
 		
 		// 2 - update display buffer (this thread is put to sleep when buffer is full)
 		if(VideoFrameCounter < VideoFrameLimit) {
@@ -219,11 +222,14 @@ public class World implements Runnable{
 	}
 	
 	private void colDet() {
-					//((ColDetect) collisionsArray[currentColl]).detectCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY);
-//					 try { Thread.sleep(100); } catch (InterruptedException e)
-//					 {e.printStackTrace(); }
-					colDet.doCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY,
-							defaultRadiusMultiplier, colFlag);
+		
+		if (false) {
+			colDet.doCollisions(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY,
+			defaultRadiusMultiplier, colFlag);
+		} else {
+			dispatcher.process(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY,
+			defaultRadiusMultiplier, colFlag);
+		}
 	}
 		
 	//Control interface
