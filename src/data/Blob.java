@@ -11,7 +11,10 @@ public class Blob implements Collidable, Serializable {
 	 */
 	private static final long serialVersionUID = 2L;
 	private static int staticID;
+	public static int longestRadius = Integer.MIN_VALUE;//updated in updateNEWBORN() when a blob is biggest (current "life-cycle)
 	public final int ID;
+	
+	
 	private Vec position;
 	private Vec previousPosition;
 	private Vec velocity;//affected by gravity and all the bouncing
@@ -157,6 +160,7 @@ public class Blob implements Collidable, Serializable {
 			setRadius(radius + (newbornInflationSpeed * timeInterval));
 			if (radius > inflationApex) {
 				phase = BlobPhase.NEWBORN_POST_APEX;
+				Blob.longestRadius = Math.max((int)this.radius+1, Blob.longestRadius);//+1 to be on save side
 			}	
 		}
 		// if inflationApex has been reached, deflate until below nominal size and then

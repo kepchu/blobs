@@ -228,7 +228,7 @@ public class World implements Runnable{
 			defaultRadiusMultiplier, colFlag);
 		} else {
 			dispatcher.process(new ArrayList<Collidable>(getBlobs()), minX, maxX, minY, maxY,
-			defaultRadiusMultiplier, colFlag);
+			Blob.longestRadius, colFlag);
 		}
 	}
 		
